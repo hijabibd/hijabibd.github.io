@@ -137,12 +137,13 @@ function call(fn, ...args){
     if(GAS){
       google.script.run
         .withSuccessHandler(r=>done_(r, resolve))
-        .withFailureHandler(e=>resolve({ok:false,message:(e&&e.message)?e.message:String(e)}))[fn](...args);
+        .withFailureHandler(e=>resolve({ok:false,net:true,message:(e&&e.message)?e.message:String(e)}))[fn](...args);
       return;
     }
-    fetch(API_URL, {method:'POST', credentials:'omit', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({fn, args})})
-      .then(res=>res.json()).then(r=>done_(r, resolve))
-      .catch(e=>resolve({ok:false,message:'Network problem, check internet and try again ('+(e&&e.message?e.message:e)+')'}));
+    const ac=(typeof AbortController!=='undefined')?new AbortController():null, tm=ac?setTimeout(()=>ac.abort(), 120000):null;
+    fetch(API_URL, {method:'POST', credentials:'omit', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({fn, args}), signal:ac?ac.signal:undefined})
+      .then(res=>res.json()).then(r=>{ clearTimeout(tm); done_(r, resolve); })
+      .catch(e=>{ clearTimeout(tm); resolve({ok:false,net:true,message:'Network problem, check internet and try again ('+(e&&e.message?e.message:e)+')'}); });
   });
 }
 async function api(fn, ...args){ return call(fn, S.token, ...args); }
@@ -158,10 +159,10 @@ function show(name, ...args){
 window.onpopstate = () => { if(S.user) screens.home(); };
 function topbar(title, sub, back){
   return `<header class="top">${back?`<button onclick="history.back()">‹</button>`:''}
-    <div class="brand">${h(title)}<small>${h(sub||'')}</small></div>
+    <div class="brand">${h(title)}<small>${h(sub||'')}</small></div>${obBadge()}
     ${back?'':`<button onclick="show('profile')">👤</button>`}</header>`;
 }
-function page(title, sub, body){ app().innerHTML = `<div class="wrap">${topbar(title,sub,true)}<div class="pad">${body}</div></div>`; }
+function page(title, sub, body){ app().innerHTML = `<div class="wrap">${topbar(title,sub,true)}<div class="pad">${body}</div></div>`; updOb(); }
 
 // ---------------------------------------------------------------- login
 screens.login = function(){
@@ -185,7 +186,7 @@ async function doLogin(){
   const c=cachedBoot(); if(c && c.user && c.user.empId===r.user.empId){ S.boot=c; S.screen='home'; screens.home(); refreshInBackground(); return; }
   await refreshBoot(true); screens.home();
 }
-function logout(silent){ if(!silent && S.token) call('apiLogout', S.token); S.token=null; S.user=null; S.boot=null; store('hbd_tok',null); store('hbd_boot',null); screens.login(); }
+function logout(silent){ const ub=obMine().length; if(!silent && ub && !confirm(ub+' saved item(s) are not yet on the server. They will be sent when you log in again on this phone. Log out anyway?')) return; if(!silent && S.token) call('apiLogout', S.token); S.token=null; S.user=null; S.boot=null; store('hbd_tok',null); store('hbd_boot',null); screens.login(); }
 
 async function refreshBoot(showBusy){
   if(showBusy) busy(true,'Loading your workspace…');
@@ -194,7 +195,7 @@ async function refreshBoot(showBusy){
   S.refreshing=false; updBadge();
   if(showBusy) busy(false);
   if(!r.ok){ if(r.code!=='AUTH') toast(r.message); return false; }
-  S.boot=r; S.user=r.user;
+  S.boot=r; S.user=r.user; setTimeout(obRun, 300);
   try{ store('hbd_boot', JSON.stringify({t:Date.now(), empId:r.user.empId, today:r.today, boot:r})); }catch(e){}
   return true;
 }
@@ -239,8 +240,9 @@ screens.home = function(){
   if(P.team) mg.push(['👥','Team today',"show('team')"]);
   const tileHtml = arr => `<div class="tiles">${arr.map(t=>`<div class="tile" onclick="${t[2]}"><span class="ic">${t[0]}</span>${t[1]}${t[3]?`<span class="bdg">${t[3]}</span>`:''}</div>`).join('')}</div>`;
   app().innerHTML = `<div class="wrap"><header class="top"><div class="brand">${h(COMPANY)}<small>${h(u.name)} · ${h(u.role)}</small></div>
-    <span id="syncDot" class="spin" style="width:16px;height:16px;border-width:2px;visibility:${S.refreshing?'visible':'hidden'}" title="Updating…"></span><button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
+    <span id="syncDot" class="spin" style="width:16px;height:16px;border-width:2px;visibility:${S.refreshing?'visible':'hidden'}" title="Updating…"></span>${obBadge()}<button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
     ${att}
+    ${obMine().some(x=>x.st==='failed')?`<div class="badbox" style="margin-bottom:10px;cursor:pointer" onclick="show('outbox')">⚠ ${obMine().filter(x=>x.st==='failed').length} item(s) were NOT saved on the server — tap to fix</div>`:''}
     ${P.field?`<div class="card"><h3>Today</h3><div class="grid4">
       <div class="kpi tap" onclick="show('report','today','visits')"><b>${st.shops}</b><span>Shops ›</span></div><div class="kpi tap" onclick="show('report','today','orders')"><b>${st.orders}</b><span>Orders ›</span></div>
       <div class="kpi tap" onclick="show('report','today','sales')"><b>${money(st.sales)}</b><span>Sales ›</span></div><div class="kpi tap" onclick="show('report','today','cash')"><b>${money(st.cash)}</b><span>Cash ›</span></div></div>
@@ -328,6 +330,79 @@ async function submit(fn, payload, msg){
   S.gps={}; S.photos={};
   return r;
 }
+
+/* ---------------------------------------------------------------- unsent items (instant save, sent in the background)
+   Orders, payments, visits, expenses and deliveries are saved on the phone at once and sent to the server in the
+   background, in order, with automatic retry when the network is bad. The same submission ID is reused on every retry,
+   so the server never records an item twice. Items the server refuses stay in "Unsent items" to fix or discard. */
+const OB_FNS={apiSubmitOrder:'Order',apiSubmitCollection:'Payment',apiSubmitVisit:'Visit',apiSubmitExpense:'Expense',apiDeliver:'Delivery'};
+S.ob=(function(){ try{ const q=JSON.parse(localStorage.getItem('hbd_outbox')||'[]'); q.forEach(x=>{ if(x.st==='sending') x.st='pending'; }); return Array.isArray(q)?q:[]; }catch(e){ return []; } })();
+S.obWait={}; S.obSaved=true; S.obSent=false;
+function obPersist(){ try{ localStorage.setItem('hbd_outbox', JSON.stringify(S.ob)); S.obSaved=true; }catch(e){ S.obSaved=false; } updOb(); }
+function obMine(){ return S.user ? S.ob.filter(x=>x.emp===S.user.empId) : []; }
+function obBadge(){ return `<span id="obBadge" class="chip" onclick="show('outbox')" style="display:none;cursor:pointer;margin-right:6px"></span>`; }
+function updOb(){
+  const m=obMine(), f=m.filter(x=>x.st==='failed').length, p=m.length-f;
+  document.querySelectorAll('#obBadge').forEach(el=>{ el.style.display=m.length?'inline-block':'none'; el.className='chip '+(f?'c-bad':'c-info'); el.textContent=f?('⚠ '+f+(p?' · ⏳ '+p:'')):('⏳ '+p); });
+}
+function queueSubmit(fn, payload, label){
+  if(!S.user) return null;
+  const it={id:payload.submissionId||uid(), fn, p:payload, label:label||OB_FNS[fn]||fn, at:Date.now(), emp:S.user.empId, st:'pending', tries:0, err:''};
+  payload.submissionId=it.id;
+  S.ob.push(it); obPersist();
+  if(!S.obSaved){ S.ob=S.ob.filter(x=>x!==it); updOb(); return null; }
+  S.gps={}; S.photos={};
+  setTimeout(obRun, 50); return it;
+}
+async function obRun(){
+  if(S.obBusy || !S.token || !S.user) return; S.obBusy=true;
+  try{
+    for(;;){
+      const it=obMine().find(x=>x.st==='pending'); if(!it) break;
+      it.st='sending'; obPersist();
+      const r=await call(it.fn, S.token, it.p);
+      if(r && r.ok){ S.ob=S.ob.filter(x=>x!==it); obPersist(); obDone(it, r); continue; }
+      if(!r || r.net || r.code==='AUTH'){ it.st='pending'; it.tries++; obPersist(); clearTimeout(S.obTimer); S.obTimer=setTimeout(obRun, Math.min(60000, 4000*it.tries)); break; }
+      it.st='failed'; it.err=r.message||'Not saved'; obPersist(); obDone(it, r);
+    }
+  } finally { S.obBusy=false; }
+  if(S.obSent && !obMine().some(x=>x.st!=='failed')){ S.obSent=false; refreshInBackground(); }
+}
+function obDone(it, r){
+  if(r.ok){ S.obSent=true; if(r.doc && r.id){ S.docs=S.docs||{}; S.docs[r.id]=Object.assign({_t:Date.now()}, r.doc); } }
+  const w=S.obWait[it.id]; delete S.obWait[it.id];
+  if(w && document.getElementById('obw_'+it.id)) w(r);
+  else if(r.ok) toast('✅ '+it.label+' saved on server');
+  else toast('⛔ '+it.label+' NOT saved: '+r.message+' — open ⚠ Unsent items', 9000);
+}
+window.addEventListener('online', ()=>obRun());
+const homeScreen_=screens.home; screens.home=function(){ homeScreen_.apply(this, arguments); updOb(); };
+async function saveQueued(fn, p, label, busyMsg){
+  const it=queueSubmit(fn, p, label);
+  if(it) return {it};
+  const r=await submit(fn, p, busyMsg);
+  return r ? {sync:r} : null;
+}
+function waitBox(it, render){
+  S.obWait[it.id]=r=>{ const el=$('obw_'+it.id); if(el) el.outerHTML=render(r); };
+  return `<div id="obw_${it.id}" class="hint" style="margin-top:10px">⏳ Sending to the server in the background — you can carry on working.</div>`;
+}
+function resultBox(r){
+  return r.ok ? `<div class="okbox" style="margin-top:10px">✅ On server: ${h(r.message)}</div>${r.geoFlag&&String(r.geoFlag).indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)}</div>`:''}${r.warning?`<div class="warnbox">${h(r.warning)}</div>`:''}`
+    : `<div class="badbox" style="margin-top:10px">⛔ Not saved: ${h(r.message)}</div><button class="btn sec" onclick="show('outbox')">Fix in Unsent items</button>`;
+}
+screens.outbox = function(){
+  const m=obMine().slice().sort((a,b)=>a.at-b.at);
+  const when=t=>new Date(t).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  page('Unsent items', m.length? m.length+' on this phone' : 'All sent', m.length ? m.map(x=>`<div class="card"><div class="row"><div class="grow"><b>${h(x.label)}</b><div class="muted">${h(when(x.at))}${x.tries?' · tried '+x.tries+'×':''}</div></div>
+      <span class="chip ${x.st==='failed'?'c-bad':'c-info'}">${x.st==='failed'?'NOT SAVED':(x.st==='sending'?'SENDING':'WAITING')}</span></div>
+      ${x.st==='failed'?`<div class="badbox">${h(x.err)}</div><div class="grid2"><button class="btn sm" onclick="obRetry('${h(x.id)}')">Try again</button><button class="btn sm sec" onclick="obDiscard('${h(x.id)}')">Discard</button></div>`:''}</div>`).join('')
+      + `<div class="hint">Waiting items are sent automatically as soon as the network allows. A refused item (for example credit limit or amount above the balance) must be discarded and entered again with the right details.</div>`
+      : `<div class="okbox">✅ Everything saved on this phone has reached the server.</div>`);
+  obRun();
+};
+function obRetry(id){ const x=S.ob.find(y=>y.id===id); if(x){ x.st='pending'; x.err=''; obPersist(); obRun(); setTimeout(()=>{ if(S.screen==='outbox') screens.outbox(); }, 400); } }
+function obDiscard(id){ const x=S.ob.find(y=>y.id===id); if(!x || !confirm('Discard this '+x.label+'? It was NOT saved on the server.')) return; S.ob=S.ob.filter(y=>y!==x); obPersist(); screens.outbox(); }
 
 // ---------------------------------------------------------------- attendance
 screens.checkin = function(){
@@ -456,9 +531,11 @@ async function doOrder(){
   const g=needGps('or'); if(!g) return;
   const tl=tailorById(tid);
   if(!confirm(`Confirm order for ${tl.shop}\n${lines.length} product(s), ${t.units} units\nNet: ${money(t.net)}\nTerms: ${val('or_terms')} · due ${val('or_due')}`)) return;
-  const r=await submit('apiSubmitOrder', Object.assign({tailorId:tid,lines,discountType:val('or_dt'),discountValue:val('or_dv'),paymentTerms:val('or_terms'),expectedPayDate:val('or_due'),remarks:val('or_rem'),submissionId:uid()}, g), 'Saving order…');
-  if(r&&r.doc){ S.docs=S.docs||{}; S.docs[r.id]=Object.assign({_t:Date.now()}, r.doc); }
-  if(r) done(r,'order', `<button class="btn gold" onclick="show('doc','${h(r.id)}','invoice')">🧾 Draft invoice — print / share</button>`);
+  const q=await saveQueued('apiSubmitOrder', Object.assign({tailorId:tid,lines,discountType:val('or_dt'),discountValue:val('or_dv'),paymentTerms:val('or_terms'),expectedPayDate:val('or_due'),remarks:val('or_rem'),submissionId:uid()}, g), 'Order · '+tl.shop+' · '+money(t.net), 'Saving order…');
+  if(!q) return;
+  const inv=r=>r.ok?`<button class="btn gold" onclick="show('doc','${h(r.id)}','invoice')">🧾 Draft invoice — print / share</button>`:'';
+  if(q.sync){ const r=q.sync; if(r.doc){ S.docs=S.docs||{}; S.docs[r.id]=Object.assign({_t:Date.now()}, r.doc); } return done(r,'order', inv(r)); }
+  done({message:'Order for '+tl.shop+' saved: '+lines.length+' product(s), '+t.units+' units, '+money(t.net)+'.'}, 'order', waitBox(q.it, r=>resultBox(r)+inv(r)));
 }
 
 // ---------------------------------------------------------------- collection
@@ -503,8 +580,9 @@ async function doCollect(){
   const g=needGps('co'); if(!g) return;
   const oid=selOrder(), t=tailorById(tid);
   if(!confirm(`Confirm collection\n${t.shop}\n${money(amt)} by ${m}\n${oid?'Against '+oid:'Advance / on-account'}`)) return;
-  const r=await submit('apiSubmitCollection', Object.assign({tailorId:tid,orderId:oid,amount:amt,method:m,txnRef:val('co_ref'),nextDate:val('co_next'),allowAdvance:$('co_adv').checked,proof:S.photos.proof||'',remarks:val('co_rem'),submissionId:uid()}, g), 'Recording payment…');
-  if(r) done(r,'collect');
+  const q=await saveQueued('apiSubmitCollection', Object.assign({tailorId:tid,orderId:oid,amount:amt,method:m,txnRef:val('co_ref'),nextDate:val('co_next'),allowAdvance:$('co_adv').checked,proof:S.photos.proof||'',remarks:val('co_rem'),submissionId:uid()}, g), 'Payment · '+t.shop+' · '+money(amt), 'Recording payment…');
+  if(!q) return; if(q.sync) return done(q.sync,'collect');
+  done({message:'Payment of '+money(amt)+' ('+m+') from '+t.shop+' saved. It counts after Accounts verifies it.'}, 'collect', waitBox(q.it, resultBox));
 }
 
 // ---------------------------------------------------------------- visit & expense
@@ -523,8 +601,10 @@ screens.visit = function(preTailor){
 async function doVisit(){
   if(!val('vi_t')) return toast('Select a tailor'); if(!val('vi_o')) return toast('Select the outcome');
   const g=needGps('vi'); if(!g) return;
-  const r=await submit('apiSubmitVisit', Object.assign({tailorId:val('vi_t'),purpose:val('vi_p'),outcome:val('vi_o'),nextVisit:val('vi_n'),photo:S.photos.visit||'',remarks:val('vi_r'),submissionId:uid()}, g), 'Saving visit…');
-  if(r) done(r,'visit');
+  const vt=tailorById(val('vi_t'))||{shop:val('vi_t')};
+  const q=await saveQueued('apiSubmitVisit', Object.assign({tailorId:val('vi_t'),purpose:val('vi_p'),outcome:val('vi_o'),nextVisit:val('vi_n'),photo:S.photos.visit||'',remarks:val('vi_r'),submissionId:uid()}, g), 'Visit · '+vt.shop, 'Saving visit…');
+  if(!q) return; if(q.sync) return done(q.sync,'visit');
+  done({message:'Visit at '+vt.shop+' saved.'}, 'visit', waitBox(q.it, resultBox));
 }
 screens.expense = function(){
   page('Expense', 'Submit for approval', `<div class="card">
@@ -536,8 +616,9 @@ screens.expense = function(){
 };
 async function doExpense(){
   if(!val('ex_c')||!val('ex_a')||!val('ex_ds')) return toast('Fill category, amount and description');
-  const r=await submit('apiSubmitExpense', {category:val('ex_c'),amount:val('ex_a'),date:val('ex_d'),description:val('ex_ds'),receipt:S.photos.receipt||'',submissionId:uid()}, 'Submitting…');
-  if(r) done(r,'expense');
+  const q=await saveQueued('apiSubmitExpense', {category:val('ex_c'),amount:val('ex_a'),date:val('ex_d'),description:val('ex_ds'),receipt:S.photos.receipt||'',submissionId:uid()}, 'Expense · '+val('ex_c')+' · '+money(parseFloat(val('ex_a'))||0), 'Submitting…');
+  if(!q) return; if(q.sync) return done(q.sync,'expense');
+  done({message:'Expense saved and sent for approval.'}, 'expense', waitBox(q.it, resultBox));
 }
 
 // ---------------------------------------------------------------- tailors & follow-ups
@@ -865,13 +946,15 @@ async function doDeliver(){
   const pc=$('dl_paid');
   if(pc&&pc.checked&&d.billed>0){ const a=parseFloat(val('dl_amt'))||0; if(a>0){ if(val('dl_m')!=='Cash'&&!val('dl_ref')) return toast('Enter the transaction reference'); p.collect={amount:a, method:val('dl_m'), txnRef:val('dl_ref')}; } }
   if(!confirm(`Confirm delivery to ${d.doc.tailor.shop}\n${u} of ${U} pcs · bill ${money(d.billed)}${p.collect?'\nPayment received: '+money(p.collect.amount)+' ('+p.collect.method+')':''}${u<U?'\nItems not delivered will be cancelled.':''}`)) return;
-  const r=await submit('apiDeliver', p, 'Saving delivery…'); if(!r) return;
-  S.docs=S.docs||{}; if(r.doc) S.docs[o.id]=Object.assign({_t:Date.now()}, r.doc); else delete S.docs[o.id];
+  const q=await saveQueued('apiDeliver', p, 'Delivery · '+o.id+' · '+d.doc.tailor.shop, 'Saving delivery…'); if(!q) return;
+  S.docs=S.docs||{}; delete S.docs[o.id];
   if(S.dv&&S.dv.data){ S.dv.data.open=S.dv.data.open.filter(x=>x.id!==o.id); }
-  page('Delivered', o.id, `<div class="okbox">✅ ${h(r.message)}</div>${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)}</div>`:''}
-    ${r.billed>0?`<button class="btn" onclick="show('doc','${h(o.id)}','invoice')">🧾 Final invoice — print / share</button>`:''}<button class="btn sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button>
-    <button class="btn sec" onclick="show('deliveries','open')">Back to deliveries</button>`);
-  refreshBoot(false);
+  const docBtns=r=>r.ok?`${r.billed>0?`<button class="btn" onclick="show('doc','${h(o.id)}','invoice')">🧾 Final invoice — print / share</button>`:''}<button class="btn sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button>`:'';
+  if(q.sync){ const r=q.sync; if(r.doc) S.docs[o.id]=Object.assign({_t:Date.now()}, r.doc);
+    page('Delivered', o.id, `<div class="okbox">✅ ${h(r.message)}</div>${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)}</div>`:''}${docBtns(r)}<button class="btn sec" onclick="show('deliveries','open')">Back to deliveries</button>`);
+    return refreshBoot(false); }
+  page('Delivered', o.id, `<div class="okbox">✅ Delivery saved: ${u} of ${U} pcs · bill ${money(d.billed)}${p.collect?' · payment '+money(p.collect.amount)+' ('+h(p.collect.method)+')':''}.</div>
+    ${waitBox(q.it, r=>resultBox(r)+docBtns(r))}<button class="btn sec" onclick="show('deliveries','open')">Back to deliveries</button>`);
 }
 
 // ---------------------------------------------------------------- documents: invoice, challan, statement
