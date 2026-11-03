@@ -182,21 +182,33 @@ async function doLogin(){
   busy(false);
   if(!r.ok) return toast(r.message);
   S.token=r.token; S.user=r.user; store('hbd_tok', r.token); store('hbd_emp', id.toUpperCase());
+  const c=cachedBoot(); if(c && c.user && c.user.empId===r.user.empId){ S.boot=c; S.screen='home'; screens.home(); refreshInBackground(); return; }
   await refreshBoot(true); screens.home();
 }
-function logout(silent){ if(!silent && S.token) call('apiLogout', S.token); S.token=null; S.user=null; S.boot=null; store('hbd_tok',null); screens.login(); }
+function logout(silent){ if(!silent && S.token) call('apiLogout', S.token); S.token=null; S.user=null; S.boot=null; store('hbd_tok',null); store('hbd_boot',null); screens.login(); }
 
 async function refreshBoot(showBusy){
   if(showBusy) busy(true,'Loading your workspace…');
+  S.refreshing=true; updBadge();
   const r = await api('apiBootstrap');
+  S.refreshing=false; updBadge();
   if(showBusy) busy(false);
   if(!r.ok){ if(r.code!=='AUTH') toast(r.message); return false; }
-  S.boot=r; S.user=r.user; return true;
+  S.boot=r; S.user=r.user;
+  try{ store('hbd_boot', JSON.stringify({t:Date.now(), empId:r.user.empId, today:r.today, boot:r})); }catch(e){}
+  return true;
+}
+/** Show the last saved home screen instantly, then refresh it in the background. */
+function cachedBoot(){ try{ const c=JSON.parse(load('hbd_boot')||'null'); if(c && c.boot && c.today===today() && Date.now()-c.t < 12*3600000) return c.boot; }catch(e){} return null; }
+function updBadge(){ const b=$('syncDot'); if(b) b.style.visibility=S.refreshing?'visible':'hidden'; }
+async function refreshInBackground(){
+  const ok=await refreshBoot(false);
+  if(ok && (S.screen==='home' || !S.screen)) screens.home();
 }
 
 // ---------------------------------------------------------------- home
 screens.home = function(){
-  const b=S.boot, u=S.user; if(!b) return;
+  const b=S.boot, u=S.user; if(!b) return; S.screen='home';
   const a=b.attendance, st=b.stats, m=b.month, P=b.perms, c=b.counts;
   const pct=(x,t)=> t? Math.min(100, Math.round(x/t*100)) : 0;
   const pctRaw=(x,t)=> t? Math.round(x/t*100) : 0;
@@ -227,7 +239,7 @@ screens.home = function(){
   if(P.team) mg.push(['👥','Team today',"show('team')"]);
   const tileHtml = arr => `<div class="tiles">${arr.map(t=>`<div class="tile" onclick="${t[2]}"><span class="ic">${t[0]}</span>${t[1]}${t[3]?`<span class="bdg">${t[3]}</span>`:''}</div>`).join('')}</div>`;
   app().innerHTML = `<div class="wrap"><header class="top"><div class="brand">${h(COMPANY)}<small>${h(u.name)} · ${h(u.role)}</small></div>
-    <button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
+    <span id="syncDot" class="spin" style="width:16px;height:16px;border-width:2px;visibility:${S.refreshing?'visible':'hidden'}" title="Updating…"></span><button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
     ${att}
     ${P.field?`<div class="card"><h3>Today</h3><div class="grid4">
       <div class="kpi tap" onclick="show('report','today','visits')"><b>${st.shops}</b><span>Shops ›</span></div><div class="kpi tap" onclick="show('report','today','orders')"><b>${st.orders}</b><span>Orders ›</span></div>
@@ -307,7 +319,7 @@ function done(r, again, extra){
   page('Saved', '', `<div class="okbox">✅ ${h(r.message)}</div>${extra||''}${r.warning?`<div class="warnbox">${h(r.warning)}</div>`:''}${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)} — your location was far from the registered shop location.</div>`:''}
     ${again?`<button class="btn sec" onclick="show('${again}')">Add another</button>`:''}<button class="btn" onclick="goHome()">Back to home</button>`);
 }
-async function goHome(){ await refreshBoot(true); screens.home(); history.replaceState({},''); }
+async function goHome(){ S.screen='home'; history.replaceState({},''); if(S.boot) { screens.home(); refreshInBackground(); } else { await refreshBoot(true); screens.home(); } }
 async function submit(fn, payload, msg){
   busy(true, msg||'Saving…');
   const r=await api(fn, payload);
@@ -445,6 +457,7 @@ async function doOrder(){
   const tl=tailorById(tid);
   if(!confirm(`Confirm order for ${tl.shop}\n${lines.length} product(s), ${t.units} units\nNet: ${money(t.net)}\nTerms: ${val('or_terms')} · due ${val('or_due')}`)) return;
   const r=await submit('apiSubmitOrder', Object.assign({tailorId:tid,lines,discountType:val('or_dt'),discountValue:val('or_dv'),paymentTerms:val('or_terms'),expectedPayDate:val('or_due'),remarks:val('or_rem'),submissionId:uid()}, g), 'Saving order…');
+  if(r&&r.doc){ S.docs=S.docs||{}; S.docs[r.id]=Object.assign({_t:Date.now()}, r.doc); }
   if(r) done(r,'order', `<button class="btn gold" onclick="show('doc','${h(r.id)}','invoice')">🧾 Draft invoice — print / share</button>`);
 }
 
@@ -744,8 +757,13 @@ screens.deliveries = async function(tab){
   const mg = !S.boot.perms.delivery;
   page(mg?'Orders & delivery':'My deliveries', mg?'Confirm, assign and track deliveries':S.boot.todayLabel, `<div id="dvBox" class="hint">Loading…</div>`);
   const r=await api('apiDeliveries'); if(!r.ok) return $('dvBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
-  S.dv.data=r; renderDeliveries();
+  S.dv.data=r; S.docs=S.docs||{}; Object.keys(r.docs||{}).forEach(k=>{ S.docs[k]=Object.assign({_t:Date.now()}, r.docs[k]); }); renderDeliveries();
 };
+/** Invoice / challan data: from the delivery list (already loaded) or from the server. */
+async function getDoc(id, fresh){
+  const c=S.docs&&S.docs[id]; if(!fresh && c && Date.now()-(c._t||0) < 300000) return Object.assign({ok:true}, c);
+  const r=await api('apiOrderDoc', id); if(r.ok){ S.docs=S.docs||{}; S.docs[id]=Object.assign({_t:Date.now()}, r); } return r;
+}
 function dvTab(t){ S.dv.tab=t; renderDeliveries(); }
 function dvWho(v){ S.dv.who=v; renderDeliveries(); }
 function renderDeliveries(){
@@ -795,7 +813,7 @@ async function setOrderStatus(id, st){
 // ---------------------------------------------------------------- deliver (per-product quantities)
 screens.deliver = async function(id){
   page('Deliver', id, `<div id="dlBox" class="hint">Loading…</div>`);
-  const r=await api('apiOrderDoc', id); if(!r.ok) return $('dlBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  const r=await getDoc(id); if(!r.ok) return $('dlBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
   if(r.order.closed) return $('dlBox').innerHTML=`<div class="okbox">This order is already ${h(r.order.delivery)}.</div><button class="btn" onclick="show('doc','${h(id)}','invoice')">Open invoice</button>`;
   S.dl={doc:r, q:{}}; r.lines.forEach(l=>S.dl.q[l.lineId]=l.qty);
   const dd=S.dv&&S.dv.data, canCollect = dd ? dd.canCollect : true;
@@ -826,7 +844,7 @@ function dlLine(l){ const q=S.dl.q[l.lineId]; return q===l.qty ? l.net : Math.ro
 function dlCalc(){
   const L=S.dl.doc.lines, B=S.dl.doc.balance; let u=0,U=0,b=0,n=0;
   L.forEach(l=>{ u+=S.dl.q[l.lineId]; U+=l.qty; b+=dlLine(l); n+=l.net; });
-  b=Math.round(b*100)/100; S.dl.billed=b;
+  b=Math.round(b); S.dl.billed=b;
   const short=u<U;
   $('dl_short').style.display=short?'block':'none';
   $('dl_sum').innerHTML=`<div class="row"><span>Delivered</span><b>${u} of ${U} pcs</b></div><div class="row"><span>Bill amount</span><b class="amt">${money(b)}</b></div>${short?`<div class="row" style="color:var(--bad)"><span>Not delivered — cancelled</span><b>${money(n-b)}</b></div>`:''}`;
@@ -848,6 +866,8 @@ async function doDeliver(){
   if(pc&&pc.checked&&d.billed>0){ const a=parseFloat(val('dl_amt'))||0; if(a>0){ if(val('dl_m')!=='Cash'&&!val('dl_ref')) return toast('Enter the transaction reference'); p.collect={amount:a, method:val('dl_m'), txnRef:val('dl_ref')}; } }
   if(!confirm(`Confirm delivery to ${d.doc.tailor.shop}\n${u} of ${U} pcs · bill ${money(d.billed)}${p.collect?'\nPayment received: '+money(p.collect.amount)+' ('+p.collect.method+')':''}${u<U?'\nItems not delivered will be cancelled.':''}`)) return;
   const r=await submit('apiDeliver', p, 'Saving delivery…'); if(!r) return;
+  S.docs=S.docs||{}; if(r.doc) S.docs[o.id]=Object.assign({_t:Date.now()}, r.doc); else delete S.docs[o.id];
+  if(S.dv&&S.dv.data){ S.dv.data.open=S.dv.data.open.filter(x=>x.id!==o.id); }
   page('Delivered', o.id, `<div class="okbox">✅ ${h(r.message)}</div>${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)}</div>`:''}
     ${r.billed>0?`<button class="btn" onclick="show('doc','${h(o.id)}','invoice')">🧾 Final invoice — print / share</button>`:''}<button class="btn sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button>
     <button class="btn sec" onclick="show('deliveries','open')">Back to deliveries</button>`);
@@ -860,7 +880,7 @@ const DOC_TITLES={invoice:'Invoice', challan:'Delivery challan', ledger:'Account
 screens.doc = async function(id, kind){
   S.doc={id, kind:kind||'invoice', fmt:load('hbd_fmt')||'a4', pdf:null};
   page(DOC_TITLES[S.doc.kind], id, `<div id="docBox" class="hint">Loading…</div>`);
-  const r = S.doc.kind==='ledger' ? await api('apiTailorLedger', id) : await api('apiOrderDoc', id);
+  const r = S.doc.kind==='ledger' ? await api('apiTailorLedger', id) : await getDoc(id);
   if(!r.ok) return $('docBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
   S.doc.data=r; renderDoc();
 };
@@ -973,7 +993,9 @@ async function changePin(){
 (async function(){
   const tok=load('hbd_tok');
   if(!tok) return screens.login();
-  S.token=tok; if(await refreshBoot(true)) screens.home(); else if(S.token) screens.login();
+  S.token=tok;
+  const c=cachedBoot(); if(c){ S.boot=c; S.user=c.user; S.screen='home'; screens.home(); refreshInBackground(); return; }
+  if(await refreshBoot(true)) screens.home(); else if(S.token) screens.login();
 })();
 </script>
 </body>
