@@ -84,6 +84,25 @@
   .badbox{background:var(--badb);color:var(--bad);border-radius:10px;padding:9px 11px;font-size:13px;margin-top:8px}
   .okbox{background:var(--okb);color:var(--ok);border-radius:10px;padding:12px;font-size:14px}
   .sect{font-size:12px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:16px 2px 8px}
+  .dl{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+  .qty{display:flex;align-items:center;gap:4px}.qty input{width:62px;text-align:center;padding:9px 4px}.qty button{width:38px;height:42px;border:1px solid var(--line);background:var(--soft);border-radius:10px;font-size:20px;color:var(--p)}
+  .docwrap{overflow:auto;background:#e9e4e6;border-radius:12px;padding:10px}
+  .doc{background:#fff;color:#111;margin:0 auto;padding:12mm;font-size:12.5px;line-height:1.38;box-shadow:0 2px 12px rgba(0,0,0,.12);position:relative}
+  .doc.f-a4{width:210mm;min-height:190mm}.doc.f-a5{width:148mm;font-size:11px;padding:8mm}.doc.f-80{width:76mm;font-size:10.5px;padding:3mm}
+  .dh{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid var(--p);padding-bottom:8px;margin-bottom:10px}
+  .dn{font-size:20px;font-weight:900;color:var(--p)}.ds{font-size:.9em;color:#555}
+  .dt{text-align:right}.dtt{font-size:16px;font-weight:800;letter-spacing:.5px;color:#222;margin-bottom:4px}
+  .doc span{color:#666}
+  .dp{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px}.dp>div:last-child{text-align:right}
+  .dl2{font-size:.8em;text-transform:uppercase;color:#777;letter-spacing:.5px}.dmut{font-size:.85em;color:#777}
+  .dtab{width:100%;border-collapse:collapse;margin:6px 0}.dtab th{background:#f3eef0;text-align:left;padding:5px;border-bottom:1px solid #bbb;font-size:.9em}.dtab td{padding:5px;border-bottom:1px solid #eee;vertical-align:top}.dtab .r{text-align:right;white-space:nowrap}.dtab .dsum td{font-weight:700;border-top:1px solid #999}
+  .dtot{margin-left:auto;width:58%;min-width:200px}.dtot>div{display:flex;justify-content:space-between;padding:2px 0}.dgt{font-weight:800;font-size:1.1em;border-top:1px solid #333;margin-top:3px;padding-top:4px!important}.dgt span{color:#111}
+  .dnote{font-size:.9em;color:#444;margin-top:8px}
+  .dsig{display:flex;justify-content:space-between;gap:20px;margin-top:42px}.dsig div{flex:1;border-top:1px solid #333;padding-top:4px;text-align:center;font-size:.9em}
+  .draft{position:absolute;top:3mm;left:0;right:0;text-align:center;color:#b42318;font-weight:800;font-size:.85em;letter-spacing:.5px}
+  .dbox{display:inline-block;width:34px;height:16px;border:1px solid #888}
+  .f-80 .dh,.f-80 .dp,.f-80 .dsig{flex-direction:column;gap:4px}.f-80 .dt,.f-80 .dp>div:last-child{text-align:left}.f-80 .dtot{width:100%;min-width:0}.f-80 .dn{font-size:15px}.f-80 .dtt{font-size:13px}.f-80 .dsig{margin-top:22px;gap:26px}.f-80 .dtab td,.f-80 .dtab th{padding:3px 2px}.f-80 .draft{position:static;margin-bottom:4px}.f-a5 .dn{font-size:17px}
+  @media print{html,body{background:#fff}body *{visibility:hidden}#doc,#doc *{visibility:visible}#doc{position:absolute;left:0;top:0;box-shadow:none;margin:0;zoom:1!important;min-height:0}.doc.f-a4,.doc.f-a5{width:100%!important;padding:0}#toast,#busy{display:none}}
 </style>
 </head>
 <body>
@@ -182,7 +201,7 @@ screens.home = function(){
   const pct=(x,t)=> t? Math.min(100, Math.round(x/t*100)) : 0;
   const pctRaw=(x,t)=> t? Math.round(x/t*100) : 0;
   let att;
-  if(!P.field) att='';
+  if(!P.field && !P.delivery) att='';
   else if(!a || !a.checkIn) att=`<div class="card"><div class="row"><div class="grow"><b>Not checked in</b><div class="muted">${h(b.todayLabel)}</div></div>
       <button class="btn sm ok" onclick="show('checkin')">Check in</button></div></div>`;
   else if(!a.checkOut) att=`<div class="card"><div class="row"><div class="grow"><b>Checked in ${h(a.checkIn)}</b> ${a.late?'<span class="chip c-bad">LATE</span>':'<span class="chip c-ok">ON TIME</span>'}<div class="muted">${h(b.todayLabel)}</div></div>
@@ -198,12 +217,13 @@ screens.home = function(){
     tiles.push(['🧵','Onboard tailor',"show('onboard')"],['🛒','New order',"show('order')"],['💵','Collect payment',"show('collect')"],
       ['📍','Field visit',"show('visit')"],['🏪','My tailors',"show('tailors')"],['⏰','Follow-ups',"show('followups')",b.followUps.length],['🧾','Expense',"show('expense')"]);
   }
+  if(P.delivery) tiles.push(['🚚','My deliveries',"show('deliveries','open')",c.deliveries],['🧾','Expense',"show('expense')"]);
   tiles.push(['📊','My report',"show('report','month','summary')"]);
-  tiles.push(['🗺️','Map',"show('map')"]);
+  if(!P.delivery) tiles.push(['🗺️','Map',"show('map')"]);
   const mg=[];
   if(P.approve) mg.push(['✅','Approvals',"show('approvals')",c.approvals]);
   if(P.verify) mg.push(['🔎','Verify payments',"show('verify')",c.verifications]);
-  if(P.orders) mg.push(['🚚','Orders & delivery',"show('ordersq')",c.orders]);
+  if(P.orders) mg.push(['🚚','Orders & delivery',"show('deliveries','open')",c.orders]);
   if(P.team) mg.push(['👥','Team today',"show('team')"]);
   const tileHtml = arr => `<div class="tiles">${arr.map(t=>`<div class="tile" onclick="${t[2]}"><span class="ic">${t[0]}</span>${t[1]}${t[3]?`<span class="bdg">${t[3]}</span>`:''}</div>`).join('')}</div>`;
   app().innerHTML = `<div class="wrap"><header class="top"><div class="brand">${h(COMPANY)}<small>${h(u.name)} · ${h(u.role)}</small></div>
@@ -213,15 +233,19 @@ screens.home = function(){
       <div class="kpi tap" onclick="show('report','today','visits')"><b>${st.shops}</b><span>Shops ›</span></div><div class="kpi tap" onclick="show('report','today','orders')"><b>${st.orders}</b><span>Orders ›</span></div>
       <div class="kpi tap" onclick="show('report','today','sales')"><b>${money(st.sales)}</b><span>Sales ›</span></div><div class="kpi tap" onclick="show('report','today','cash')"><b>${money(st.cash)}</b><span>Cash ›</span></div></div>
       <div class="hint">Tap a box to see today's details.</div></div>`:''}
+    ${P.delivery&&b.delivery?`<div class="card"><h3>Today's deliveries</h3><div class="grid4">
+      <div class="kpi tap" onclick="show('deliveries','open')"><b>${b.delivery.open}</b><span>To deliver ›</span></div><div class="kpi tap" onclick="show('deliveries','done')"><b>${b.delivery.done}</b><span>Delivered ›</span></div>
+      <div class="kpi"><b>${money(b.delivery.billed)}</b><span>Billed</span></div><div class="kpi tap" onclick="show('report','today','cash')"><b>${money(b.delivery.cash)}</b><span>Cash ›</span></div></div>
+      ${b.delivery.open?`<div class="hint">${money(b.delivery.openValue)} of goods still to deliver.</div>`:''}${b.delivery.short?`<div class="warnbox">${b.delivery.short} short / refused delivery today.</div>`:''}</div>`:''}
     ${prog}
-    <div class="sect">Field actions</div>${tileHtml(tiles)}
+    <div class="sect">${P.delivery?'Delivery':'Field actions'}</div>${tileHtml(tiles)}
     ${mg.length?`<div class="sect">Management</div>${tileHtml(mg)}`:''}
     <div class="hint" style="text-align:center;margin-top:18px">Location is recorded only when you submit a form. All times Bangladesh Standard Time.</div>
   </div></div>`;
 };
 async function reloadHome(){ if(await refreshBoot(true)) screens.home(); }
 
-
+// ---------------------------------------------------------------- GPS widget
 function gpsBox(key){ return `<div class="gps" id="gps_${key}"><div class="row"><div class="grow" id="gpsTxt_${key}">📍 Location not captured yet</div>
   <button class="btn sm" onclick="captureGps('${key}')">Capture location</button></div>
   ${S.boot.settings.allowManualGps?`<div class="hint">Phone GPS not working? <a href="#" onclick="manualGps('${key}');return false">Enter coordinates manually</a> (flagged for review).</div><div id="gpsMan_${key}"></div>`:''}</div>`; }
@@ -279,8 +303,8 @@ function tailorPicker(id, filterFn, onchange, selected){
 }
 function filterPicker(id){ const q=val(id+'_q').toLowerCase(); Array.from($(id).options).forEach(o=>{ o.hidden = q && o.dataset.s.indexOf(q)<0; }); }
 function tailorById(id){ return S.boot.tailors.find(t=>t.id===id); }
-function done(r, again){
-  page('Saved', '', `<div class="okbox">✅ ${h(r.message)}</div>${r.warning?`<div class="warnbox">${h(r.warning)}</div>`:''}${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)} — your location was far from the registered shop location.</div>`:''}
+function done(r, again, extra){
+  page('Saved', '', `<div class="okbox">✅ ${h(r.message)}</div>${extra||''}${r.warning?`<div class="warnbox">${h(r.warning)}</div>`:''}${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)} — your location was far from the registered shop location.</div>`:''}
     ${again?`<button class="btn sec" onclick="show('${again}')">Add another</button>`:''}<button class="btn" onclick="goHome()">Back to home</button>`);
 }
 async function goHome(){ await refreshBoot(true); screens.home(); history.replaceState({},''); }
@@ -421,10 +445,10 @@ async function doOrder(){
   const tl=tailorById(tid);
   if(!confirm(`Confirm order for ${tl.shop}\n${lines.length} product(s), ${t.units} units\nNet: ${money(t.net)}\nTerms: ${val('or_terms')} · due ${val('or_due')}`)) return;
   const r=await submit('apiSubmitOrder', Object.assign({tailorId:tid,lines,discountType:val('or_dt'),discountValue:val('or_dv'),paymentTerms:val('or_terms'),expectedPayDate:val('or_due'),remarks:val('or_rem'),submissionId:uid()}, g), 'Saving order…');
-  if(r) done(r,'order');
+  if(r) done(r,'order', `<button class="btn gold" onclick="show('doc','${h(r.id)}','invoice')">🧾 Draft invoice — print / share</button>`);
 }
 
-
+// ---------------------------------------------------------------- collection
 screens.collect = function(preTailor){
   const L=S.boot.lists;
   page('Collect payment', 'Counts as collected after Accounts verification', `<div class="card">
@@ -527,9 +551,9 @@ screens.shop = async function(id){
   $('shopBox').innerHTML = `<div class="card"><h3>${h(t.shop)} ${statusChip(t.status)} ${t.risk?statusChip(t.risk):''}</h3>
     <div class="muted">${h(t.owner)} · ${h(t.mobile)}<br>${h(t.address)}<br>${h(t.area)}, ${h(t.district)} · ${h(t.shopType)} · Rep ${h(t.repName)}</div>
     <div class="grid3" style="margin-top:10px"><div class="kpi"><b>${money(t.netSales)}</b><span>Net sales</span></div><div class="kpi"><b>${money(t.outstanding)}</b><span>Outstanding</span></div><div class="kpi"><b style="color:${t.overdue>0?'var(--bad)':'var(--ok)'}">${money(t.overdue)}</b><span>Overdue</span></div></div>
-    <div><a class="btn sm sec" href="tel:${h(t.mobile)}">📞 Call</a>${t.lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps?q=${t.lat},${t.lng}">📍 Map</a><a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}">🧭 Directions</a>`:''}${t.shopPhoto?`<a class="btn sm sec" target="_blank" href="${h(t.shopPhoto)}">🖼 Photo</a>`:''}</div>
+    <div><a class="btn sm sec" href="tel:${h(t.mobile)}">📞 Call</a>${t.lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps?q=${t.lat},${t.lng}">📍 Map</a><a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}">🧭 Directions</a>`:''}${t.shopPhoto?`<a class="btn sm sec" target="_blank" href="${h(t.shopPhoto)}">🖼 Photo</a>`:''}${P.ledger?`<button class="btn sm sec" onclick="show('doc','${h(t.id)}','ledger')">📒 Ledger</button>`:''}</div>
     ${P.field&&ap?`<div><button class="btn sm" onclick="show('order','${t.id}')">🛒 Order</button><button class="btn sm" onclick="show('collect','${t.id}')">💵 Collect</button><button class="btn sm" onclick="show('visit','${t.id}')">📍 Visit</button></div>`:''}</div>
-    <div class="card"><h3>Orders</h3>${r.orders.length?`<table class="t"><tr><th>Order</th><th>Net</th><th>Status</th><th>Due</th></tr>${r.orders.map(o=>`<tr><td>${h(o.id)}<div class="hint">${h(o.date)}</div></td><td>${money(o.net)}</td><td>${h(o.payment)}<div class="hint">${h(o.delivery)}</div></td><td class="amt">${money(o.outstanding)}</td></tr>`).join('')}</table>`:'<div class="hint">No orders yet.</div>'}</div>
+    <div class="card"><h3>Orders</h3>${r.orders.length?`<table class="t"><tr><th>Order</th><th>Net</th><th>Status</th><th>Due</th></tr>${r.orders.map(o=>`<tr onclick="show('doc','${h(o.id)}','invoice')" style="cursor:pointer"><td>${h(o.invoiceNo||o.id)} ›<div class="hint">${h(o.date)}</div></td><td>${money(o.net)}</td><td>${h(o.payment)}<div class="hint">${h(o.delivery)}</div></td><td class="amt">${money(o.outstanding)}</td></tr>`).join('')}</table>`:'<div class="hint">No orders yet.</div>'}</div>
     <div class="card"><h3>Payments</h3>${r.collections.length?`<table class="t"><tr><th>ID</th><th>Amount</th><th>Status</th></tr>${r.collections.map(c=>`<tr><td>${h(c.id)}<div class="hint">${h(c.date)} · ${h(c.method)}</div></td><td>${money(c.amount)}</td><td>${statusChip(c.status)}</td></tr>`).join('')}</table>`:'<div class="hint">No payments yet.</div>'}</div>
     <div class="card"><h3>Visit history</h3>${r.visits.length?r.visits.map(v=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>${h(v.purpose)}</b> · ${h(v.outcome)}<div class="hint">${h(v.when)} · ${h(v.rep)} · ${h(v.geo)}${v.distance!==''?' ('+v.distance+' m)':''}${v.remarks?' · '+h(v.remarks):''}</div></div>`).join(''):'<div class="hint">No visits yet.</div>'}</div>`;
 };
@@ -592,7 +616,7 @@ function renderReport(){
   } else if(tab==='visits'){
     body=r.visits.length?`<div class="card list">${r.visits.map(v=>`<div class="it" onclick="show('shop','${h(v.tailorId)}')"><div class="grow"><b>${h(v.shop||'—')}</b><div class="muted">${h(v.when)} · ${h(v.purpose)} → ${h(v.outcome)}${S.rp.who?' · '+h(v.rep):''}</div></div>${v.geo&&v.geo!=='OK'?`<span class="chip c-warn">${h(v.geo)}</span>`:''}</div>`).join('')}</div>`:empty('No shop visits in this period.');
   } else if(tab==='orders'){
-    body=r.orders.length?`<div class="card list">${r.orders.map(o=>`<div class="it"><div class="grow"><b>${h(o.shop)}</b><div class="muted">${h(o.id)} · ${h(o.date)} · ${o.qty} pcs · ${h(o.delivery||'')}${S.rp.who?' · '+h(o.rep):''}</div></div><div style="text-align:right"><div class="amt">${money(o.net)}</div>${o.status==='Cancelled'?'<span class="chip c-bad">Cancelled</span>':`<span class="chip ${o.outstanding>0.5?'c-warn':'c-ok'}">${h(o.payment||o.status)}</span>`}</div></div>`).join('')}</div>`:empty('No orders in this period.');
+    body=r.orders.length?`<div class="card list">${r.orders.map(o=>`<div class="it" onclick="show('doc','${h(o.id)}','invoice')"><div class="grow"><b>${h(o.shop)}</b><div class="muted">${h(o.id)} · ${h(o.date)} · ${o.qty} pcs · ${h(o.delivery||'')}${S.rp.who?' · '+h(o.rep):''}</div></div><div style="text-align:right"><div class="amt">${money(o.net)}</div>${o.status==='Cancelled'?'<span class="chip c-bad">Cancelled</span>':`<span class="chip ${o.outstanding>0.5?'c-warn':'c-ok'}">${h(o.payment||o.status)}</span>`}</div></div>`).join('')}</div>`:empty('No orders in this period.');
   } else if(tab==='sales'){
     const tot=r.products.reduce((a,p)=>a+p.amount,0);
     body=r.products.length?`<div class="card"><table class="t"><tr><th>Product</th><th style="text-align:right">Qty</th><th style="text-align:right">Amount</th><th style="text-align:right">%</th></tr>
@@ -704,30 +728,233 @@ async function verify(id,d){
   busy(true,'Saving…'); const r=await api('apiVerifyCollection', id, d, rm); busy(false);
   if(!r.ok) return toast('⛔ '+r.message); toast('✅ '+r.message); const el=$('vf_'+id); if(el) el.remove(); refreshBoot(false);
 }
-screens.ordersq = async function(){
-  page('Orders & delivery', 'Confirm, dispatch, deliver', `<div id="oqBox" class="hint">Loading…</div>`);
-  const r=await api('apiOrdersQueue'); if(!r.ok) return $('oqBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
-  const L=S.boot.lists;
-  $('oqBox').innerHTML = r.list.length ? r.list.map(o=>`<div class="card" id="oq_${o.id}"><div class="row"><div class="grow"><b>${h(o.shop)}</b><div class="hint">${h(o.id)} · ${h(o.date)} · ${h(o.rep)} · ${h(o.area)} · ${h(o.terms)} · ${o.qty} units</div></div><div class="amt">${money(o.net)}</div></div>
-    <div class="grid2"><div><label>Order status</label><select id="os_${o.id}">${opts(L.orderStatus.filter(s=>o.status==='Submitted'||s!=='Submitted'),o.status)}</select></div>
-    <div><label>Delivery status</label><select id="ds_${o.id}">${opts(L.deliveryStatus,o.delivery)}</select></div></div>
-    <div id="it_${o.id}"></div><button class="btn sm sec" onclick="items('${o.id}')">View items</button><button class="btn sm" onclick="saveOrder('${o.id}','${h(o.status)}','${h(o.delivery)}')">Save</button></div>`).join('') : '<div class="okbox">All orders are delivered.</div>';
-};
-async function items(id){ const r=await api('apiOrderItems', id); if(!r.ok) return toast(r.message); $('it_'+id).innerHTML=`<table class="t"><tr><th>Product</th><th>Qty</th><th>Net</th></tr>${r.items.map(i=>`<tr><td>${h(i.name)}</td><td>${i.qty}</td><td>${money(i.net)}</td></tr>`).join('')}</table>`; }
-async function saveOrder(id, os0, ds0){
-  const ch={}; const os=val('os_'+id), ds=val('ds_'+id);
-  if(os!==os0) ch.orderStatus=os; if(ds!==ds0) ch.deliveryStatus=ds;
-  if(!Object.keys(ch).length) return toast('No changes');
-  if(ch.orderStatus==='Cancelled'){ const why=prompt('Cancellation reason (required):'); if(!why) return; ch.reason=why; }
-  busy(true,'Updating…'); const r=await api('apiUpdateOrder', id, ch); busy(false);
-  if(!r.ok) return toast('⛔ '+r.message); toast('✅ '+r.message); if(ch.deliveryStatus==='Delivered'||ch.orderStatus==='Cancelled'){ const el=$('oq_'+id); if(el) el.remove(); } refreshBoot(false);
-}
 screens.team = async function(){
   page('Team today', S.boot.todayLabel, `<div id="tmBox" class="hint">Loading…</div>`);
   const r=await api('apiTeamToday'); if(!r.ok) return $('tmBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
   $('tmBox').innerHTML = `<div class="card" style="overflow-x:auto"><table class="t"><tr><th>Rep</th><th>In</th><th>Out</th><th>Shops</th><th>Orders</th><th>Sales</th><th>Cash</th></tr>
     ${r.rows.map(x=>`<tr><td>${h(x.name)}<div class="hint">${h(x.empId)}${x.newTailors?' · '+x.newTailors+' new':''}</div></td><td>${x.checkIn?h(x.checkIn)+(x.late?' <span class="chip c-bad">late</span>':''):'<span class="chip c-bad">none</span>'}</td><td>${h(x.checkOut||'—')}</td><td>${x.shops}</td><td>${x.orders}</td><td>${money(x.sales)}</td><td>${money(x.cash)}</td></tr>`).join('')}</table></div>`;
 };
+
+// ---------------------------------------------------------------- deliveries
+const money2 = n => '৳' + (Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+function delChip(s){ const m={Pending:'c-warn',Dispatched:'c-info',Delivered:'c-ok','Partially Delivered':'c-warn',Returned:'c-bad'}; return `<span class="chip ${m[s]||''}">${h(s||'Pending')}</span>`; }
+function navLink(lat,lng){ return lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${lat},${lng}">🧭 Go</a>`:''; }
+screens.deliveries = async function(tab){
+  S.dv = S.dv || {tab:'open', who:''}; if(tab) S.dv.tab=tab;
+  const mg = !S.boot.perms.delivery;
+  page(mg?'Orders & delivery':'My deliveries', mg?'Confirm, assign and track deliveries':S.boot.todayLabel, `<div id="dvBox" class="hint">Loading…</div>`);
+  const r=await api('apiDeliveries'); if(!r.ok) return $('dvBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.dv.data=r; renderDeliveries();
+};
+function dvTab(t){ S.dv.tab=t; renderDeliveries(); }
+function dvWho(v){ S.dv.who=v; renderDeliveries(); }
+function renderDeliveries(){
+  const r=S.dv.data, s=r.summary, mg=!S.boot.perms.delivery, box=$('dvBox'); if(!box||!r) return;
+  const flt = o => !mg || !S.dv.who || (S.dv.who==='-' ? !o.deliveryBy : o.deliveryBy===S.dv.who);
+  const open=r.open.filter(flt), done=r.done.filter(flt);
+  const tabs=[['open','To deliver ('+open.length+')'],['done','Delivered (7 days)']];
+  if(mg) tabs.unshift(['submitted','To confirm ('+r.submitted.length+')']);
+  if(!tabs.some(x=>x[0]===S.dv.tab)) S.dv.tab='open';
+  let head=`<div class="card"><div class="grid4">
+     <div class="kpi tap" onclick="dvTab('open')"><b>${s.open}</b><span>To deliver</span></div>
+     <div class="kpi tap" onclick="dvTab('done')"><b>${s.doneToday}</b><span>Delivered today</span></div>
+     <div class="kpi"><b>${money(s.billedToday)}</b><span>Billed today</span></div>
+     <div class="kpi"><b>${money(s.cashToday)}</b><span>Cash today</span></div></div>
+     ${s.shortToday?`<div class="warnbox">${s.shortToday} delivery(ies) today were short or refused.</div>`:''}
+     ${mg&&s.unassigned?`<div class="badbox">${s.unassigned} order(s) have no delivery person. Add staff with role "Delivery" and their areas in Employee Master, or assign below.</div>`:''}</div>`;
+  if(mg){
+    head+=`<div class="card" style="overflow-x:auto"><h3>Delivery team</h3>${r.staff.length?`<table class="t"><tr><th>Person</th><th>Open</th><th>Value</th><th>Today</th></tr>${r.staff.map(p=>`<tr onclick="dvWho('${h(p.id)}')" style="cursor:pointer"><td>${h(p.name)}<div class="hint">${h(p.territory)}</div></td><td>${p.open}</td><td>${money(p.openValue)}</td><td>${p.doneToday} · ${money(p.billedToday)}</td></tr>`).join('')}</table>`:'<div class="hint">No delivery staff yet. Add them in Employee Master with role "Delivery".</div>'}
+      <label>Show</label><select onchange="dvWho(this.value)"><option value="">Everyone</option><option value="-" ${S.dv.who==='-'?'selected':''}>Not assigned</option>${r.staff.map(p=>`<option value="${h(p.id)}" ${S.dv.who===p.id?'selected':''}>${h(p.name)}</option>`).join('')}</select></div>`;
+  }
+  head+=`<div class="tabs">${tabs.map(x=>`<button class="${S.dv.tab===x[0]?'on':''}" onclick="dvTab('${x[0]}')">${x[1]}</button>`).join('')}</div>`;
+  const staffSel = o => `<select onchange="assignDel('${h(o.id)}',this.value)"><option value="">— Not assigned —</option>${r.staff.map(p=>`<option value="${h(p.id)}" ${o.deliveryBy===p.id?'selected':''}>${h(p.name)}</option>`).join('')}</select>`;
+  let list='';
+  if(S.dv.tab==='open') list = open.length ? open.map(o=>`<div class="card" id="dv_${h(o.id)}"><div class="row"><div class="grow"><b>${h(o.shop)}</b> ${delChip(o.delivery)}
+      <div class="hint">${h(o.id)} · ${h(o.date)}${o.age>0?' ('+o.age+' d ago)':''} · ${o.qty} pcs · ${h(o.terms)}</div>
+      <div class="muted">${h(o.address||'')}${o.address?' · ':''}${h(o.area)}</div>
+      <div class="hint">${h(o.owner)} · Rep ${h(o.rep)}${mg?' · '+(o.deliveryName?'🚚 '+h(o.deliveryName):'<b style="color:var(--bad)">not assigned</b>'):''}</div></div><div class="amt">${money(o.net)}</div></div>
+      ${mg?`<label>Delivery person</label>${staffSel(o)}`:''}
+      <div>${o.mobile?`<a class="btn sm sec" href="tel:${h(o.mobile)}">📞 Call</a>`:''}${navLink(o.lat,o.lng)}<button class="btn sm sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button><button class="btn sm sec" onclick="show('doc','${h(o.id)}','invoice')">🧾 Invoice</button>${o.delivery==='Pending'?`<button class="btn sm sec" onclick="dispatchDel('${h(o.id)}')">🚚 Out for delivery</button>`:''}<button class="btn sm ok" onclick="show('deliver','${h(o.id)}')">✅ Deliver</button></div></div>`).join('') : '<div class="okbox">Nothing waiting for delivery. 🎉</div>';
+  else if(S.dv.tab==='done') list = done.length ? `<div class="card list">${done.map(o=>`<div class="it" onclick="show('doc','${h(o.id)}','invoice')"><div class="grow"><b>${h(o.shop)}</b> ${delChip(o.delivery)}<div class="muted">${h(o.invoiceNo||o.id)} · ${h(o.deliveredAt||o.date)} · ${o.billedQty===null?o.qty:o.billedQty}/${o.qty} pcs${mg&&o.deliveryName?' · '+h(o.deliveryName):''}</div>${o.shortReason?`<div class="hint">⚠ ${h(o.shortReason)}</div>`:''}</div><div style="text-align:right"><div class="amt">${money(o.billed===null?o.net:o.billed)}</div>${o.billed!==null&&o.billed<o.net?`<div class="hint"><s>${money(o.net)}</s></div>`:''}</div></div>`).join('')}</div>` : '<div class="hint">No deliveries in the last 7 days.</div>';
+  else list = r.submitted.length ? r.submitted.map(o=>`<div class="card" id="dv_${h(o.id)}"><div class="row"><div class="grow"><b>${h(o.shop)}</b><div class="hint">${h(o.id)} · ${h(o.date)} · ${h(o.rep)} · ${h(o.area)} · ${h(o.terms)} · ${o.qty} pcs</div></div><div class="amt">${money(o.net)}</div></div>
+      <div><button class="btn sm sec" onclick="show('doc','${h(o.id)}','invoice')">🧾 View</button><button class="btn sm ok" onclick="setOrderStatus('${h(o.id)}','Confirmed')">Confirm</button><button class="btn sm bad" onclick="setOrderStatus('${h(o.id)}','Cancelled')">Cancel</button></div></div>`).join('') : '<div class="okbox">No orders waiting for confirmation.</div>';
+  box.innerHTML = head + list;
+}
+async function assignDel(id, emp){
+  busy(true,'Assigning…'); const r=await api('apiAssignDelivery', id, emp); busy(false);
+  toast(r.ok?'✅ '+r.message:'⛔ '+r.message);
+  if(r.ok){ const o=S.dv.data.open.find(x=>x.id===id); if(o){ o.deliveryBy=emp; const p=S.dv.data.staff.find(x=>x.id===emp); o.deliveryName=p?p.name:''; } }
+}
+async function dispatchDel(id){ busy(true); const r=await api('apiDispatch', id); busy(false); toast(r.ok?'🚚 '+r.message:'⛔ '+r.message); if(r.ok){ const o=S.dv.data.open.find(x=>x.id===id); if(o) o.delivery='Dispatched'; renderDeliveries(); } }
+async function setOrderStatus(id, st){
+  const ch={orderStatus:st}; if(st==='Cancelled'){ const why=prompt('Cancellation reason (required):'); if(!why) return; ch.reason=why; }
+  busy(true,'Updating…'); const r=await api('apiUpdateOrder', id, ch); busy(false);
+  if(!r.ok) return toast('⛔ '+r.message); toast('✅ '+r.message); refreshBoot(false); screens.deliveries();
+}
+
+// ---------------------------------------------------------------- deliver (per-product quantities)
+screens.deliver = async function(id){
+  page('Deliver', id, `<div id="dlBox" class="hint">Loading…</div>`);
+  const r=await api('apiOrderDoc', id); if(!r.ok) return $('dlBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  if(r.order.closed) return $('dlBox').innerHTML=`<div class="okbox">This order is already ${h(r.order.delivery)}.</div><button class="btn" onclick="show('doc','${h(id)}','invoice')">Open invoice</button>`;
+  S.dl={doc:r, q:{}}; r.lines.forEach(l=>S.dl.q[l.lineId]=l.qty);
+  const dd=S.dv&&S.dv.data, canCollect = dd ? dd.canCollect : true;
+  const reasons = (dd&&dd.reasons) || ['Out of stock','Customer asked for less','Damaged in transit','Wrong item packed','Customer refused','Shop closed','Other'];
+  const t=r.tailor, o=r.order, cod=/Cash on Delivery/i.test(o.terms);
+  $('dlBox').innerHTML=`<div class="card"><b>${h(t.shop)}</b><div class="muted">${h(t.owner)} · ${h(t.mobile)}<br>${h(t.address)} ${h(t.area)}</div>
+     <div class="hint">${h(o.id)} · ${h(o.date)} · ${h(o.terms)} · Rep ${h(o.rep)}</div>
+     <div>${t.mobile?`<a class="btn sm sec" href="tel:${h(t.mobile)}">📞 Call</a>`:''}${navLink(t.lat,t.lng)}<button class="btn sm sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button></div></div>
+   <div class="card"><h3>Delivered quantity</h3><div class="hint">Change the number if less was delivered. Anything not delivered is cancelled and not billed.</div>
+     <div style="margin:4px 0 6px"><button class="btn sm sec" onclick="dlAll(1)">Deliver all</button><button class="btn sm sec" onclick="dlAll(0)">Nothing delivered</button></div>
+     ${r.lines.map(l=>`<div class="dl"><div class="grow"><b>${h(l.name)}</b><div class="hint">${h(l.sku)} · ordered ${l.qty} · ${money(l.price)}/pc</div></div>
+       <div class="qty"><button onclick="dlStep('${h(l.lineId)}',-1)">−</button><input id="dq_${h(l.lineId)}" type="number" inputmode="numeric" min="0" max="${l.qty}" value="${l.qty}" oninput="dlSet('${h(l.lineId)}',this.value)"><button onclick="dlStep('${h(l.lineId)}',1)">+</button></div></div>`).join('')}
+     <div class="sum" id="dl_sum"></div>
+     <div id="dl_short" style="display:none"><label>Why less? <span class="req">*</span></label><select id="dl_reason">${opts(reasons,'','Select reason')}</select><input id="dl_rnote" placeholder="Details (optional)" style="margin-top:8px"></div></div>
+   ${canCollect?`<div class="card" id="dl_pay"><h3>Payment at delivery</h3><label class="opt ${cod?'on':''}"><input type="checkbox" id="dl_paid" ${cod?'checked':''} onchange="this.parentNode.classList.toggle('on',this.checked);dlCalc()"><span>Payment received now</span></label>
+      <div id="dl_payf"><label>Amount (৳)</label><input id="dl_amt" type="number" inputmode="decimal" oninput="this.dataset.auto='0'">
+      <label>Method</label><select id="dl_m" onchange="$('dl_refw').style.display=this.value==='Cash'?'none':'block'">${opts(S.boot.lists.methods,'Cash')}</select>
+      <div id="dl_refw" style="display:none"><label>Transaction reference</label><input id="dl_ref"></div>
+      <div class="hint">Counts as collected after Accounts verifies it.</div></div></div>`:''}
+   <div class="card"><label>Received by (name)</label><input id="dl_rcv" placeholder="Who took the goods">
+     ${photoBox('dl','Delivery photo (optional)')}
+     ${gpsBox('dl')}
+     <label>Remarks</label><textarea id="dl_rem"></textarea>
+     <button class="btn ok" onclick="doDeliver()">Confirm delivery</button></div>`;
+  captureGps('dl'); dlCalc();
+};
+function dlLine(l){ const q=S.dl.q[l.lineId]; return q===l.qty ? l.net : Math.round(l.net*q/l.qty*100)/100; }
+function dlCalc(){
+  const L=S.dl.doc.lines, B=S.dl.doc.balance; let u=0,U=0,b=0,n=0;
+  L.forEach(l=>{ u+=S.dl.q[l.lineId]; U+=l.qty; b+=dlLine(l); n+=l.net; });
+  b=Math.round(b*100)/100; S.dl.billed=b;
+  const short=u<U;
+  $('dl_short').style.display=short?'block':'none';
+  $('dl_sum').innerHTML=`<div class="row"><span>Delivered</span><b>${u} of ${U} pcs</b></div><div class="row"><span>Bill amount</span><b class="amt">${money(b)}</b></div>${short?`<div class="row" style="color:var(--bad)"><span>Not delivered — cancelled</span><b>${money(n-b)}</b></div>`:''}`;
+  const pf=$('dl_payf'), pc=$('dl_paid'), a=$('dl_amt');
+  if(pf&&pc){ pf.style.display=pc.checked&&b>0?'block':'none'; if(a && a.dataset.auto!=='0') a.value = b>0 ? Math.max(0, Math.round((b - B.adjustments - B.paid - B.pending)*100)/100) : ''; }
+}
+function dlClamp(id,v){ const l=S.dl.doc.lines.find(x=>x.lineId===id); v=parseInt(v,10); if(isNaN(v)||v<0) v=0; if(v>l.qty) v=l.qty; return v; }
+function dlSet(id,v){ const c=dlClamp(id,v); S.dl.q[id]=c; if(String(c)!==String(v) && v!=='') $('dq_'+id).value=c; dlCalc(); }
+function dlStep(id,d){ const c=dlClamp(id,S.dl.q[id]+d); S.dl.q[id]=c; $('dq_'+id).value=c; dlCalc(); }
+function dlAll(full){ S.dl.doc.lines.forEach(l=>{ S.dl.q[l.lineId]=full?l.qty:0; $('dq_'+l.lineId).value=S.dl.q[l.lineId]; }); dlCalc(); }
+async function doDeliver(){
+  const d=S.dl, L=d.doc.lines, o=d.doc.order;
+  const lines=L.map(l=>({lineId:l.lineId, qty:d.q[l.lineId]}));
+  const u=lines.reduce((a,x)=>a+x.qty,0), U=L.reduce((a,l)=>a+l.qty,0);
+  if(u<U && !val('dl_reason')) return toast('Select why less was delivered');
+  const g=needGps('dl'); if(!g) return;
+  const p=Object.assign({orderId:o.id, lines, reason:val('dl_reason'), reasonNote:val('dl_rnote'), receivedBy:val('dl_rcv'), remarks:val('dl_rem'), photo:S.photos.dl||'', submissionId:uid()}, g);
+  const pc=$('dl_paid');
+  if(pc&&pc.checked&&d.billed>0){ const a=parseFloat(val('dl_amt'))||0; if(a>0){ if(val('dl_m')!=='Cash'&&!val('dl_ref')) return toast('Enter the transaction reference'); p.collect={amount:a, method:val('dl_m'), txnRef:val('dl_ref')}; } }
+  if(!confirm(`Confirm delivery to ${d.doc.tailor.shop}\n${u} of ${U} pcs · bill ${money(d.billed)}${p.collect?'\nPayment received: '+money(p.collect.amount)+' ('+p.collect.method+')':''}${u<U?'\nItems not delivered will be cancelled.':''}`)) return;
+  const r=await submit('apiDeliver', p, 'Saving delivery…'); if(!r) return;
+  page('Delivered', o.id, `<div class="okbox">✅ ${h(r.message)}</div>${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)}</div>`:''}
+    ${r.billed>0?`<button class="btn" onclick="show('doc','${h(o.id)}','invoice')">🧾 Final invoice — print / share</button>`:''}<button class="btn sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button>
+    <button class="btn sec" onclick="show('deliveries','open')">Back to deliveries</button>`);
+  refreshBoot(false);
+}
+
+// ---------------------------------------------------------------- documents: invoice, challan, statement
+const FMTS=[['a4','A4'],['a5','A5'],['80','80 mm']];
+const DOC_TITLES={invoice:'Invoice', challan:'Delivery challan', ledger:'Account statement'};
+screens.doc = async function(id, kind){
+  S.doc={id, kind:kind||'invoice', fmt:load('hbd_fmt')||'a4', pdf:null};
+  page(DOC_TITLES[S.doc.kind], id, `<div id="docBox" class="hint">Loading…</div>`);
+  const r = S.doc.kind==='ledger' ? await api('apiTailorLedger', id) : await api('apiOrderDoc', id);
+  if(!r.ok) return $('docBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.doc.data=r; renderDoc();
+};
+function renderDoc(){
+  const d=S.doc, r=d.data, box=$('docBox'); if(!box) return;
+  const body = d.kind==='challan' ? challanHtml(r) : d.kind==='ledger' ? ledgerHtml(r) : invoiceHtml(r);
+  box.innerHTML = `<div class="card"><div class="tabs">${FMTS.map(f=>`<button class="${d.fmt===f[0]?'on':''}" onclick="docFmt('${f[0]}')">${f[1]}</button>`).join('')}${d.kind!=='ledger'?`<button onclick="docKind('${d.kind==='challan'?'invoice':'challan'}')">${d.kind==='challan'?'🧾 Invoice':'📄 Challan'}</button>`:''}</div>
+     <div><button class="btn sm" onclick="printDoc()">🖨 Print</button><button class="btn sm gold" id="pdfBtn" onclick="sharePdf()">📤 Share PDF</button></div>
+     <div class="hint">80 mm = thermal receipt printer. On a phone, Print ▸ "Save as PDF" also works.</div></div>
+     <div class="docwrap" id="docwrap"><div id="doc" class="doc f-${d.fmt}">${body}</div></div>`;
+  fitDoc();
+}
+function fitDoc(){ const w=$('docwrap'), el=$('doc'); if(!w||!el) return; el.style.zoom=''; const z=Math.min(1,(w.clientWidth-20)/el.offsetWidth); el.style.zoom = z<1 ? String(Math.floor(z*100)/100) : ''; }
+window.addEventListener('resize', ()=>{ if(S.screen==='doc') fitDoc(); });
+function docFmt(f){ S.doc.fmt=f; S.doc.pdf=null; store('hbd_fmt',f); renderDoc(); }
+function docKind(k){ S.doc.kind=k; S.doc.pdf=null; const b=document.querySelector('header.top .brand'); if(b&&b.firstChild) b.firstChild.textContent=DOC_TITLES[k]; renderDoc(); }
+function docHeightMm(){ const el=$('doc'), z=el.style.zoom; el.style.zoom=''; const mm=Math.ceil(el.offsetHeight/3.78)+6; el.style.zoom=z; return mm; }
+function printDoc(){
+  let st=$('pgsz'); if(!st){ st=document.createElement('style'); st.id='pgsz'; document.head.appendChild(st); }
+  const f=S.doc.fmt; st.textContent = f==='80' ? `@page{size:80mm ${docHeightMm()}mm;margin:2mm}` : (f==='a5' ? '@page{size:A5;margin:8mm}' : '@page{size:A4;margin:10mm}');
+  window.print();
+}
+function docFileName(){ const d=S.doc, r=d.data; const base = d.kind==='ledger' ? 'Statement-'+r.tailor.id : (d.kind==='challan' ? 'Challan-'+r.order.id : (r.final ? r.order.invoiceNo : 'Draft-invoice-'+r.order.id)); return base+'-'+(d.fmt==='80'?'80mm':d.fmt.toUpperCase())+'.pdf'; }
+async function sharePdf(){
+  const d=S.doc, btn=$('pdfBtn'), name=docFileName();
+  try{
+    if(!d.pdf){
+      btn.disabled=true; btn.textContent='⏳ Preparing PDF…';
+      if(!window.html2pdf) await loadScript('https:\/\/cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+      const el=$('doc'), f=d.fmt, z=el.style.zoom; el.style.zoom='';
+      const format = f==='80' ? [80, docHeightMm()] : f;
+      try{
+        const blob = await window.html2pdf().set({ margin: f==='80'?2:(f==='a5'?6:8), filename:name, image:{type:'jpeg',quality:0.96}, html2canvas:{scale:2, backgroundColor:'#ffffff'}, jsPDF:{unit:'mm', format:format, orientation:'portrait'}, pagebreak:{mode:['css','legacy']} }).from(el).outputPdf('blob');
+        d.pdf = new File([blob], name, {type:'application/pdf'});
+      } finally { el.style.zoom=z; btn.disabled=false; }
+    }
+    const file=d.pdf;
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:name}); btn.textContent='📤 Share PDF'; }
+      catch(e){ btn.textContent = e&&e.name==='AbortError' ? '📤 Share PDF' : '📤 Tap again to share'; }
+      return;
+    }
+    const a=document.createElement('a'); a.href=URL.createObjectURL(file); a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    btn.textContent='⬇️ PDF downloaded'; toast('PDF saved: '+name);
+  }catch(e){ btn.disabled=false; btn.textContent='📤 Share PDF'; toast('Could not create the PDF ('+((e&&e.message)||e)+'). Use Print ▸ Save as PDF instead.', 7000); }
+}
+function kv(k,v){ return v ? `<div><span>${h(k)}</span> ${v}</div>` : ''; }
+function docHead(c, title, meta){ return `<div class="dh"><div><div class="dn">${h(c.name)}</div><div class="ds">${h(c.address)}${c.phone?'<br>☎ '+h(c.phone):''}</div></div><div class="dt"><div class="dtt">${title}</div>${meta}</div></div>`; }
+function partyHtml(label, t, withId){ return `<div><div class="dl2">${label}</div><b>${h(t.shop)}</b><br>${h(t.owner)}${t.mobile?' · '+h(t.mobile):''}<br>${t.address?h(t.address)+'<br>':''}${h(t.area)}${t.district?', '+h(t.district):''}${withId?`<div class="dmut">Customer ID ${h(t.id)}</div>`:''}</div>`; }
+function invoiceHtml(r){
+  const o=r.order, t=r.tailor, fin=r.final;
+  const rows = r.lines.map(l=>{ const q = fin ? l.delivered : l.qty; return {l, q, amt:Math.round(q*l.price*100)/100}; });
+  const shown = fin ? rows.filter(x=>x.q>0) : rows;
+  const sub = Math.round(shown.reduce((a,x)=>a+x.amt,0)*100)/100;
+  const total = fin ? o.billed : o.net, disc = Math.round((sub-total)*100)/100;
+  const short = fin ? r.lines.filter(l=>l.delivered<l.qty) : [];
+  const B=r.balance, bal=Math.max(0, Math.round((B.due-B.pending)*100)/100);
+  const meta = (fin ? kv('Invoice No','<b>'+h(o.invoiceNo)+'</b>')+kv('Invoice date',h(o.invoiceDate))+kv('Order',h(o.id)+' · '+h(o.date))
+                    : kv('Draft for order','<b>'+h(o.id)+'</b>')+kv('Order date',h(o.date)));
+  return `${fin?'':'<div class="draft">DRAFT — the final invoice is issued on delivery</div>'}
+   ${docHead(r.company, fin?'INVOICE':'DRAFT INVOICE', meta)}
+   <div class="dp">${partyHtml('Bill to', t, true)}<div>${kv('Payment terms',h(o.terms))}${kv('Due date','<b>'+h(o.due)+'</b>')}${kv('Sales rep',h(o.rep))}${fin?kv('Delivered',h(o.deliveredAt)):''}${fin&&o.deliveryName?kv('Delivered by',h(o.deliveryName)):''}${fin&&o.receivedBy?kv('Received by',h(o.receivedBy)):''}</div></div>
+   <table class="dtab"><thead><tr><th>#</th><th>Product</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>
+   ${shown.map((x,i)=>`<tr><td>${i+1}</td><td>${h(x.l.name)}<div class="dmut">${h(x.l.sku)}${x.l.variant?' · '+h(x.l.variant):''}${fin&&x.q<x.l.qty?' · ordered '+x.l.qty:''}</div></td><td class="r">${x.q}</td><td class="r">${money2(x.l.price)}</td><td class="r">${money2(x.amt)}</td></tr>`).join('')}
+   <tr class="dsum"><td></td><td>Total quantity</td><td class="r">${shown.reduce((a,x)=>a+x.q,0)}</td><td></td><td></td></tr></tbody></table>
+   <div class="dtot">${kv('Subtotal',money2(sub))}${disc>0.004?kv('Discount','− '+money2(disc)):''}<div class="dgt"><span>Total</span> ${money2(total)}</div>
+     ${fin?kv('Paid (verified)',money2(B.paid))+(B.pending>0?kv('Paid, awaiting verification',money2(B.pending)):'')+(B.adjustments>0?kv('Returns / adjustments','− '+money2(B.adjustments)):'')+`<div class="dgt"><span>Balance due</span> ${money2(bal)}</div>`:''}</div>
+   ${short.length?`<div class="dnote"><b>Not delivered (cancelled, not billed):</b> ${short.map(l=>h(l.name)+' × '+(l.qty-l.delivered)).join(', ')}${o.shortReason?' — '+h(o.shortReason):''}</div>`:''}
+   ${r.company.note?`<div class="dnote">${h(r.company.note)}</div>`:''}
+   <div class="dsig"><div>Customer signature</div><div>For ${h(r.company.name)}</div></div>`;
+}
+function challanHtml(r){
+  const o=r.order, t=r.tailor, fin=o.closed;
+  const meta = kv('Challan No','<b>CH-'+h(o.id.replace(/^ORD-/,''))+'</b>')+kv('Date',h(fin?o.deliveredAt.split(',')[0]:fmtD(today())))+kv('Order',h(o.id))+(o.invoiceNo?kv('Invoice',h(o.invoiceNo)):'');
+  return `${docHead(r.company,'DELIVERY CHALLAN',meta)}
+   <div class="dp">${partyHtml('Deliver to', t, false)}<div>${kv('Delivery person',h(o.deliveryName||'—'))}${kv('Sales rep',h(o.rep))}${kv('Payment terms',h(o.terms))}</div></div>
+   <table class="dtab"><thead><tr><th>#</th><th>Product</th><th class="r">Ordered</th><th class="r">Delivered</th></tr></thead><tbody>
+   ${r.lines.map((l,i)=>`<tr><td>${i+1}</td><td>${h(l.name)}<div class="dmut">${h(l.sku)}${l.variant?' · '+h(l.variant):''}</div></td><td class="r">${l.qty}</td><td class="r">${l.delivered===null?'<span class="dbox"></span>':l.delivered}</td></tr>`).join('')}
+   <tr class="dsum"><td></td><td>Total pcs</td><td class="r">${o.totalQty}</td><td class="r">${o.billedQty===null?'':o.billedQty}</td></tr></tbody></table>
+   ${fin&&o.shortReason?`<div class="dnote">Short / not delivered: ${h(o.shortReason)}</div>`:''}
+   <div class="dnote">Goods received in good condition and in the quantity shown above.</div>
+   <div class="dsig"><div>Delivered by</div><div>Received by (name &amp; signature)${o.receivedBy?'<br><b>'+h(o.receivedBy)+'</b>':''}</div></div>`;
+}
+function ledgerHtml(r){
+  const t=r.tailor;
+  return `${docHead(r.company,'ACCOUNT STATEMENT', kv('As of',h(r.asOf))+kv('Customer ID',h(t.id)))}
+   <div class="dp">${partyHtml('Customer', t, false)}<div>${kv('Total billed',money2(r.debit))}${kv('Total received',money2(r.credit))}<div class="dgt"><span>${r.balance<0?'Advance / credit':'Balance due'}</span> ${money2(Math.abs(r.balance))}</div></div></div>
+   <table class="dtab"><thead><tr><th>Date</th><th>Details</th><th class="r">Debit</th><th class="r">Credit</th><th class="r">Balance</th></tr></thead><tbody>
+   ${r.rows.length?r.rows.map(x=>`<tr><td>${h(x.date)}</td><td>${h(x.desc)}<div class="dmut">${h(x.ref)}</div></td><td class="r">${x.debit?money2(x.debit):''}</td><td class="r">${x.credit?money2(x.credit):''}</td><td class="r">${money2(x.balance)}</td></tr>`).join(''):'<tr><td colspan="5">No transactions yet.</td></tr>'}
+   </tbody></table>
+   ${r.pending.length?`<div class="dnote"><b>Payments awaiting verification (${money2(r.pendingTotal)}):</b> ${r.pending.map(p=>h(p.date)+' '+h(p.ref)+' '+money2(p.amount)).join(' · ')}</div>`:''}
+   <div class="dnote">Debit = goods billed. Credit = payments verified by Accounts, returns and adjustments. Orders not yet delivered are shown at the ordered value.</div>`;
+}
 
 // ---------------------------------------------------------------- profile
 screens.profile = function(){
