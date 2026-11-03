@@ -25,6 +25,8 @@
   .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
   .kpi{background:var(--soft);border-radius:12px;padding:10px 8px;text-align:center}
   .kpi b{display:block;font-size:17px;color:var(--p)}
+  .kpi.tap{cursor:pointer;border:1px solid transparent}.kpi.tap:active{border-color:var(--p)}
+  .tabs{display:flex;gap:6px;overflow-x:auto;margin:4px 0 10px;padding-bottom:2px}.tabs button{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 12px;font-size:13px;color:var(--pd)}.tabs button.on{background:var(--p);color:#fff;border-color:var(--p)}
   .kpi span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.3px}
   .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .tile{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center;font-weight:600;font-size:13px;color:var(--pd);position:relative;cursor:pointer}
@@ -178,6 +180,7 @@ screens.home = function(){
   const b=S.boot, u=S.user; if(!b) return;
   const a=b.attendance, st=b.stats, m=b.month, P=b.perms, c=b.counts;
   const pct=(x,t)=> t? Math.min(100, Math.round(x/t*100)) : 0;
+  const pctRaw=(x,t)=> t? Math.round(x/t*100) : 0;
   let att;
   if(!P.field) att='';
   else if(!a || !a.checkIn) att=`<div class="card"><div class="row"><div class="grow"><b>Not checked in</b><div class="muted">${h(b.todayLabel)}</div></div>
@@ -187,7 +190,7 @@ screens.home = function(){
   else att=`<div class="card"><b>Day complete</b> <span class="chip c-ok">${h(a.checkIn)} – ${h(a.checkOut)}</span><div class="muted">${h(b.todayLabel)}</div></div>`;
   const prog = m ? `<div class="card"><h3>This month</h3>
       ${[['Sales',m.sales,m.tSales,1],['Collections (verified)',m.collections,m.tCollection,1],['New tailors',m.onboarded,m.tNewTailors,0],['Shop visits',m.visits,m.tVisits,0]].map(x=>`
-      <div style="margin-bottom:9px"><div class="row"><div class="grow muted">${x[0]}</div><b>${x[3]?money(x[1]):x[1]}</b><span class="muted">&nbsp;/ ${x[2]?(x[3]?money(x[2]):x[2]):'—'}</span></div>
+      <div style="margin-bottom:9px"><div class="row"><div class="grow muted">${x[0]}</div><b>${x[3]?money(x[1]):x[1]}</b><span class="muted">&nbsp;/ ${x[2]?(x[3]?money(x[2]):x[2]):'—'}</span>${x[2]?`<span class="chip ${pctRaw(x[1],x[2])>=100?'c-ok':pctRaw(x[1],x[2])>=50?'c-info':'c-warn'}" style="margin-left:6px">${pctRaw(x[1],x[2])}%</span>`:''}</div>
       <div class="bar"><i style="width:${pct(x[1],x[2])}%"></i></div></div>`).join('')}
       <div class="grid2" style="margin-top:6px"><div class="kpi"><b>${money(m.outstanding)}</b><span>My outstanding</span></div><div class="kpi"><b style="color:${m.overdue>0?'var(--bad)':'var(--ok)'}">${money(m.overdue)}</b><span>Overdue</span></div></div></div>` : '';
   const tiles = [];
@@ -195,6 +198,7 @@ screens.home = function(){
     tiles.push(['🧵','Onboard tailor',"show('onboard')"],['🛒','New order',"show('order')"],['💵','Collect payment',"show('collect')"],
       ['📍','Field visit',"show('visit')"],['🏪','My tailors',"show('tailors')"],['⏰','Follow-ups',"show('followups')",b.followUps.length],['🧾','Expense',"show('expense')"]);
   }
+  tiles.push(['📊','My report',"show('report','month','summary')"]);
   tiles.push(['🗺️','Map',"show('map')"]);
   const mg=[];
   if(P.approve) mg.push(['✅','Approvals',"show('approvals')",c.approvals]);
@@ -206,8 +210,9 @@ screens.home = function(){
     <button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
     ${att}
     ${P.field?`<div class="card"><h3>Today</h3><div class="grid4">
-      <div class="kpi"><b>${st.shops}</b><span>Shops</span></div><div class="kpi"><b>${st.orders}</b><span>Orders</span></div>
-      <div class="kpi"><b>${money(st.sales)}</b><span>Sales</span></div><div class="kpi"><b>${money(st.cash)}</b><span>Cash</span></div></div></div>`:''}
+      <div class="kpi tap" onclick="show('report','today','visits')"><b>${st.shops}</b><span>Shops ›</span></div><div class="kpi tap" onclick="show('report','today','orders')"><b>${st.orders}</b><span>Orders ›</span></div>
+      <div class="kpi tap" onclick="show('report','today','sales')"><b>${money(st.sales)}</b><span>Sales ›</span></div><div class="kpi tap" onclick="show('report','today','cash')"><b>${money(st.cash)}</b><span>Cash ›</span></div></div>
+      <div class="hint">Tap a box to see today's details.</div></div>`:''}
     ${prog}
     <div class="sect">Field actions</div>${tileHtml(tiles)}
     ${mg.length?`<div class="sect">Management</div>${tileHtml(mg)}`:''}
@@ -528,6 +533,81 @@ screens.shop = async function(id){
     <div class="card"><h3>Payments</h3>${r.collections.length?`<table class="t"><tr><th>ID</th><th>Amount</th><th>Status</th></tr>${r.collections.map(c=>`<tr><td>${h(c.id)}<div class="hint">${h(c.date)} · ${h(c.method)}</div></td><td>${money(c.amount)}</td><td>${statusChip(c.status)}</td></tr>`).join('')}</table>`:'<div class="hint">No payments yet.</div>'}</div>
     <div class="card"><h3>Visit history</h3>${r.visits.length?r.visits.map(v=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>${h(v.purpose)}</b> · ${h(v.outcome)}<div class="hint">${h(v.when)} · ${h(v.rep)} · ${h(v.geo)}${v.distance!==''?' ('+v.distance+' m)':''}${v.remarks?' · '+h(v.remarks):''}</div></div>`).join(''):'<div class="hint">No visits yet.</div>'}</div>`;
 };
+// ---------------------------------------------------------------- report (calendar)
+function rangeFor(p){
+  const t=today(), y=+t.slice(0,4), m=+t.slice(5,7);
+  const pad=n=>String(n).padStart(2,'0'), last=(yy,mm)=>new Date(Date.UTC(yy,mm,0)).getUTCDate();
+  if(p==='today') return [t,t];
+  if(p==='yesterday'){ const d=addDays(t,-1); return [d,d]; }
+  if(p==='week'){ const dow=new Date(t+'T00:00:00Z').getUTCDay(); const back=(dow+1)%7; return [addDays(t,-back),t]; }
+  if(p==='month') return [t.slice(0,8)+'01',t];
+  if(p==='lastmonth'){ const yy=m===1?y-1:y, mm=m===1?12:m-1; return [`${yy}-${pad(mm)}-01`,`${yy}-${pad(mm)}-${pad(last(yy,mm))}`]; }
+  if(p==='quarter'){ const qm=Math.floor((m-1)/3)*3+1; return [`${y}-${pad(qm)}-01`,t]; }
+  if(p==='year') return [`${y}-01-01`,t];
+  return [t,t];
+}
+const PRESETS=[['today','Today'],['yesterday','Yesterday'],['week','This week'],['month','This month'],['lastmonth','Last month'],['quarter','This quarter'],['year','This year'],['custom','Custom']];
+screens.report = function(preset, tab){
+  S.rp = S.rp || {}; S.rp.preset=preset||S.rp.preset||'month'; S.rp.tab=tab||S.rp.tab||'summary';
+  if(S.rp.preset!=='custom'){ const r=rangeFor(S.rp.preset); S.rp.from=r[0]; S.rp.to=r[1]; }
+  const P=S.boot.perms, team=P.team||P.approve;
+  const who = team ? `<label>Whose report</label><select id="rp_who" onchange="S.rp.who=this.value;loadReport()"><option value="">Me</option><option value="ALL" ${S.rp.who==='ALL'?'selected':''}>Whole team</option>${(S.boot.team||[]).map(e=>`<option value="${h(e.id)}" ${S.rp.who===e.id?'selected':''}>${h(e.name)} (${h(e.id)})</option>`).join('')}</select>` : '';
+  page('My report', 'Pick a period', `<div class="card">
+    <div class="tabs">${PRESETS.map(p=>`<button class="${S.rp.preset===p[0]?'on':''}" onclick="screens.report('${p[0]}')">${p[1]}</button>`).join('')}</div>
+    <div class="grid2"><div><label>From</label><input type="date" id="rp_from" value="${S.rp.from}" max="${today()}" onchange="S.rp.preset='custom';S.rp.from=this.value;markCustom()"></div>
+    <div><label>To</label><input type="date" id="rp_to" value="${S.rp.to}" max="${today()}" onchange="S.rp.preset='custom';S.rp.to=this.value;markCustom()"></div></div>
+    ${who}
+    <button class="btn" onclick="loadReport()">Show report</button></div>
+    <div id="rp_out"><div class="muted" style="text-align:center;padding:20px">Loading…</div></div>`);
+  loadReport();
+};
+function markCustom(){ document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on', PRESETS[i]&&PRESETS[i][0]==='custom')); }
+async function loadReport(){
+  const f=val('rp_from'), t=val('rp_to'); if(!f||!t||f>t) return toast('Choose a valid date range');
+  S.rp.from=f; S.rp.to=t; const box=$('rp_out'); if(!box) return;
+  box.innerHTML='<div class="muted" style="text-align:center;padding:20px">Loading…</div>';
+  const r=await api('apiMyReport', f, t, S.rp.who||'');
+  if(!r.ok){ box.innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.rp.data=r; renderReport();
+}
+function rpTab(t){ S.rp.tab=t; renderReport(); }
+function renderReport(){
+  const r=S.rp.data, s=r.summary, tab=S.rp.tab, box=$('rp_out'); if(!box||!r) return;
+  const tabs=[['summary','Summary'],['visits','Shops ('+s.shops+')'],['orders','Orders ('+s.orders+')'],['sales','Sales'],['cash','Cash'],['tailors','New tailors ('+s.newTailors+')']];
+  const head=`<div class="muted" style="margin:2px 2px 8px">${h(fmtD(r.from))}${r.from!==r.to?' – '+h(fmtD(r.to)):''} · ${r.days} day${r.days>1?'s':''}</div>
+    <div class="tabs">${tabs.map(x=>`<button class="${tab===x[0]?'on':''}" onclick="rpTab('${x[0]}')">${x[1]}</button>`).join('')}</div>`;
+  const empty=msg=>`<div class="muted" style="text-align:center;padding:16px">${msg}</div>`;
+  let body='';
+  if(tab==='summary'){
+    body=`<div class="card"><div class="grid2">
+      <div class="kpi tap" onclick="rpTab('visits')"><b>${s.shops}</b><span>Shops visited (${s.visits} visits)</span></div>
+      <div class="kpi tap" onclick="rpTab('orders')"><b>${s.orders}</b><span>Orders${s.cancelled?' · '+s.cancelled+' cancelled':''}</span></div>
+      <div class="kpi tap" onclick="rpTab('sales')"><b>${money(s.sales)}</b><span>Sales · ${s.units} pcs</span></div>
+      <div class="kpi tap" onclick="rpTab('cash')"><b>${money(s.collected)}</b><span>Collected</span></div>
+      <div class="kpi"><b style="color:var(--ok)">${money(s.verified)}</b><span>Verified</span></div>
+      <div class="kpi"><b style="color:var(--warn)">${money(s.pending)}</b><span>Pending verification</span></div>
+      <div class="kpi tap" onclick="rpTab('tailors')"><b>${s.newTailors}</b><span>New tailors · ${s.approved} approved</span></div>
+      <div class="kpi"><b>${s.presentDays}</b><span>Days present${s.lateDays?' · '+s.lateDays+' late':''}</span></div>
+    </div>${s.rejected?`<div class="warnbox">${money(s.rejected)} was rejected by Accounts in this period.</div>`:''}</div>`;
+  } else if(tab==='visits'){
+    body=r.visits.length?`<div class="card list">${r.visits.map(v=>`<div class="it" onclick="show('shop','${h(v.tailorId)}')"><div class="grow"><b>${h(v.shop||'—')}</b><div class="muted">${h(v.when)} · ${h(v.purpose)} → ${h(v.outcome)}${S.rp.who?' · '+h(v.rep):''}</div></div>${v.geo&&v.geo!=='OK'?`<span class="chip c-warn">${h(v.geo)}</span>`:''}</div>`).join('')}</div>`:empty('No shop visits in this period.');
+  } else if(tab==='orders'){
+    body=r.orders.length?`<div class="card list">${r.orders.map(o=>`<div class="it"><div class="grow"><b>${h(o.shop)}</b><div class="muted">${h(o.id)} · ${h(o.date)} · ${o.qty} pcs · ${h(o.delivery||'')}${S.rp.who?' · '+h(o.rep):''}</div></div><div style="text-align:right"><div class="amt">${money(o.net)}</div>${o.status==='Cancelled'?'<span class="chip c-bad">Cancelled</span>':`<span class="chip ${o.outstanding>0.5?'c-warn':'c-ok'}">${h(o.payment||o.status)}</span>`}</div></div>`).join('')}</div>`:empty('No orders in this period.');
+  } else if(tab==='sales'){
+    const tot=r.products.reduce((a,p)=>a+p.amount,0);
+    body=r.products.length?`<div class="card"><table class="t"><tr><th>Product</th><th style="text-align:right">Qty</th><th style="text-align:right">Amount</th><th style="text-align:right">%</th></tr>
+      ${r.products.map(p=>`<tr><td>${h(p.name)}<div class="hint">${h(p.sku)} · ${h(p.category)}</div></td><td style="text-align:right">${p.qty}</td><td style="text-align:right">${money(p.amount)}</td><td style="text-align:right">${tot?Math.round(p.amount/tot*100):0}%</td></tr>`).join('')}
+      <tr><th>Total</th><th style="text-align:right">${s.units}</th><th style="text-align:right">${money(s.sales)}</th><th></th></tr></table>
+      <div class="hint">Net of order discounts, cancelled orders excluded.</div></div>`:empty('No sales in this period.');
+  } else if(tab==='cash'){
+    body=r.collections.length?`<div class="card list">${r.collections.map(c=>`<div class="it"><div class="grow"><b>${h(c.shop||c.tailorId)}</b><div class="muted">${h(c.id)} · ${h(c.date)} · ${h(c.method)}${c.orderId?' · '+h(c.orderId):''}</div></div><div style="text-align:right"><div class="amt">${money(c.amount)}</div>${statusChip(c.status)}</div></div>`).join('')}</div>`:empty('No payments collected in this period.');
+  } else if(tab==='tailors'){
+    body=r.tailors.length?`<div class="card list">${r.tailors.map(t=>`<div class="it" onclick="show('shop','${h(t.id)}')"><div class="grow"><b>${h(t.shop)}</b><div class="muted">${h(t.id)} · ${h(t.date)} · ${h(t.area)}</div></div>${statusChip(t.status)}</div>`).join('')}</div>`:empty('No new tailors in this period.');
+  }
+  box.innerHTML = head + body + (r.truncated?'<div class="hint">Showing the latest 300 entries. Pick a shorter period to see everything.</div>':'');
+}
+function fmtD(k){ const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return Number(k.slice(8))+' '+M.at(Number(k.slice(5,7))-1)+' '+k.slice(0,4); }
+
 screens.followups = function(){
   const f=S.boot.followUps;
   page('Follow-ups', f.length+' accounts need attention', f.length? f.map(x=>`<div class="card"><div class="row"><div class="grow"><b>${h(x.shop)}</b> ${statusChip(x.priority)}<div class="hint">${h(x.tailorId)} · ${h(x.area)} · ${h(x.owner)}${S.user.role!=='Sales Representative'?' · '+h(x.rep):''}</div></div><div class="amt">${money(x.amount)}</div></div>
