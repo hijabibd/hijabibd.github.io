@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html>
+<head><title>Hijabi.bd · Field Sales</title><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><link rel="manifest" href="manifest.json">
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#6B2D4A">
+<style>
+  :root{--p:#6B2D4A;--a:#C8A24A;--pd:#3d1729;--soft:#F6EEF1;--ink:#2b2b2b;--mut:#7a7a7a;--ok:#1E7B4F;--okb:#E3F4EA;--warn:#9A6700;--warnb:#FFF4DB;--bad:#B42318;--badb:#FDE7E5;--info:#1D4E89;--infob:#E8F0FB;--line:#eadfe4;--r:14px}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:#faf7f8;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Bengali",Arial,sans-serif;font-size:15px}
+  .wrap{max-width:720px;margin:0 auto;padding:0 0 90px}
+  header.top{position:sticky;top:0;z-index:20;background:var(--p);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+  header.top .brand{font-weight:800;letter-spacing:.3px;font-size:17px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  header.top .brand small{display:block;font-weight:500;font-size:11.5px;opacity:.85}
+  header.top button{background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:10px;padding:8px 11px;font-size:14px}
+  .pad{padding:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px;box-shadow:0 1px 2px rgba(80,20,40,.04)}
+  .card h3{margin:0 0 10px;font-size:15px;color:var(--pd)}
+  .muted{color:var(--mut);font-size:12.5px}
+  .row{display:flex;gap:10px;align-items:center}
+  .grow{flex:1;min-width:0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .kpi{background:var(--soft);border-radius:12px;padding:10px 8px;text-align:center}
+  .kpi b{display:block;font-size:17px;color:var(--p)}
+  .kpi span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.3px}
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .tile{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center;font-weight:600;font-size:13px;color:var(--pd);position:relative;cursor:pointer}
+  .tile .ic{font-size:26px;display:block;margin-bottom:6px}
+  .tile .bdg{position:absolute;top:6px;right:8px;background:var(--bad);color:#fff;border-radius:10px;font-size:11px;padding:1px 7px}
+  label{display:block;font-size:12.5px;font-weight:600;color:#5b4650;margin:10px 0 5px}
+  label .req{color:var(--bad)}
+  input,select,textarea{width:100%;padding:11px 12px;border:1px solid #dccdd4;border-radius:11px;font-size:15px;background:#fff;color:var(--ink);font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--a);border-color:transparent}
+  textarea{min-height:70px;resize:vertical}
+  .btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:700;background:var(--p);color:#fff;margin-top:14px;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+  .btn.ok{background:var(--ok)}.btn.bad{background:var(--bad)}.btn.gold{background:var(--a);color:#2b1a00}
+  .btn.sm{display:inline-block;width:auto;padding:9px 14px;font-size:14px;margin:6px 6px 0 0}
+  .btn:disabled{opacity:.55}
+  .chip{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:700;background:#eee;color:#555}
+  .c-ok{background:var(--okb);color:var(--ok)}.c-warn{background:var(--warnb);color:var(--warn)}.c-bad{background:var(--badb);color:var(--bad)}.c-info{background:var(--infob);color:var(--info)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .chips label{margin:0;font-weight:600;padding:8px 12px;border:1px solid #dccdd4;border-radius:20px;background:#fff;font-size:13px}
+  .chips input{display:none}
+  .chips input:checked+span{color:var(--p)}
+  .chips label.on{background:var(--soft);border-color:var(--p);color:var(--p)}
+  .gps{border:1.5px dashed #d8c3cd;border-radius:12px;padding:11px;margin-top:12px;background:#fffdfd}
+  .gps.ok{border-color:var(--ok);background:var(--okb)}
+  .gps.bad{border-color:var(--bad);background:var(--badb)}
+  .list .it{border-bottom:1px solid var(--line);padding:11px 2px;display:flex;gap:10px;align-items:center;cursor:pointer}
+  .list .it:last-child{border-bottom:0}
+  .amt{font-weight:800;color:var(--p);white-space:nowrap}
+  .line{display:grid;grid-template-columns:1fr 84px 34px;gap:8px;align-items:end;margin-bottom:8px}
+  .line .x{background:var(--badb);color:var(--bad);border:0;border-radius:10px;height:44px;font-size:18px}
+  .sum{background:var(--soft);border-radius:12px;padding:10px 12px;margin-top:10px}
+  .sum .row{justify-content:space-between;padding:3px 0}
+  .opt{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .opt.on{border-color:var(--p);background:var(--soft)}
+  .opt input{width:auto;margin-top:3px}
+  .bar{height:8px;border-radius:6px;background:#eee;overflow:hidden;margin-top:4px}
+  .bar i{display:block;height:100%;background:var(--p)}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#222;color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;max-width:92%;z-index:99;display:none;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  #busy{position:fixed;inset:0;background:rgba(255,255,255,.65);z-index:98;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;font-weight:600;color:var(--p)}
+  .spin{width:38px;height:38px;border:4px solid var(--soft);border-top-color:var(--p);border-radius:50%;animation:s 0.8s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  #map{height:62vh;border-radius:14px;border:1px solid var(--line)}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;margin-top:8px}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+  table.t{width:100%;border-collapse:collapse;font-size:13px}
+  table.t th{text-align:left;background:var(--soft);color:var(--pd);padding:7px}
+  table.t td{border-bottom:1px solid var(--line);padding:7px}
+  .login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,var(--p),var(--pd))}
+  .login .card{width:100%;max-width:380px;padding:24px}
+  .logo{font-size:28px;font-weight:900;color:var(--p);letter-spacing:.5px}
+  .logo span{color:var(--a)}
+  a{color:var(--p)}
+  .hint{font-size:12px;color:var(--mut);margin-top:6px}
+  .warnbox{background:var(--warnb);color:var(--warn);border-radius:10px;padding:9px 11px;font-size:13px;margin-top:8px}
+  .badbox{background:var(--badb);color:var(--bad);border-radius:10px;padding:9px 11px;font-size:13px;margin-top:8px}
+  .okbox{background:var(--okb);color:var(--ok);border-radius:10px;padding:12px;font-size:14px}
+  .sect{font-size:12px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:16px 2px 8px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<div id="busy"><div class="spin"></div><div id="busyMsg">Working…</div></div>
+
+<script>
+const COMPANY = "Hijabi.bd";
+const S = { token:null, user:null, boot:null, gps:{}, photos:{}, lines:[], openOrders:[], mapObj:null, mapLayers:[] };
+const $ = id => document.getElementById(id);
+const app = () => $('app');
+const h = s => String(s===null||s===undefined?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '৳' + Math.round(Number(n)||0).toLocaleString('en-US');
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+'-'+Math.random().toString(36).slice(2));
+const today = () => { const d=new Date(Date.now()+6*3600000); return d.toISOString().slice(0,10); };
+const addDays = (k,n) => { const d=new Date(k+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
+function store(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v);}catch(e){} }
+function load(k){ try{ return localStorage.getItem(k);}catch(e){ return null; } }
+
+function toast(msg, ms){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', ms||3800); }
+function busy(on,msg){ $('busy').style.display=on?'flex':'none'; $('busyMsg').textContent=msg||'Working…'; }
+
+
+
+
+const API_URL = 'https:\/\/script.google.com/macros/s/AKfycbwDhiXG4g-6nIRy2WCUzurbGNs6Ci0Sv2kWDisZdva8aOUzWnZd4ElaOW6IvjQ2wXGYkg/exec';
+const GAS = !!(window.google && google.script && google.script.run);
+function done_(r, resolve){ if(r && r.code==='AUTH'){ toast(r.message); logout(true); } resolve(r||{ok:false,message:'No response from server'}); }
+function call(fn, ...args){
+  return new Promise(resolve=>{
+    if(GAS){
+      google.script.run
+        .withSuccessHandler(r=>done_(r, resolve))
+        .withFailureHandler(e=>resolve({ok:false,message:(e&&e.message)?e.message:String(e)}))[fn](...args);
+      return;
+    }
+    fetch(API_URL, {method:'POST', credentials:'omit', redirect:'follow', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({fn, args})})
+      .then(res=>res.json()).then(r=>done_(r, resolve))
+      .catch(e=>resolve({ok:false,message:'Network problem, check internet and try again ('+(e&&e.message?e.message:e)+')'}));
+  });
+}
+async function api(fn, ...args){ return call(fn, S.token, ...args); }
+
+
+const screens = {};
+function show(name, ...args){
+  S.screen = name;
+  if(name!=='home') history.pushState({s:name},'');
+  window.scrollTo(0,0);
+  screens[name](...args);
+}
+window.onpopstate = () => { if(S.user) screens.home(); };
+function topbar(title, sub, back){
+  return `<header class="top">${back?`<button onclick="history.back()">‹</button>`:''}
+    <div class="brand">${h(title)}<small>${h(sub||'')}</small></div>
+    ${back?'':`<button onclick="show('profile')">👤</button>`}</header>`;
+}
+function page(title, sub, body){ app().innerHTML = `<div class="wrap">${topbar(title,sub,true)}<div class="pad">${body}</div></div>`; }
+
+// ---------------------------------------------------------------- login
+screens.login = function(){
+  app().innerHTML = `<div class="login"><div class="card">
+    <div class="logo">${h(COMPANY.split('.')[0])}<span>${COMPANY.indexOf('.')>=0?'.'+h(COMPANY.split('.').slice(1).join('.')):''}</span></div>
+    <div class="muted" style="margin-bottom:14px">Distribution Field Sales</div>
+    <label>Employee ID</label><input id="lid" autocapitalize="characters" placeholder="EMP-101" value="${h(load('hbd_emp')||'')}">
+    <label>PIN</label><input id="lpin" type="password" inputmode="numeric" maxlength="8" placeholder="••••">
+    <button class="btn" onclick="doLogin()">Log in</button>
+    <div class="hint">Forgot your PIN? Ask your admin to reset it.</div></div></div>`;
+  $('lpin').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+};
+async function doLogin(){
+  const id=$('lid').value.trim(), pin=$('lpin').value.trim();
+  if(!id||!pin) return toast('Enter your Employee ID and PIN');
+  busy(true,'Signing in…');
+  const r = await call('apiLogin', id, pin);
+  busy(false);
+  if(!r.ok) return toast(r.message);
+  S.token=r.token; S.user=r.user; store('hbd_tok', r.token); store('hbd_emp', id.toUpperCase());
+  await refreshBoot(true); screens.home();
+}
+function logout(silent){ if(!silent && S.token) call('apiLogout', S.token); S.token=null; S.user=null; S.boot=null; store('hbd_tok',null); screens.login(); }
+
+async function refreshBoot(showBusy){
+  if(showBusy) busy(true,'Loading your workspace…');
+  const r = await api('apiBootstrap');
+  if(showBusy) busy(false);
+  if(!r.ok){ if(r.code!=='AUTH') toast(r.message); return false; }
+  S.boot=r; S.user=r.user; return true;
+}
+
+// ---------------------------------------------------------------- home
+screens.home = function(){
+  const b=S.boot, u=S.user; if(!b) return;
+  const a=b.attendance, st=b.stats, m=b.month, P=b.perms, c=b.counts;
+  const pct=(x,t)=> t? Math.min(100, Math.round(x/t*100)) : 0;
+  let att;
+  if(!P.field) att='';
+  else if(!a || !a.checkIn) att=`<div class="card"><div class="row"><div class="grow"><b>Not checked in</b><div class="muted">${h(b.todayLabel)}</div></div>
+      <button class="btn sm ok" onclick="show('checkin')">Check in</button></div></div>`;
+  else if(!a.checkOut) att=`<div class="card"><div class="row"><div class="grow"><b>Checked in ${h(a.checkIn)}</b> ${a.late?'<span class="chip c-bad">LATE</span>':'<span class="chip c-ok">ON TIME</span>'}<div class="muted">${h(b.todayLabel)}</div></div>
+      <button class="btn sm" onclick="show('checkout')">Check out</button></div></div>`;
+  else att=`<div class="card"><b>Day complete</b> <span class="chip c-ok">${h(a.checkIn)} – ${h(a.checkOut)}</span><div class="muted">${h(b.todayLabel)}</div></div>`;
+  const prog = m ? `<div class="card"><h3>This month</h3>
+      ${[['Sales',m.sales,m.tSales,1],['Collections (verified)',m.collections,m.tCollection,1],['New tailors',m.onboarded,m.tNewTailors,0],['Shop visits',m.visits,m.tVisits,0]].map(x=>`
+      <div style="margin-bottom:9px"><div class="row"><div class="grow muted">${x[0]}</div><b>${x[3]?money(x[1]):x[1]}</b><span class="muted">&nbsp;/ ${x[2]?(x[3]?money(x[2]):x[2]):'—'}</span></div>
+      <div class="bar"><i style="width:${pct(x[1],x[2])}%"></i></div></div>`).join('')}
+      <div class="grid2" style="margin-top:6px"><div class="kpi"><b>${money(m.outstanding)}</b><span>My outstanding</span></div><div class="kpi"><b style="color:${m.overdue>0?'var(--bad)':'var(--ok)'}">${money(m.overdue)}</b><span>Overdue</span></div></div></div>` : '';
+  const tiles = [];
+  if(P.field){
+    tiles.push(['🧵','Onboard tailor',"show('onboard')"],['🛒','New order',"show('order')"],['💵','Collect payment',"show('collect')"],
+      ['📍','Field visit',"show('visit')"],['🏪','My tailors',"show('tailors')"],['⏰','Follow-ups',"show('followups')",b.followUps.length],['🧾','Expense',"show('expense')"]);
+  }
+  tiles.push(['🗺️','Map',"show('map')"]);
+  const mg=[];
+  if(P.approve) mg.push(['✅','Approvals',"show('approvals')",c.approvals]);
+  if(P.verify) mg.push(['🔎','Verify payments',"show('verify')",c.verifications]);
+  if(P.orders) mg.push(['🚚','Orders & delivery',"show('ordersq')",c.orders]);
+  if(P.team) mg.push(['👥','Team today',"show('team')"]);
+  const tileHtml = arr => `<div class="tiles">${arr.map(t=>`<div class="tile" onclick="${t[2]}"><span class="ic">${t[0]}</span>${t[1]}${t[3]?`<span class="bdg">${t[3]}</span>`:''}</div>`).join('')}</div>`;
+  app().innerHTML = `<div class="wrap"><header class="top"><div class="brand">${h(COMPANY)}<small>${h(u.name)} · ${h(u.role)}</small></div>
+    <button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
+    ${att}
+    ${P.field?`<div class="card"><h3>Today</h3><div class="grid4">
+      <div class="kpi"><b>${st.shops}</b><span>Shops</span></div><div class="kpi"><b>${st.orders}</b><span>Orders</span></div>
+      <div class="kpi"><b>${money(st.sales)}</b><span>Sales</span></div><div class="kpi"><b>${money(st.cash)}</b><span>Cash</span></div></div></div>`:''}
+    ${prog}
+    <div class="sect">Field actions</div>${tileHtml(tiles)}
+    ${mg.length?`<div class="sect">Management</div>${tileHtml(mg)}`:''}
+    <div class="hint" style="text-align:center;margin-top:18px">Location is recorded only when you submit a form. All times Bangladesh Standard Time.</div>
+  </div></div>`;
+};
+async function reloadHome(){ if(await refreshBoot(true)) screens.home(); }
+
+
+function gpsBox(key){ return `<div class="gps" id="gps_${key}"><div class="row"><div class="grow" id="gpsTxt_${key}">📍 Location not captured yet</div>
+  <button class="btn sm" onclick="captureGps('${key}')">Capture location</button></div>
+  ${S.boot.settings.allowManualGps?`<div class="hint">Phone GPS not working? <a href="#" onclick="manualGps('${key}');return false">Enter coordinates manually</a> (flagged for review).</div><div id="gpsMan_${key}"></div>`:''}</div>`; }
+function captureGps(key){
+  const box=$('gps_'+key), txt=$('gpsTxt_'+key);
+  if(!navigator.geolocation){ txt.textContent='This browser cannot access GPS.'; box.className='gps bad'; return; }
+  txt.textContent='⏳ Getting your location… (allow the permission prompt)'; box.className='gps';
+  navigator.geolocation.getCurrentPosition(p=>{
+    S.gps[key]={lat:+p.coords.latitude.toFixed(6), lng:+p.coords.longitude.toFixed(6), accuracy:Math.round(p.coords.accuracy), gpsMethod:'GPS'};
+    box.className='gps ok';
+    txt.innerHTML=`✅ ${S.gps[key].lat}, ${S.gps[key].lng} <span class="muted">(±${S.gps[key].accuracy} m)</span> · <a target="_blank" href="https:\/\/www.google.com/maps?q=${S.gps[key].lat},${S.gps[key].lng}">view</a>`;
+    if(S.gps[key].accuracy>150) txt.innerHTML+='<div class="warnbox">Accuracy is low. Step outside / wait a few seconds and capture again.</div>';
+  }, err=>{
+    box.className='gps bad';
+    txt.textContent = err.code===1 ? '⛔ Location permission denied. Enable location for this site in browser settings.' : '⚠ Could not get location ('+err.message+'). Try again outdoors.';
+  }, {enableHighAccuracy:true, timeout:20000, maximumAge:15000});
+}
+function manualGps(key){
+  $('gpsMan_'+key).innerHTML = `<div class="grid2"><div><label>Latitude</label><input id="mlat_${key}" inputmode="decimal" placeholder="23.759012"></div>
+    <div><label>Longitude</label><input id="mlng_${key}" inputmode="decimal" placeholder="90.358045"></div></div>
+    <button class="btn sm sec" onclick="setManual('${key}')">Use these coordinates</button>`;
+}
+function setManual(key){
+  const lat=parseFloat($('mlat_'+key).value), lng=parseFloat($('mlng_'+key).value);
+  if(!(lat>20&&lat<27&&lng>87&&lng<93)) return toast('Coordinates must be inside Bangladesh');
+  S.gps[key]={lat,lng,accuracy:'',gpsMethod:'Manual'}; $('gps_'+key).className='gps ok';
+  $('gpsTxt_'+key).innerHTML=`✍️ Manual: ${lat}, ${lng} <span class="chip c-warn">flagged</span>`;
+}
+function needGps(key){ if(!S.gps[key]){ toast('Please capture your location first'); const el=$('gps_'+key); if(el) el.scrollIntoView({behavior:'smooth'}); return null; } return S.gps[key]; }
+
+
+function photoBox(key, label){ return `<label>${h(label)}</label><input type="file" accept="image/*" capture="environment" onchange="pickPhoto('${key}',this)"><div class="hint" id="ph_${key}"></div>`; }
+function pickPhoto(key, input){
+  const f=input.files&&input.files[0]; if(!f) return;
+  $('ph_'+key).textContent='Compressing…';
+  compress(f).then(d=>{ S.photos[key]=d; $('ph_'+key).innerHTML='✅ Photo ready ('+Math.round(d.length*0.75/1024)+' KB)'; })
+    .catch(()=>{ $('ph_'+key).textContent='Could not read photo'; });
+}
+function compress(file, max, q){
+  max=max||1280; q=q||0.7;
+  return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{ const s=Math.min(1,max/Math.max(img.width,img.height));
+    const c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); res(c.toDataURL('image/jpeg',q)); };
+    img.onerror=rej; img.src=r.result; }; r.onerror=rej; r.readAsDataURL(file); });
+}
+
+// ---------------------------------------------------------------- helpers
+const opts = (arr, sel, ph) => (ph?`<option value="">${h(ph)}</option>`:'') + arr.map(v=>`<option ${v===sel?'selected':''}>${h(v)}</option>`).join('');
+const val = id => { const e=$(id); return e ? e.value.trim() : ''; };
+function statusChip(s){ const m={Approved:'c-ok',Rejected:'c-bad',Interested:'c-info',Prospect:'',Verified:'c-ok',Pending:'c-warn','High Risk':'c-bad',Watch:'c-warn',OK:'c-ok','Credit Balance':'c-info',High:'c-bad',Medium:'c-warn',Low:'c-info',Active:'c-ok',Inactive:'c-warn'}; return `<span class="chip ${m[s]||''}">${h(s)}</span>`; }
+function tailorPicker(id, filterFn, onchange, selected){
+  const list=S.boot.tailors.filter(filterFn).sort((a,b)=>a.shop.localeCompare(b.shop));
+  return `<input id="${id}_q" placeholder="🔍 Search shop, owner, ID, area, mobile" oninput="filterPicker('${id}')">
+    <select id="${id}" size="5" style="margin-top:6px" onchange="${onchange||''}">${list.map(t=>`<option value="${h(t.id)}" ${t.id===selected?'selected':''} data-s="${h((t.shop+' '+t.owner+' '+t.id+' '+t.area+' '+t.mobile).toLowerCase())}">${h(t.shop)} · ${h(t.area)} · ${h(t.id)}${t.outstanding>0?' · '+money(t.outstanding):''}</option>`).join('')}</select>
+    ${list.length?'':'<div class="warnbox">No tailors available for this action.</div>'}`;
+}
+function filterPicker(id){ const q=val(id+'_q').toLowerCase(); Array.from($(id).options).forEach(o=>{ o.hidden = q && o.dataset.s.indexOf(q)<0; }); }
+function tailorById(id){ return S.boot.tailors.find(t=>t.id===id); }
+function done(r, again){
+  page('Saved', '', `<div class="okbox">✅ ${h(r.message)}</div>${r.warning?`<div class="warnbox">${h(r.warning)}</div>`:''}${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)} — your location was far from the registered shop location.</div>`:''}
+    ${again?`<button class="btn sec" onclick="show('${again}')">Add another</button>`:''}<button class="btn" onclick="goHome()">Back to home</button>`);
+}
+async function goHome(){ await refreshBoot(true); screens.home(); history.replaceState({},''); }
+async function submit(fn, payload, msg){
+  busy(true, msg||'Saving…');
+  const r=await api(fn, payload);
+  busy(false);
+  if(!r.ok){ toast('⛔ '+r.message, 7000); return null; }
+  S.gps={}; S.photos={};
+  return r;
+}
+
+// ---------------------------------------------------------------- attendance
+screens.checkin = function(){
+  page('Check in', S.boot.todayLabel, `<div class="card"><div class="muted">Your check-in time is recorded automatically by the server (Bangladesh time).</div>
+    ${gpsBox('in')}<label>Starting remarks</label><textarea id="cin_r" placeholder="Today's plan, area, shops to visit…"></textarea>
+    <button class="btn ok" onclick="doCheckIn()">Check in now</button></div>`);
+  captureGps('in');
+};
+async function doCheckIn(){ const g=needGps('in'); if(!g) return; const r=await submit('apiCheckIn', Object.assign({remarks:val('cin_r'), submissionId:uid()}, g), 'Checking in…'); if(r) done(r); }
+
+screens.checkout = async function(){
+  page('Check out', S.boot.todayLabel, `<div class="card" id="coBox"><div class="muted">Loading today's activity…</div></div>`);
+  const p=await api('apiCheckoutPreview');
+  if(!p.ok) return toast(p.message);
+  $('coBox').innerHTML = `<div class="muted">Activity totals are calculated by the system. Correct them only if something was not recorded (differences are flagged).</div>
+    <div class="grid2"><div><label>Shops visited</label><input id="co_shops" type="number" value="${p.shops}"></div><div><label>New tailors</label><input id="co_new" type="number" value="${p.newTailors}"></div>
+    <div><label>Orders</label><input id="co_orders" type="number" value="${p.orders}"></div><div><label>Sales (৳)</label><input id="co_sales" type="number" value="${p.sales}"></div></div>
+    <label>Cash collected (৳)</label><input id="co_cash" type="number" value="${p.cash}">
+    <label>Daily activity summary <span class="req">*</span></label><textarea id="co_sum" placeholder="What did you achieve today? Issues? Market feedback?"></textarea>
+    ${gpsBox('out')}<button class="btn" onclick="doCheckOut()">Check out now</button>`;
+  captureGps('out');
+};
+async function doCheckOut(){
+  if(!val('co_sum')) return toast('Write a short activity summary');
+  const g=needGps('out'); if(!g) return;
+  const r=await submit('apiCheckOut', Object.assign({shops:val('co_shops'),newTailors:val('co_new'),orders:val('co_orders'),sales:val('co_sales'),cash:val('co_cash'),summary:val('co_sum'),submissionId:uid()}, g), 'Checking out…');
+  if(r) done(r);
+}
+
+// ---------------------------------------------------------------- onboarding
+screens.onboard = function(){
+  const L=S.boot.lists, areas=[...new Set(S.boot.tailors.map(t=>t.area))].sort();
+  page('Onboard tailor', 'Register a new distribution partner', `<div class="card">
+    <label>Shop name <span class="req">*</span></label><input id="ob_shop">
+    <label>Owner name <span class="req">*</span></label><input id="ob_owner">
+    <div class="grid2"><div><label>Mobile <span class="req">*</span></label><input id="ob_mob" type="tel" inputmode="tel" placeholder="01XXXXXXXXX"></div>
+    <div><label>Alternative contact</label><input id="ob_alt" type="tel" inputmode="tel"></div></div>
+    <label>Full shop address <span class="req">*</span></label><textarea id="ob_addr"></textarea>
+    <div class="grid2"><div><label>Division <span class="req">*</span></label><select id="ob_div" onchange="fillDistricts()">${opts(Object.keys(L.divisions),'Dhaka','Select')}</select></div>
+    <div><label>District <span class="req">*</span></label><select id="ob_dist"></select></div></div>
+    <label>Thana / Area <span class="req">*</span></label><input id="ob_area" list="areas"><datalist id="areas">${areas.map(a=>`<option value="${h(a)}">`).join('')}</datalist>
+    <label>Shop type <span class="req">*</span></label><select id="ob_type">${opts(L.shopTypes,'','Select')}</select>
+    <div class="grid2"><div><label>Daily customer footfall</label><select id="ob_ff">${opts(L.footfall,'','Select')}</select></div>
+    <div><label>Business experience</label><select id="ob_exp">${opts(L.experience,'','Select')}</select></div></div>
+    <label>Interested product categories</label><div class="chips">${L.categories.map(c=>`<label><input type="checkbox" value="${h(c)}" name="ob_cat" onchange="this.parentNode.classList.toggle('on',this.checked)"><span>${h(c)}</span></label>`).join('')}</div>
+    <label>Initial order potential (৳)</label><input id="ob_pot" type="number" inputmode="numeric" placeholder="e.g. 15000">
+    ${photoBox('shop','Shop photograph')}${photoBox('owner','Owner photograph (optional)')}
+    <label>Onboarding status <span class="req">*</span></label><select id="ob_status">${opts(L.onboardingStatus,'Interested')}</select>
+    <label>Remarks</label><textarea id="ob_rem"></textarea>
+    ${gpsBox('ob')}<div class="hint">Stand at the shop entrance when capturing — this becomes the shop's official location.</div>
+    <button class="btn" onclick="doOnboard()">Register tailor</button></div>`);
+  fillDistricts(); captureGps('ob');
+};
+function fillDistricts(){ const d=val('ob_div'); $('ob_dist').innerHTML=opts((S.boot.lists.divisions[d]||[]).slice().sort(), d==='Dhaka'?'Dhaka':'', 'Select'); }
+async function doOnboard(){
+  const req=[['ob_shop','Shop name'],['ob_owner','Owner name'],['ob_mob','Mobile'],['ob_addr','Address'],['ob_div','Division'],['ob_dist','District'],['ob_area','Area'],['ob_type','Shop type']];
+  for(const [id,n] of req) if(!val(id)) return toast(n+' is required');
+  if(!/^(\+?88)?01[3-9]\d{8}$/.test(val('ob_mob').replace(/[\s-]/g,''))) return toast('Mobile must be a valid 11-digit number (01XXXXXXXXX)');
+  if(!S.photos.shop && !confirm('No shop photo attached. Continue without a photo?')) return;
+  const g=needGps('ob'); if(!g) return;
+  const p=Object.assign({shopName:val('ob_shop'),ownerName:val('ob_owner'),mobile:val('ob_mob'),altMobile:val('ob_alt'),address:val('ob_addr'),division:val('ob_div'),district:val('ob_dist'),area:val('ob_area'),
+    shopType:val('ob_type'),footfall:val('ob_ff'),experience:val('ob_exp'),categories:Array.from(document.querySelectorAll('input[name=ob_cat]:checked')).map(x=>x.value),
+    orderPotential:val('ob_pot'),status:val('ob_status'),remarks:val('ob_rem'),shopPhoto:S.photos.shop||'',ownerPhoto:S.photos.owner||'',submissionId:uid()}, g);
+  const r=await submit('apiSubmitOnboarding', p, 'Registering tailor…'); if(r) done(r,'onboard');
+}
+
+
+screens.order = function(preTailor){
+  const L=S.boot.lists;
+  S.lines=[{sku:'',qty:''}];
+  page('New order', 'Prices are taken from the Product Master', `<div class="card">
+    <label>Tailor <span class="req">*</span></label>${tailorPicker('or_t', t=>t.status==='Approved', 'orderTailorInfo()', preTailor)}
+    <div id="or_tinfo"></div>
+    <div class="sect">Products</div><div id="or_lines"></div>
+    <button class="btn sm sec" onclick="addLine()">＋ Add product</button>
+    <div class="grid2"><div><label>Discount type</label><select id="or_dt" onchange="calcOrder()"><option value="amount">৳ Amount</option><option value="pct">% Percent</option></select></div>
+    <div><label>Discount (max ${S.boot.settings.maxDiscount}%)</label><input id="or_dv" type="number" inputmode="decimal" value="0" oninput="calcOrder()"></div></div>
+    <div class="sum" id="or_sum"></div>
+    <div class="grid2"><div><label>Payment terms <span class="req">*</span></label><select id="or_terms" onchange="setDue()">${opts(L.paymentTerms,'15 Days Credit')}</select></div>
+    <div><label>Expected payment date</label><input id="or_due" type="date"></div></div>
+    <label>Remarks</label><textarea id="or_rem" placeholder="Delivery instructions, colours, etc."></textarea>
+    ${gpsBox('or')}<button class="btn" onclick="doOrder()">Review & submit order</button></div>`);
+  renderLines(); setDue(); orderTailorInfo(); captureGps('or');
+};
+function productOptions(sel){
+  const P=S.boot.products, cats=[...new Set(P.map(p=>p.category))];
+  return `<option value="">Select product</option>` + cats.map(c=>`<optgroup label="${h(c)}">${P.filter(p=>p.category===c).map(p=>`<option value="${h(p.sku)}" ${p.sku===sel?'selected':''}>${h(p.name)} · ${money(p.price)}</option>`).join('')}</optgroup>`).join('');
+}
+function renderLines(){
+  $('or_lines').innerHTML = S.lines.map((l,i)=>{ const p=S.boot.products.find(x=>x.sku===l.sku);
+    return `<div class="line"><div><select onchange="S.lines[${i}].sku=this.value;renderLines()">${productOptions(l.sku)}</select>${p?`<div class="hint">MOQ ${p.moq} · ${h(p.unit)} · MRP ${money(p.mrp)}</div>`:''}</div>
+    <div><input type="number" inputmode="numeric" placeholder="Qty" value="${h(l.qty)}" oninput="S.lines[${i}].qty=this.value;calcOrder()"></div>
+    <button class="x" onclick="S.lines.splice(${i},1);if(!S.lines.length)S.lines.push({sku:'',qty:''});renderLines()">×</button></div>`; }).join('');
+  calcOrder();
+}
+function addLine(){ S.lines.push({sku:'',qty:''}); renderLines(); }
+function orderTotals(){
+  let gross=0, units=0; S.lines.forEach(l=>{ const p=S.boot.products.find(x=>x.sku===l.sku); const q=parseInt(l.qty)||0; if(p){ gross+=p.price*q; units+=q; } });
+  const dv=parseFloat(val('or_dt')==='pct'?val('or_dv'):val('or_dv'))||0;
+  const disc = val('or_dt')==='pct' ? Math.round(gross*dv)/100 : dv;
+  return {gross, units, disc, net:gross-disc, maxDisc:gross*S.boot.settings.maxDiscount/100};
+}
+function calcOrder(){
+  const t=orderTotals(), el=$('or_sum'); if(!el) return;
+  el.innerHTML=`<div class="row"><span>Units</span><b>${t.units}</b></div><div class="row"><span>Gross</span><b>${money(t.gross)}</b></div>
+    <div class="row"><span>Discount</span><b>− ${money(t.disc)}</b></div><div class="row" style="font-size:17px"><span>Net order amount</span><b class="amt">${money(t.net)}</b></div>
+    ${t.disc>t.maxDisc+0.01?`<div class="badbox">Discount above the ${S.boot.settings.maxDiscount}% limit (${money(t.maxDisc)}).</div>`:''}`;
+  orderTailorInfo();
+}
+function setDue(){ const m=(val('or_terms').match(/(\d+)/)||[0,0])[1]; $('or_due').value=addDays(today(), Number(m)); $('or_due').min=today(); }
+function orderTailorInfo(){
+  const t=tailorById(val('or_t')), el=$('or_tinfo'); if(!el) return;
+  if(!t){ el.innerHTML=''; return; }
+  const net=orderTotals().net;
+  let w='';
+  if(t.overdue>0) w+=`<div class="badbox">Overdue ${money(t.overdue)} (max ${t.maxDays} days). Collect before giving more credit.</div>`;
+  if(t.creditLimit>0 && t.outstanding+net>t.creditLimit) w+=`<div class="warnbox">Credit limit ${money(t.creditLimit)} would be exceeded (outstanding ${money(t.outstanding)} + this order).</div>`;
+  el.innerHTML=`<div class="hint">${h(t.owner)} · ${h(t.mobile)} · Outstanding <b>${money(t.outstanding)}</b>${t.advance>0?' · Advance '+money(t.advance):''}</div>${w}`;
+}
+async function doOrder(){
+  const tid=val('or_t'); if(!tid) return toast('Select a tailor');
+  const lines=S.lines.filter(l=>l.sku && parseInt(l.qty)>0).map(l=>({sku:l.sku, qty:parseInt(l.qty)}));
+  if(!lines.length) return toast('Add at least one product with quantity');
+  for(const l of lines){ const p=S.boot.products.find(x=>x.sku===l.sku); if(l.qty<p.moq) return toast(p.name+': minimum '+p.moq); }
+  const t=orderTotals(); if(t.disc>t.maxDisc+0.01) return toast('Discount exceeds the allowed limit');
+  const g=needGps('or'); if(!g) return;
+  const tl=tailorById(tid);
+  if(!confirm(`Confirm order for ${tl.shop}\n${lines.length} product(s), ${t.units} units\nNet: ${money(t.net)}\nTerms: ${val('or_terms')} · due ${val('or_due')}`)) return;
+  const r=await submit('apiSubmitOrder', Object.assign({tailorId:tid,lines,discountType:val('or_dt'),discountValue:val('or_dv'),paymentTerms:val('or_terms'),expectedPayDate:val('or_due'),remarks:val('or_rem'),submissionId:uid()}, g), 'Saving order…');
+  if(r) done(r,'order');
+}
+
+
+screens.collect = function(preTailor){
+  const L=S.boot.lists;
+  page('Collect payment', 'Counts as collected after Accounts verification', `<div class="card">
+    <label>Tailor <span class="req">*</span></label>${tailorPicker('co_t', t=>t.status==='Approved', 'loadOpenOrders()', preTailor)}
+    <div id="co_orders"></div>
+    <label>Amount received (৳) <span class="req">*</span></label><input id="co_amt" type="number" inputmode="decimal" oninput="collHint()"><div id="co_hint"></div>
+    <label>Collection method <span class="req">*</span></label><select id="co_m" onchange="$('co_refw').style.display=this.value==='Cash'?'none':'block'">${opts(L.methods,'Cash')}</select>
+    <div id="co_refw" style="display:none"><label>Transaction reference <span class="req">*</span></label><input id="co_ref" placeholder="bKash/Nagad TrxID or bank ref"></div>
+    ${photoBox('proof','Payment proof / receipt photo')}
+    <label>Next collection date</label><input id="co_next" type="date" min="${today()}">
+    <div class="opt" onclick="const c=$('co_adv');c.checked=!c.checked;this.classList.toggle('on',c.checked)"><input type="checkbox" id="co_adv" onclick="event.stopPropagation();this.parentNode.classList.toggle('on',this.checked)"><div><b>Record excess / no-order payment as advance</b><div class="hint">Creates a flagged advance (credit) balance for this tailor.</div></div></div>
+    <label>Remarks</label><textarea id="co_rem"></textarea>
+    ${gpsBox('co')}<button class="btn" onclick="doCollect()">Review & submit</button></div>`);
+  captureGps('co'); if(preTailor) loadOpenOrders();
+};
+async function loadOpenOrders(){
+  const tid=val('co_t'); const box=$('co_orders'); if(!tid){ box.innerHTML=''; return; }
+  box.innerHTML='<div class="hint">Loading open invoices…</div>';
+  const r=await api('apiTailorOrders', tid);
+  if(!r.ok){ box.innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.openOrders=r.orders;
+  box.innerHTML = `<label>Apply to order</label>` + (r.orders.length? r.orders.map((o,i)=>`<div class="opt ${i===0?'on':''}" onclick="pickOrder('${o.orderId}')" id="oo_${o.orderId}">
+      <input type="radio" name="co_o" value="${o.orderId}" ${i===0?'checked':''}><div class="grow"><div class="row"><b class="grow">${h(o.orderId)}</b><span class="amt">${money(o.available)}</span></div>
+      <div class="hint">${h(o.date)} · due ${h(o.due)} · net ${money(o.net)} · paid ${money(o.confirmed)}${o.pending>0?' · '+money(o.pending)+' awaiting verification':''}
+      ${o.daysOverdue>0?` · <b style="color:var(--bad)">${o.daysOverdue} days overdue</b>`:''}</div></div></div>`).join('') : '<div class="hint">No open invoices.</div>') +
+    `<div class="opt ${r.orders.length?'':'on'}" onclick="pickOrder('')" id="oo_"><input type="radio" name="co_o" value="" ${r.orders.length?'':'checked'}><div><b>Advance / on-account payment</b><div class="hint">No specific order${r.advance>0?' · current advance '+money(r.advance):''}</div></div></div>`;
+  if(r.orders.length) $('co_amt').value=Math.max(0,r.orders[0].available); else $('co_adv').checked=true;
+  collHint();
+}
+function pickOrder(id){ document.querySelectorAll('input[name=co_o]').forEach(x=>{ x.checked = x.value===id; x.closest('.opt').classList.toggle('on', x.value===id); });
+  const o=S.openOrders.find(x=>x.orderId===id); if(o) $('co_amt').value=Math.max(0,o.available); if(!id){ $('co_adv').checked=true; $('co_adv').parentNode.classList.add('on'); } collHint(); }
+function selOrder(){ const x=document.querySelector('input[name=co_o]:checked'); return x?x.value:''; }
+function collHint(){ const o=S.openOrders.find(x=>x.orderId===selOrder()), a=parseFloat(val('co_amt'))||0, el=$('co_hint'); if(!el) return;
+  el.innerHTML = o && a>o.available+0.5 ? `<div class="warnbox">${money(a-o.available)} more than the open balance — tick "advance" to keep it as credit, or correct the amount.</div>` : ''; }
+async function doCollect(){
+  const tid=val('co_t'); if(!tid) return toast('Select a tailor');
+  const amt=parseFloat(val('co_amt')); if(!(amt>0)) return toast('Enter the amount received');
+  const m=val('co_m'); if(m!=='Cash' && !val('co_ref')) return toast('Transaction reference is required for '+m);
+  const g=needGps('co'); if(!g) return;
+  const oid=selOrder(), t=tailorById(tid);
+  if(!confirm(`Confirm collection\n${t.shop}\n${money(amt)} by ${m}\n${oid?'Against '+oid:'Advance / on-account'}`)) return;
+  const r=await submit('apiSubmitCollection', Object.assign({tailorId:tid,orderId:oid,amount:amt,method:m,txnRef:val('co_ref'),nextDate:val('co_next'),allowAdvance:$('co_adv').checked,proof:S.photos.proof||'',remarks:val('co_rem'),submissionId:uid()}, g), 'Recording payment…');
+  if(r) done(r,'collect');
+}
+
+// ---------------------------------------------------------------- visit & expense
+screens.visit = function(preTailor){
+  const L=S.boot.lists;
+  page('Field visit', 'Log a shop visit', `<div class="card">
+    <label>Tailor <span class="req">*</span></label>${tailorPicker('vi_t', t=>t.status!=='Rejected', '', preTailor)}
+    <div class="grid2"><div><label>Purpose <span class="req">*</span></label><select id="vi_p">${opts(L.visitPurposes,'Follow-up')}</select></div>
+    <div><label>Outcome <span class="req">*</span></label><select id="vi_o">${opts(L.visitOutcomes,'','Select')}</select></div></div>
+    <label>Next visit date</label><input id="vi_n" type="date" min="${today()}">
+    ${photoBox('visit','Visit photo (optional)')}
+    <label>Remarks</label><textarea id="vi_r"></textarea>
+    ${gpsBox('vi')}<button class="btn" onclick="doVisit()">Save visit</button></div>`);
+  captureGps('vi');
+};
+async function doVisit(){
+  if(!val('vi_t')) return toast('Select a tailor'); if(!val('vi_o')) return toast('Select the outcome');
+  const g=needGps('vi'); if(!g) return;
+  const r=await submit('apiSubmitVisit', Object.assign({tailorId:val('vi_t'),purpose:val('vi_p'),outcome:val('vi_o'),nextVisit:val('vi_n'),photo:S.photos.visit||'',remarks:val('vi_r'),submissionId:uid()}, g), 'Saving visit…');
+  if(r) done(r,'visit');
+}
+screens.expense = function(){
+  page('Expense', 'Submit for approval', `<div class="card">
+    <label>Category <span class="req">*</span></label><select id="ex_c">${opts(S.boot.lists.expenseCategories,'','Select')}</select>
+    <div class="grid2"><div><label>Amount (৳) <span class="req">*</span></label><input id="ex_a" type="number" inputmode="decimal"></div>
+    <div><label>Date</label><input id="ex_d" type="date" value="${today()}" max="${today()}" min="${addDays(today(),-30)}"></div></div>
+    <label>Description <span class="req">*</span></label><textarea id="ex_ds" placeholder="e.g. CNG Mohammadpur → Dhanmondi, 3 shop visits"></textarea>
+    ${photoBox('receipt','Receipt photo (optional)')}<button class="btn" onclick="doExpense()">Submit expense</button></div>`);
+};
+async function doExpense(){
+  if(!val('ex_c')||!val('ex_a')||!val('ex_ds')) return toast('Fill category, amount and description');
+  const r=await submit('apiSubmitExpense', {category:val('ex_c'),amount:val('ex_a'),date:val('ex_d'),description:val('ex_ds'),receipt:S.photos.receipt||'',submissionId:uid()}, 'Submitting…');
+  if(r) done(r,'expense');
+}
+
+// ---------------------------------------------------------------- tailors & follow-ups
+screens.tailors = function(){
+  page('My tailors', S.boot.tailors.length+' shops', `<input id="tl_q" placeholder="🔍 Search" oninput="renderTailors()">
+    <div class="chips" style="margin:10px 0" id="tl_f">${['All','Overdue','Not visited','Pending approval'].map((f,i)=>`<label class="${i?'':'on'}" onclick="tlFilter('${f}',this)">${f}</label>`).join('')}</div>
+    <div class="card list" id="tl_list"></div>`);
+  S.tlf='All'; renderTailors();
+};
+function tlFilter(f,el){ S.tlf=f; document.querySelectorAll('#tl_f label').forEach(x=>x.classList.remove('on')); el.classList.add('on'); renderTailors(); }
+function renderTailors(){
+  const q=val('tl_q').toLowerCase(), sd=S.boot.settings.staleDays;
+  const list=S.boot.tailors.filter(t=>{ if(q && (t.shop+' '+t.owner+' '+t.id+' '+t.area+' '+t.mobile).toLowerCase().indexOf(q)<0) return false;
+    if(S.tlf==='Overdue') return t.overdue>0; if(S.tlf==='Not visited') return t.daysSinceVisit===null||t.daysSinceVisit>sd; if(S.tlf==='Pending approval') return ['Prospect','Interested'].includes(t.status); return true; })
+    .sort((a,b)=>b.overdue-a.overdue||b.outstanding-a.outstanding);
+  $('tl_list').innerHTML = list.length? list.map(t=>`<div class="it" onclick="show('shop','${t.id}')"><div class="grow"><b>${h(t.shop)}</b> ${statusChip(t.status)}
+    <div class="hint">${h(t.id)} · ${h(t.area)} · last visit ${t.lastVisit||'never'}${t.daysSinceVisit>sd?' <span class="chip c-warn">'+t.daysSinceVisit+'d</span>':''}</div></div>
+    <div style="text-align:right"><div class="amt">${money(t.outstanding)}</div>${t.overdue>0?`<span class="chip c-bad">${money(t.overdue)} overdue</span>`:''}</div></div>`).join('') : '<div class="hint">No tailors match.</div>';
+}
+screens.shop = async function(id){
+  page('Shop', id, `<div id="shopBox" class="hint">Loading…</div>`);
+  const r=await api('apiShopDetail', id); if(!r.ok) return $('shopBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  const t=r.tailor, P=S.boot.perms, ap=t.status==='Approved';
+  $('shopBox').innerHTML = `<div class="card"><h3>${h(t.shop)} ${statusChip(t.status)} ${t.risk?statusChip(t.risk):''}</h3>
+    <div class="muted">${h(t.owner)} · ${h(t.mobile)}<br>${h(t.address)}<br>${h(t.area)}, ${h(t.district)} · ${h(t.shopType)} · Rep ${h(t.repName)}</div>
+    <div class="grid3" style="margin-top:10px"><div class="kpi"><b>${money(t.netSales)}</b><span>Net sales</span></div><div class="kpi"><b>${money(t.outstanding)}</b><span>Outstanding</span></div><div class="kpi"><b style="color:${t.overdue>0?'var(--bad)':'var(--ok)'}">${money(t.overdue)}</b><span>Overdue</span></div></div>
+    <div><a class="btn sm sec" href="tel:${h(t.mobile)}">📞 Call</a>${t.lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps?q=${t.lat},${t.lng}">📍 Map</a><a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}">🧭 Directions</a>`:''}${t.shopPhoto?`<a class="btn sm sec" target="_blank" href="${h(t.shopPhoto)}">🖼 Photo</a>`:''}</div>
+    ${P.field&&ap?`<div><button class="btn sm" onclick="show('order','${t.id}')">🛒 Order</button><button class="btn sm" onclick="show('collect','${t.id}')">💵 Collect</button><button class="btn sm" onclick="show('visit','${t.id}')">📍 Visit</button></div>`:''}</div>
+    <div class="card"><h3>Orders</h3>${r.orders.length?`<table class="t"><tr><th>Order</th><th>Net</th><th>Status</th><th>Due</th></tr>${r.orders.map(o=>`<tr><td>${h(o.id)}<div class="hint">${h(o.date)}</div></td><td>${money(o.net)}</td><td>${h(o.payment)}<div class="hint">${h(o.delivery)}</div></td><td class="amt">${money(o.outstanding)}</td></tr>`).join('')}</table>`:'<div class="hint">No orders yet.</div>'}</div>
+    <div class="card"><h3>Payments</h3>${r.collections.length?`<table class="t"><tr><th>ID</th><th>Amount</th><th>Status</th></tr>${r.collections.map(c=>`<tr><td>${h(c.id)}<div class="hint">${h(c.date)} · ${h(c.method)}</div></td><td>${money(c.amount)}</td><td>${statusChip(c.status)}</td></tr>`).join('')}</table>`:'<div class="hint">No payments yet.</div>'}</div>
+    <div class="card"><h3>Visit history</h3>${r.visits.length?r.visits.map(v=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>${h(v.purpose)}</b> · ${h(v.outcome)}<div class="hint">${h(v.when)} · ${h(v.rep)} · ${h(v.geo)}${v.distance!==''?' ('+v.distance+' m)':''}${v.remarks?' · '+h(v.remarks):''}</div></div>`).join(''):'<div class="hint">No visits yet.</div>'}</div>`;
+};
+screens.followups = function(){
+  const f=S.boot.followUps;
+  page('Follow-ups', f.length+' accounts need attention', f.length? f.map(x=>`<div class="card"><div class="row"><div class="grow"><b>${h(x.shop)}</b> ${statusChip(x.priority)}<div class="hint">${h(x.tailorId)} · ${h(x.area)} · ${h(x.owner)}${S.user.role!=='Sales Representative'?' · '+h(x.rep):''}</div></div><div class="amt">${money(x.amount)}</div></div>
+    <div class="hint">${h(x.orderId)} · ${x.days>0?`<b style="color:var(--bad)">${x.days} days overdue</b>`:'due '+h(x.due)}${x.promised?' · promised '+h(x.promised):''}</div>
+    <div class="warnbox">${h(x.action)}</div>
+    <a class="btn sm sec" href="tel:${h(x.mobile)}">📞 Call</a>${x.map?`<a class="btn sm sec" target="_blank" href="${h(x.map)}">📍 Map</a>`:''}${S.boot.perms.field?`<button class="btn sm" onclick="show('collect','${x.tailorId}')">💵 Collect</button>`:''}</div>`).join('') : '<div class="okbox">🎉 No overdue or due-soon accounts.</div>');
+};
+
+// ---------------------------------------------------------------- map
+screens.map = async function(){
+  page('Map', 'Shops & field locations', `<div class="card"><div class="grid2">
+    <div><label>Sales rep</label><select id="mp_rep" onchange="loadMap()"><option value="">All</option></select></div>
+    <div><label>District</label><select id="mp_dist" onchange="loadMap()"><option value="">All</option></select></div>
+    <div><label>Status</label><select id="mp_st" onchange="loadMap()">${opts(['Approved','Interested','Prospect','Rejected'],'','All')}</select></div>
+    <div><label>Team locations on</label><input id="mp_date" type="date" value="${today()}" max="${today()}" onchange="loadMap()"></div></div>
+    <div class="chips" style="margin-top:10px"><label id="mp_stale_l" onclick="this.classList.toggle('on');loadMap()">Not visited recently</label><label id="mp_od_l" onclick="this.classList.toggle('on');loadMap()">Overdue only</label></div></div>
+    <div id="map"></div>
+    <div class="legend"><span><i class="dot" style="background:#1E7B4F"></i>Approved</span><span><i class="dot" style="background:#3E7CB1"></i>Interested</span><span><i class="dot" style="background:#9E9E9E"></i>Prospect</span><span><i class="dot" style="background:#B42318"></i>Rejected</span>
+    <span><i class="dot" style="background:#fff;border:3px solid #E07B00"></i>Not visited recently</span><span><i class="dot" style="background:#C8A24A"></i>Overdue</span><span>▲ first / ■ last team location</span></div>
+    <div id="mp_sum" class="hint"></div>`);
+  await loadMap(true);
+};
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+function loadCss(href){ const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; document.head.appendChild(l); }
+async function ensureMapLib(){
+  const st=S.boot.settings;
+  if(st.mapProvider==='GOOGLE' && st.mapsKey){ if(!window.google||!window.google.maps) await loadScript('https:\/\/maps.googleapis.com/maps/api/js?key='+encodeURIComponent(st.mapsKey)); return 'google'; }
+  if(!window.L){ loadCss('https:\/\/unpkg.com/leaflet@1.9.4/dist/leaflet.css'); await loadScript('https:\/\/unpkg.com/leaflet@1.9.4/dist/leaflet.js'); }
+  return 'leaflet';
+}
+async function loadMap(first){
+  const f={repId:val('mp_rep'),district:val('mp_dist'),status:val('mp_st'),date:val('mp_date'),staleOnly:$('mp_stale_l').classList.contains('on'),overdueOnly:$('mp_od_l').classList.contains('on')};
+  busy(true,'Loading map…');
+  const r=await api('apiMapData', f);
+  let lib; try{ lib=await ensureMapLib(); }catch(e){ busy(false); return toast('Map library could not load. Check internet.'); }
+  busy(false);
+  if(!r.ok) return toast(r.message);
+  if(first){ $('mp_rep').innerHTML='<option value="">All</option>'+r.reps.map(x=>`<option value="${h(x.id)}">${h(x.name)}</option>`).join(''); $('mp_dist').innerHTML='<option value="">All</option>'+r.districts.map(d=>`<option>${h(d)}</option>`).join(''); }
+  const col={Approved:'#1E7B4F',Interested:'#3E7CB1',Prospect:'#9E9E9E',Rejected:'#B42318'};
+  const pts=[];
+  const popup=s=>`<b>${h(s.shop)}</b><br>${h(s.id)} · ${h(s.status)}<br>${h(s.owner)} · <a href="tel:${h(s.mobile)}">${h(s.mobile)}</a><br>Rep: ${h(s.repName)}<br>Outstanding ${money(s.outstanding)}${s.overdue>0?' · <b style="color:#B42318">overdue '+money(s.overdue)+'</b>':''}<br>Last visit: ${s.lastVisit||'never'}<br><a target="_blank" href="https:\/\/www.google.com/maps?q=${s.lat},${s.lng}">Open in Google Maps</a> · <a target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}">Directions</a>`;
+  if(lib==='leaflet'){
+    if(!S.mapObj || !document.body.contains(S.mapObj.getContainer())){ S.mapObj=L.map('map').setView([23.78,90.40],11); L.tileLayer('https:\/\/{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(S.mapObj); }
+    S.mapLayers.forEach(l=>S.mapObj.removeLayer(l)); S.mapLayers=[];
+    r.shops.forEach(s=>{ const m=L.circleMarker([s.lat,s.lng],{radius:8,color:s.stale?'#E07B00':'#ffffff',weight:s.stale?4:2,fillColor:s.overdue>0?'#C8A24A':(col[s.status]||'#777'),fillOpacity:.95}).bindPopup(popup(s)).addTo(S.mapObj); S.mapLayers.push(m); pts.push([s.lat,s.lng]); });
+    r.people.forEach(p=>{ if(p.trail.length>1) S.mapLayers.push(L.polyline(p.trail,{color:'#6B2D4A',weight:2,dashArray:'4 6'}).addTo(S.mapObj));
+      const mk=(pt,sym)=>L.marker([pt.lat,pt.lng],{icon:L.divIcon({className:'',html:`<div style="font-size:18px;color:#6B2D4A;text-shadow:0 0 3px #fff">${sym}</div>`})}).bindPopup(`<b>${h(p.name)}</b><br>${sym==='▲'?'First':'Last'} report ${h(pt.time)} · ${h(pt.label)}<br>${p.events} location events`).addTo(S.mapObj);
+      S.mapLayers.push(mk(p.first,'▲')); S.mapLayers.push(mk(p.last,'■')); pts.push([p.first.lat,p.first.lng],[p.last.lat,p.last.lng]); });
+    if(pts.length) S.mapObj.fitBounds(pts,{padding:[30,30],maxZoom:15});
+    setTimeout(()=>S.mapObj.invalidateSize(),200);
+  } else {
+    if(!S.mapObj || !document.body.contains(S.mapObj.getDiv())){ S.mapObj=new google.maps.Map($('map'),{center:{lat:23.78,lng:90.40},zoom:11,mapTypeControl:false}); S.iw=new google.maps.InfoWindow(); }
+    S.mapLayers.forEach(l=>l.setMap(null)); S.mapLayers=[]; const bounds=new google.maps.LatLngBounds();
+    r.shops.forEach(s=>{ const m=new google.maps.Marker({position:{lat:s.lat,lng:s.lng},map:S.mapObj,icon:{path:google.maps.SymbolPath.CIRCLE,scale:8,fillColor:s.overdue>0?'#C8A24A':(col[s.status]||'#777'),fillOpacity:.95,strokeColor:s.stale?'#E07B00':'#fff',strokeWeight:s.stale?4:2}});
+      m.addListener('click',()=>{S.iw.setContent(popup(s));S.iw.open(S.mapObj,m);}); S.mapLayers.push(m); bounds.extend(m.getPosition()); });
+    r.people.forEach(p=>{ if(p.trail.length>1) S.mapLayers.push(new google.maps.Polyline({path:p.trail.map(x=>({lat:x[0],lng:x[1]})),map:S.mapObj,strokeColor:'#6B2D4A',strokeWeight:2}));
+      [[p.first,'▲','First'],[p.last,'■','Last']].forEach(([pt,sym,lab])=>{ const m=new google.maps.Marker({position:{lat:pt.lat,lng:pt.lng},map:S.mapObj,label:{text:sym,color:'#6B2D4A'}});
+        m.addListener('click',()=>{S.iw.setContent(`<b>${h(p.name)}</b><br>${lab} report ${h(pt.time)} · ${h(pt.label)}`);S.iw.open(S.mapObj,m);}); S.mapLayers.push(m); bounds.extend(m.getPosition()); }); });
+    if(!bounds.isEmpty()) S.mapObj.fitBounds(bounds);
+  }
+  $('mp_sum').innerHTML=`${r.shops.length} shops shown · ${r.shops.filter(s=>s.stale).length} not visited in ${r.staleDays}+ days · ${r.people.length} team members reported location on ${h(r.date)}`;
+}
+
+// ---------------------------------------------------------------- management
+screens.approvals = async function(){
+  page('Tailor approvals', 'Prospect / Interested registrations', `<div id="apBox" class="hint">Loading…</div>`);
+  const r=await api('apiPendingTailors'); if(!r.ok) return $('apBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  $('apBox').innerHTML = r.list.length ? r.list.map(t=>`<div class="card" id="ap_${t.id}"><h3>${h(t.shop)} ${statusChip(t.status)}</h3>
+    <div class="muted">${h(t.id)} · registered ${h(t.regDate)} by ${h(t.repName)}<br>${h(t.owner)} · ${h(t.mobile)}<br>${h(t.address)} · ${h(t.area)}, ${h(t.district)}<br>
+    ${h(t.shopType)} · footfall ${h(t.footfall||'—')} · ${h(t.experience||'—')}<br>Interested: ${h(t.categories||'—')} · potential ${t.potential?money(t.potential):'—'}<br>GPS: ${h(t.gpsMethod)}${t.remarks?'<br>Remarks: '+h(t.remarks):''}</div>
+    <div>${t.lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps?q=${t.lat},${t.lng}">📍 Location</a>`:''}${t.shopPhoto?`<a class="btn sm sec" target="_blank" href="${h(t.shopPhoto)}">🖼 Shop photo</a>`:''}${t.ownerPhoto?`<a class="btn sm sec" target="_blank" href="${h(t.ownerPhoto)}">🖼 Owner</a>`:''}</div>
+    <div class="grid2"><div><label>Credit limit (৳)</label><input id="cl_${t.id}" type="number" placeholder="e.g. 50000"></div><div><label>Remarks</label><input id="rm_${t.id}" placeholder="Required for rejection"></div></div>
+    <div><button class="btn sm ok" onclick="decide('${t.id}','Approved')">Approve</button><button class="btn sm bad" onclick="decide('${t.id}','Rejected')">Reject</button>${t.status==='Prospect'?`<button class="btn sm sec" onclick="decide('${t.id}','Interested')">Mark interested</button>`:''}</div></div>`).join('') : '<div class="okbox">No pending registrations.</div>';
+};
+async function decide(id, d){
+  const rm=val('rm_'+id), cl=val('cl_'+id);
+  if(d==='Rejected' && !rm) return toast('Enter a rejection reason');
+  busy(true,'Saving decision…'); const r=await api('apiDecideTailor', id, d, rm, cl); busy(false);
+  if(!r.ok) return toast('⛔ '+r.message);
+  toast('✅ '+r.message); const el=$('ap_'+id); if(el) el.remove(); refreshBoot(false);
+}
+screens.verify = async function(){
+  page('Verify payments', 'Accounts verification queue', `<div id="vfBox" class="hint">Loading…</div>`);
+  const r=await api('apiPendingCollections'); if(!r.ok) return $('vfBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  $('vfBox').innerHTML = r.list.length ? `<div class="hint" style="margin-bottom:8px">Total pending: <b>${money(r.list.reduce((a,c)=>a+c.amount,0))}</b> in ${r.list.length} receipts</div>` + r.list.map(c=>`<div class="card" id="vf_${c.id}">
+    <div class="row"><div class="grow"><b>${h(c.shop)}</b><div class="hint">${h(c.id)} · ${h(c.date)} · ${h(c.rep)} · ${c.age} day(s) pending</div></div><div class="amt">${money(c.amount)}</div></div>
+    <div class="muted">${h(c.method)}${c.ref?' · Ref <b>'+h(c.ref)+'</b>':''} · ${c.orderId?'Order '+h(c.orderId):'On-account'}${c.advance>0?' · <span class="chip c-info">advance '+money(c.advance)+'</span>':''}${c.remarks?'<br>'+h(c.remarks):''}</div>
+    ${c.proof?`<a class="btn sm sec" target="_blank" href="${h(c.proof)}">🧾 View proof</a>`:'<div class="hint">No proof photo attached.</div>'}
+    <label>Verification remarks</label><input id="vr_${c.id}" placeholder="e.g. matched bank statement / reason for rejection">
+    <div><button class="btn sm ok" onclick="verify('${c.id}','Verified')">Verify</button><button class="btn sm bad" onclick="verify('${c.id}','Rejected')">Reject</button></div></div>`).join('') : '<div class="okbox">Nothing waiting for verification.</div>';
+};
+async function verify(id,d){
+  const rm=val('vr_'+id); if(d==='Rejected'&&!rm) return toast('Enter the rejection reason');
+  busy(true,'Saving…'); const r=await api('apiVerifyCollection', id, d, rm); busy(false);
+  if(!r.ok) return toast('⛔ '+r.message); toast('✅ '+r.message); const el=$('vf_'+id); if(el) el.remove(); refreshBoot(false);
+}
+screens.ordersq = async function(){
+  page('Orders & delivery', 'Confirm, dispatch, deliver', `<div id="oqBox" class="hint">Loading…</div>`);
+  const r=await api('apiOrdersQueue'); if(!r.ok) return $('oqBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  const L=S.boot.lists;
+  $('oqBox').innerHTML = r.list.length ? r.list.map(o=>`<div class="card" id="oq_${o.id}"><div class="row"><div class="grow"><b>${h(o.shop)}</b><div class="hint">${h(o.id)} · ${h(o.date)} · ${h(o.rep)} · ${h(o.area)} · ${h(o.terms)} · ${o.qty} units</div></div><div class="amt">${money(o.net)}</div></div>
+    <div class="grid2"><div><label>Order status</label><select id="os_${o.id}">${opts(L.orderStatus.filter(s=>o.status==='Submitted'||s!=='Submitted'),o.status)}</select></div>
+    <div><label>Delivery status</label><select id="ds_${o.id}">${opts(L.deliveryStatus,o.delivery)}</select></div></div>
+    <div id="it_${o.id}"></div><button class="btn sm sec" onclick="items('${o.id}')">View items</button><button class="btn sm" onclick="saveOrder('${o.id}','${h(o.status)}','${h(o.delivery)}')">Save</button></div>`).join('') : '<div class="okbox">All orders are delivered.</div>';
+};
+async function items(id){ const r=await api('apiOrderItems', id); if(!r.ok) return toast(r.message); $('it_'+id).innerHTML=`<table class="t"><tr><th>Product</th><th>Qty</th><th>Net</th></tr>${r.items.map(i=>`<tr><td>${h(i.name)}</td><td>${i.qty}</td><td>${money(i.net)}</td></tr>`).join('')}</table>`; }
+async function saveOrder(id, os0, ds0){
+  const ch={}; const os=val('os_'+id), ds=val('ds_'+id);
+  if(os!==os0) ch.orderStatus=os; if(ds!==ds0) ch.deliveryStatus=ds;
+  if(!Object.keys(ch).length) return toast('No changes');
+  if(ch.orderStatus==='Cancelled'){ const why=prompt('Cancellation reason (required):'); if(!why) return; ch.reason=why; }
+  busy(true,'Updating…'); const r=await api('apiUpdateOrder', id, ch); busy(false);
+  if(!r.ok) return toast('⛔ '+r.message); toast('✅ '+r.message); if(ch.deliveryStatus==='Delivered'||ch.orderStatus==='Cancelled'){ const el=$('oq_'+id); if(el) el.remove(); } refreshBoot(false);
+}
+screens.team = async function(){
+  page('Team today', S.boot.todayLabel, `<div id="tmBox" class="hint">Loading…</div>`);
+  const r=await api('apiTeamToday'); if(!r.ok) return $('tmBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  $('tmBox').innerHTML = `<div class="card" style="overflow-x:auto"><table class="t"><tr><th>Rep</th><th>In</th><th>Out</th><th>Shops</th><th>Orders</th><th>Sales</th><th>Cash</th></tr>
+    ${r.rows.map(x=>`<tr><td>${h(x.name)}<div class="hint">${h(x.empId)}${x.newTailors?' · '+x.newTailors+' new':''}</div></td><td>${x.checkIn?h(x.checkIn)+(x.late?' <span class="chip c-bad">late</span>':''):'<span class="chip c-bad">none</span>'}</td><td>${h(x.checkOut||'—')}</td><td>${x.shops}</td><td>${x.orders}</td><td>${money(x.sales)}</td><td>${money(x.cash)}</td></tr>`).join('')}</table></div>`;
+};
+
+// ---------------------------------------------------------------- profile
+screens.profile = function(){
+  const u=S.user;
+  page('Profile', u.empId, `<div class="card"><b>${h(u.name)}</b><div class="muted">${h(u.role)} · ${h(u.territory||u.district||'')}</div></div>
+    <div class="card"><h3>Change PIN</h3><label>Current PIN</label><input id="pp_o" type="password" inputmode="numeric"><label>New PIN (4–8 digits)</label><input id="pp_n" type="password" inputmode="numeric"><label>Confirm new PIN</label><input id="pp_c" type="password" inputmode="numeric">
+    <button class="btn" onclick="changePin()">Change PIN</button></div><button class="btn bad" onclick="logout()">Log out</button>`);
+};
+async function changePin(){
+  if(val('pp_n')!==val('pp_c')) return toast('New PINs do not match');
+  busy(true); const r=await call('apiChangePin', S.token, val('pp_o'), val('pp_n')); busy(false);
+  toast(r.ok?'✅ '+r.message:'⛔ '+r.message);
+}
+
+// ---------------------------------------------------------------- start
+(async function(){
+  const tok=load('hbd_tok');
+  if(!tok) return screens.login();
+  S.token=tok; if(await refreshBoot(true)) screens.home(); else if(S.token) screens.login();
+})();
+</script>
+</body>
+</html>
