@@ -17,6 +17,13 @@
   .pad{padding:14px}
   .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px;box-shadow:0 1px 2px rgba(80,20,40,.04)}
   .card h3{margin:0 0 10px;font-size:15px;color:var(--pd)}
+  .ch{width:100%;height:auto;display:block}
+  .lg{display:flex;flex-wrap:wrap;gap:10px;font-size:11.5px;color:var(--mut);margin-top:4px}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+  .dn{display:flex;gap:12px;align-items:center}.dnc{width:44%;max-width:170px;flex:0 0 auto}.dnl{flex:1;font-size:12.5px}.dnl span.grow{font-weight:600;color:#444}.dnl div{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px dashed var(--line)}.dnl i{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+  .hb .hbr{margin-bottom:8px;font-size:13px}.hbt{position:relative;height:9px;background:var(--soft);border-radius:6px;margin-top:3px;overflow:visible}.hbt i{display:block;height:100%;border-radius:6px}.hbt s{position:absolute;top:-3px;width:2px;height:15px;background:var(--pd)}
+  .kpi em{display:block;font-style:normal;font-size:11px;font-weight:700;margin-top:2px}.kpi em.up{color:var(--ok)}.kpi em.dn2{color:var(--bad)}
+  .btn.sm{padding:9px;font-size:14px;margin-top:8px}
+  @media print{header.top,.tabs,.btn{display:none!important}.card{box-shadow:none;border:1px solid #ddd}}
   .muted{color:var(--mut);font-size:12.5px}
   .row{display:flex;gap:10px;align-items:center}
   .grow{flex:1;min-width:0}
@@ -150,13 +157,27 @@ async function api(fn, ...args){ return call(fn, S.token, ...args); }
 
 
 const screens = {};
+
+
+S.nav=[];
 function show(name, ...args){
   S.screen = name;
-  if(name!=='home') history.pushState({s:name},'');
+  if(name!=='home'){ S.nav.push([name,args]); history.pushState({s:name, n:S.nav.length},''); }
   window.scrollTo(0,0);
   screens[name](...args);
 }
-window.onpopstate = () => { if(S.user) screens.home(); };
+function navArgs(...args){ const t=S.nav[S.nav.length-1]; if(t) t[1]=args; }
+function navReplace(name, args){ const t=S.nav[S.nav.length-1]; if(t){ t[0]=name; t[1]=args; } }
+screens._page = function(t, sub, body){ page(t, sub, body); };
+window.onpopstate = () => {
+  if(S.skipPop){ S.skipPop=false; return; }
+  if(!S.user) return;
+  S.nav.pop();
+  const prev=S.nav[S.nav.length-1];
+  window.scrollTo(0,0);
+  if(prev && screens[prev[0]]){ S.screen=prev[0]; screens[prev[0]](...prev[1]); }
+  else { S.nav=[]; S.screen='home'; screens.home(); }
+};
 function topbar(title, sub, back){
   return `<header class="top">${back?`<button onclick="history.back()">‹</button>`:''}
     <div class="brand">${h(title)}<small>${h(sub||'')}</small></div>${obBadge()}
@@ -238,6 +259,9 @@ screens.home = function(){
   if(P.verify) mg.push(['🔎','Verify payments',"show('verify')",c.verifications]);
   if(P.orders) mg.push(['🚚','Orders & delivery',"show('deliveries','open')",c.orders]);
   if(P.team) mg.push(['👥','Team today',"show('team')"]);
+  if(P.exec) mg.unshift(['📈','Company dashboard',"show('exec','month')"]);
+  if(P.hr||P.salary) mg.unshift(['🧑‍💼','HR panel',"show('hr')",P.hr?c.leaves:0]);
+  tiles.push(['🌴','My leave',"show('leave')"]);
   const tileHtml = arr => `<div class="tiles">${arr.map(t=>`<div class="tile" onclick="${t[2]}"><span class="ic">${t[0]}</span>${t[1]}${t[3]?`<span class="bdg">${t[3]}</span>`:''}</div>`).join('')}</div>`;
   app().innerHTML = `<div class="wrap"><header class="top"><div class="brand">${h(COMPANY)}<small>${h(u.name)} · ${h(u.role)}</small></div>
     <span id="syncDot" class="spin" style="width:16px;height:16px;border-width:2px;visibility:${S.refreshing?'visible':'hidden'}" title="Updating…"></span>${obBadge()}<button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
@@ -317,11 +341,13 @@ function tailorPicker(id, filterFn, onchange, selected){
 }
 function filterPicker(id){ const q=val(id+'_q').toLowerCase(); Array.from($(id).options).forEach(o=>{ o.hidden = q && o.dataset.s.indexOf(q)<0; }); }
 function tailorById(id){ return S.boot.tailors.find(t=>t.id===id); }
+screens._saved = function(r, again, extra){ done(r, again, (extra||'').replace(/id="obw_[^"]*"/g,'')); };
 function done(r, again, extra){
+  navReplace('_saved', [r, again, extra]);
   page('Saved', '', `<div class="okbox">✅ ${h(r.message)}</div>${extra||''}${r.warning?`<div class="warnbox">${h(r.warning)}</div>`:''}${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)} — your location was far from the registered shop location.</div>`:''}
     ${again?`<button class="btn sec" onclick="show('${again}')">Add another</button>`:''}<button class="btn" onclick="goHome()">Back to home</button>`);
 }
-async function goHome(){ S.screen='home'; history.replaceState({},''); if(S.boot) { screens.home(); refreshInBackground(); } else { await refreshBoot(true); screens.home(); } }
+async function goHome(){ const n=S.nav.length; S.nav=[]; if(n){ S.skipPop=true; history.go(-n); } S.screen='home'; if(S.boot) { screens.home(); refreshInBackground(); } else { await refreshBoot(true); screens.home(); } }
 async function submit(fn, payload, msg){
   busy(true, msg||'Saving…');
   const r=await api(fn, payload);
@@ -404,7 +430,7 @@ screens.outbox = function(){
 function obRetry(id){ const x=S.ob.find(y=>y.id===id); if(x){ x.st='pending'; x.err=''; obPersist(); obRun(); setTimeout(()=>{ if(S.screen==='outbox') screens.outbox(); }, 400); } }
 function obDiscard(id){ const x=S.ob.find(y=>y.id===id); if(!x || !confirm('Discard this '+x.label+'? It was NOT saved on the server.')) return; S.ob=S.ob.filter(y=>y!==x); obPersist(); screens.outbox(); }
 
-// ---------------------------------------------------------------- attendance
+
 screens.checkin = function(){
   page('Check in', S.boot.todayLabel, `<div class="card"><div class="muted">Your check-in time is recorded automatically by the server (Bangladesh time).</div>
     ${gpsBox('in')}<label>Starting remarks</label><textarea id="cin_r" placeholder="Today's plan, area, shops to visit…"></textarea>
@@ -432,7 +458,7 @@ async function doCheckOut(){
   if(r) done(r);
 }
 
-// ---------------------------------------------------------------- onboarding
+
 screens.onboard = function(){
   const L=S.boot.lists, areas=[...new Set(S.boot.tailors.map(t=>t.area))].sort();
   page('Onboard tailor', 'Register a new distribution partner', `<div class="card">
@@ -950,11 +976,12 @@ async function doDeliver(){
   S.docs=S.docs||{}; delete S.docs[o.id];
   if(S.dv&&S.dv.data){ S.dv.data.open=S.dv.data.open.filter(x=>x.id!==o.id); }
   const docBtns=r=>r.ok?`${r.billed>0?`<button class="btn" onclick="show('doc','${h(o.id)}','invoice')">🧾 Final invoice — print / share</button>`:''}<button class="btn sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button>`:'';
+  navReplace('_page', ['Delivered', o.id, '<div class="okbox">✅ Delivery saved: '+u+' of '+U+' pcs · bill '+money(d.billed)+'</div><button class="btn sec" onclick="history.back()">Back to deliveries</button>']);
   if(q.sync){ const r=q.sync; if(r.doc) S.docs[o.id]=Object.assign({_t:Date.now()}, r.doc);
-    page('Delivered', o.id, `<div class="okbox">✅ ${h(r.message)}</div>${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)}</div>`:''}${docBtns(r)}<button class="btn sec" onclick="show('deliveries','open')">Back to deliveries</button>`);
+    page('Delivered', o.id, `<div class="okbox">✅ ${h(r.message)}</div>${r.geoFlag&&r.geoFlag.indexOf('Outside')>=0?`<div class="warnbox">📍 ${h(r.geoFlag)}</div>`:''}${docBtns(r)}<button class="btn sec" onclick="history.back()">Back to deliveries</button>`);
     return refreshBoot(false); }
   page('Delivered', o.id, `<div class="okbox">✅ Delivery saved: ${u} of ${U} pcs · bill ${money(d.billed)}${p.collect?' · payment '+money(p.collect.amount)+' ('+h(p.collect.method)+')':''}.</div>
-    ${waitBox(q.it, r=>resultBox(r)+docBtns(r))}<button class="btn sec" onclick="show('deliveries','open')">Back to deliveries</button>`);
+    ${waitBox(q.it, r=>resultBox(r)+docBtns(r))}<button class="btn sec" onclick="history.back()">Back to deliveries</button>`);
 }
 
 // ---------------------------------------------------------------- documents: invoice, challan, statement
@@ -1058,6 +1085,237 @@ function ledgerHtml(r){
    ${r.pending.length?`<div class="dnote"><b>Payments awaiting verification (${money2(r.pendingTotal)}):</b> ${r.pending.map(p=>h(p.date)+' '+h(p.ref)+' '+money2(p.amount)).join(' · ')}</div>`:''}
    <div class="dnote">Debit = goods billed. Credit = payments verified by Accounts, returns and adjustments. Orders not yet delivered are shown at the ordered value.</div>`;
 }
+
+// ---------------------------------------------------------------- charts (pure SVG, no internet needed)
+const PAL=['#6B2D4A','#C8A24A','#1E7B4F','#1D4E89','#B42318','#9A6700','#7A5C99','#2F8F9D','#8C8C8C','#D9822B'];
+function shortN(v){ v=Number(v)||0; const a=Math.abs(v); if(a>=1e7) return (v/1e7).toFixed(a>=1e8?0:1)+' Cr'; if(a>=1e5) return (v/1e5).toFixed(a>=1e6?0:1)+' L'; if(a>=1e3) return Math.round(v/1e3)+'k'; return String(Math.round(v)); }
+function pctS(x){ return x===null||x===undefined||!isFinite(x)?'—':Math.round(x*100)+'%'; }
+function legend(items){ return `<div class="lg">${items.map(i=>`<span><i style="background:${i.color}"></i>${h(i.label)}</span>`).join('')}</div>`; }
+function svgLine(labels, series, o){
+  o=o||{}; const W=340,H=170,pl=40,pr=8,pt=10,pb=22,n=labels.length;
+  const max=Math.max(1,...series.flatMap(s=>s.values.map(v=>Number(v)||0)));
+  const X=i=>pl+(n<=1?(W-pl-pr)/2:(W-pl-pr)*i/(n-1)), Y=v=>pt+(H-pt-pb)*(1-(Number(v)||0)/max);
+  let g=''; for(let i=0;i<=4;i++){ const v=max*i/4, y=Y(v); g+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" stroke="#eee"/><text x="${pl-4}" y="${y+3}" text-anchor="end" font-size="9" fill="#888">${shortN(v)}</text>`; }
+  const step=Math.max(1,Math.ceil(n/6)); let xl='';
+  labels.forEach((l,i)=>{ if(i%step===0||i===n-1) xl+=`<text x="${X(i)}" y="${H-6}" text-anchor="middle" font-size="9" fill="#888">${h(l)}</text>`; });
+  const paths=series.map(s=>{ const pts=s.values.map((v,i)=>X(i)+','+Y(v)).join(' ');
+    return (o.area&&s===series[0]?`<polygon points="${X(0)},${Y(0)} ${pts} ${X(n-1)},${Y(0)}" fill="${s.color}" opacity=".10"/>`:'')+`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2.2" stroke-linejoin="round"/>`+(n<=31?s.values.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="2.2" fill="${s.color}"><title>${h(labels[i])}: ${h(o.fmt?o.fmt(v):v)}</title></circle>`).join(''):''); }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ch">${g}${paths}${xl}</svg>${legend(series.map(s=>({label:s.name,color:s.color})))}`;
+}
+function svgDonut(items, o){
+  o=o||{}; items=items.filter(i=>Number(i.value)>0); const tot=items.reduce((a,i)=>a+Number(i.value),0);
+  if(!tot) return `<div class="muted" style="text-align:center;padding:14px">No data</div>`;
+  let off=0; const arcs=items.map((it,k)=>{ const p=Number(it.value)/tot*100, c=it.color||PAL[k%PAL.length]; const a=`<circle r="15.915" cx="21" cy="21" fill="none" stroke="${c}" stroke-width="7" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${25-off}"><title>${h(it.label)}: ${h(o.fmt?o.fmt(it.value):it.value)} (${Math.round(p)}%)</title></circle>`; off+=p; return a; }).join('');
+  return `<div class="dn"><svg viewBox="0 0 42 42" class="dnc">${arcs}<text x="21" y="20.5" text-anchor="middle" font-size="5" font-weight="700" fill="#3d1729">${h(o.center||shortN(tot))}</text><text x="21" y="26" text-anchor="middle" font-size="2.8" fill="#888">${h(o.sub||'total')}</text></svg>
+    <div class="dnl">${items.map((it,k)=>`<div><i style="background:${it.color||PAL[k%PAL.length]}"></i><span class="grow">${h(it.label)}</span><b>${h(o.fmt?o.fmt(it.value):it.value)}</b><span class="muted">&nbsp;${Math.round(Number(it.value)/tot*100)}%</span></div>`).join('')}</div></div>`;
+}
+function hBars(items, o){
+  o=o||{}; const max=Math.max(1,...items.map(i=>Math.max(Number(i.value)||0, Number(i.target)||0)));
+  return `<div class="hb">${items.map((it,k)=>{ const w=(Number(it.value)||0)/max*100, t=it.target?(Number(it.target)/max*100):null;
+    return `<div class="hbr" ${it.click?`onclick="${it.click}" style="cursor:pointer"`:''}><div class="row"><span class="grow">${h(it.label)}</span><b>${h(o.fmt?o.fmt(it.value):it.value)}</b>${it.sub?`<span class="muted">&nbsp;${h(it.sub)}</span>`:''}</div>
+      <div class="hbt"><i style="width:${w}%;background:${it.color||o.color||PAL[0]}"></i>${t!==null?`<s style="left:${t}%"></s>`:''}</div></div>`; }).join('')}${o.targetNote?`<div class="muted" style="margin-top:4px">▏ = target</div>`:''}</div>`;
+}
+function svgStack(labels, stacks){
+  const W=340,H=150,pl=24,pr=4,pt=8,pb=20,n=labels.length; if(!n) return '<div class="muted">No working days yet</div>';
+  const tot=labels.map((_,i)=>stacks.reduce((a,s)=>a+(Number(s.values[i])||0),0)), max=Math.max(1,...tot);
+  const bw=(W-pl-pr)/n; let out='';
+  for(let i=0;i<=2;i++){ const v=Math.round(max*i/2), y=pt+(H-pt-pb)*(1-v/max); out+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" stroke="#eee"/><text x="${pl-3}" y="${y+3}" text-anchor="end" font-size="8" fill="#888">${v}</text>`; }
+  labels.forEach((l,i)=>{ let y=H-pb; stacks.forEach(s=>{ const v=Number(s.values[i])||0, hh=(H-pt-pb)*v/max; if(hh>0){ y-=hh; out+=`<rect x="${pl+i*bw+1}" y="${y}" width="${Math.max(1,bw-2)}" height="${hh}" fill="${s.color}"><title>${h(l)} · ${h(s.name)}: ${v}</title></rect>`; } });
+    if(i%Math.max(1,Math.ceil(n/8))===0) out+=`<text x="${pl+i*bw+bw/2}" y="${H-6}" text-anchor="middle" font-size="8" fill="#888">${h(l)}</text>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" class="ch">${out}</svg>${legend(stacks.map(s=>({label:s.name,color:s.color})))}`;
+}
+function delta(cur, prev){ if(!prev) return ''; const d=(cur-prev)/Math.abs(prev); if(!isFinite(d)) return ''; return `<em class="${d>=0?'up':'dn2'}">${d>=0?'▲':'▼'} ${Math.abs(Math.round(d*100))}%</em>`; }
+function kp(label, value, sub, extra){ return `<div class="kpi"><b>${value}</b><span>${label}</span>${sub?`<div class="muted" style="font-size:11px">${sub}</div>`:''}${extra||''}</div>`; }
+
+// ---------------------------------------------------------------- CEO / Head of Sales dashboard
+const EX_PRESETS=[['today','Today'],['week','This week'],['month','This month'],['lastmonth','Last month'],['quarter','This quarter'],['year','This year'],['custom','Custom']];
+screens.exec = function(preset){
+  S.ex=S.ex||{}; S.ex.preset=preset||S.ex.preset||'month'; navArgs(S.ex.preset);
+  if(S.ex.preset!=='custom'){ const r=rangeFor(S.ex.preset); S.ex.from=r[0]; S.ex.to=r[1]; }
+  page('Company dashboard', 'All teams · view only', `<div class="tabs">${EX_PRESETS.map(p=>`<button class="${S.ex.preset===p[0]?'on':''}" onclick="screens.exec('${p[0]}')">${p[1]}</button>`).join('')}</div>
+    ${S.ex.preset==='custom'?`<div class="card"><div class="grid2"><div><label>From</label><input type="date" id="ex_f" value="${S.ex.from}" max="${today()}"></div><div><label>To</label><input type="date" id="ex_t" value="${S.ex.to}" max="${today()}"></div></div><button class="btn" onclick="S.ex.from=val('ex_f');S.ex.to=val('ex_t');loadExec()">Show</button></div>`:''}
+    <div id="ex_out"><div class="card"><div class="muted" style="text-align:center;padding:24px">Loading the company dashboard…</div></div></div>`);
+  loadExec();
+};
+async function loadExec(){
+  const box=$('ex_out'); if(!box) return;
+  const r=await api('apiExecDashboard', S.ex.from, S.ex.to);
+  if(!$('ex_out')) return;
+  if(!r.ok){ box.innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.ex.data=r; renderExec();
+}
+function renderExec(){
+  const r=S.ex.data, k=r.kpi, p=r.prev, b=r.book, box=$('ex_out'); if(!box||!r) return;
+  const tl=r.todayLive, at=tl.attendance;
+  const trendL=r.trend.map(x=>r.monthly?x.label.slice(5)+'/'+x.label.slice(2,4):String(Number(x.label.slice(8))));
+  const team=r.team;
+  box.innerHTML=`<div class="muted" style="margin:0 2px 8px">${h(fmtD(r.from))}${r.from!==r.to?' – '+h(fmtD(r.to)):''} · ${r.days} day${r.days>1?'s':''} · change vs ${h(fmtD(r.prevFrom))} – ${h(fmtD(r.prevTo))} · updated ${h(r.generated)}${r.cached?' (cached)':''}</div>
+  <div class="card"><h3>Sales &amp; collection</h3><div class="grid2">
+    ${kp('Sales (billed/booked)', money(k.sales), k.orders+' orders · avg '+money(k.aov), delta(k.sales,p.sales))}
+    ${kp('Collections verified', money(k.collections), k.sales?pctS(k.collections/k.sales)+' of sales':'', delta(k.collections,p.collections))}
+    ${kp('Pending verification', money(k.pendingVer), 'waiting for Accounts')}
+    ${kp('Returns approved', money(k.returns), '')}
+  </div></div>
+  <div class="card"><h3>Receivables now</h3><div class="grid3">
+    ${kp('Outstanding', money(b.outstanding), b.tailors+' shops')}
+    <div class="kpi"><b style="color:${b.overdue>0?'var(--bad)':'var(--ok)'}">${money(b.overdue)}</b><span>Overdue</span><div class="muted" style="font-size:11px">${b.outstanding?pctS(b.overdue/b.outstanding)+' of book':''}</div></div>
+    ${kp('High-risk shops', b.highRisk, money(b.advance)+' advance held')}
+  </div>${svgDonut(r.aging.map((a,i)=>({label:a.label,value:a.value,color:['#1E7B4F','#C8A24A','#D9822B','#B42318','#7A1D14','#3d1729'][i]})),{fmt:money,center:shortN(b.outstanding),sub:'outstanding'})}</div>
+  <div class="card"><h3>Trend</h3>${svgLine(trendL,[{name:'Sales',color:PAL[0],values:r.trend.map(x=>x.sales)},{name:'Collections',color:PAL[2],values:r.trend.map(x=>x.collections)}],{fmt:money,area:true})}
+    <div class="grid4" style="margin-top:8px">${kp('Orders',k.orders,'',delta(k.orders,p.orders))}${kp('Visits',k.visits,'',delta(k.visits,p.visits))}${kp('New shops',k.newTailors,k.approved+' approved',delta(k.newTailors,p.newTailors))}${kp('Active shops',b.active,'of '+b.tailors)}</div></div>
+  <div class="card"><h3>Today live</h3><div class="grid4">${kp('Sales',money(tl.sales))}${kp('Collected',money(tl.collections))}${kp('Orders',tl.orders)}${kp('Visits',tl.visits)}</div>
+    <div style="margin-top:10px">${hBars([{label:'Checked in',value:at.checkedIn,color:PAL[2],sub:at.late?at.late+' late':''},{label:'On leave',value:at.onLeave,color:PAL[3]},{label:'Absent',value:at.absent,color:PAL[4]},{label:'Not checked in yet',value:at.notYet,color:PAL[8]}],{})}</div>
+    <div class="muted">${at.staff} field staff (sales + delivery)</div><button class="btn sec" onclick="show('team')">Team today ›</button></div>
+  <div class="card"><h3>Sales team</h3>${hBars(team.map(m=>({label:m.name,value:m.sales,target:m.tSales||0,sub:m.salesAch!==null?pctS(m.salesAch):''})),{fmt:shortN,targetNote:team.some(m=>m.tSales)})}
+    <div style="overflow-x:auto;margin-top:10px"><table class="t"><tr><th>Rep</th><th>Sales</th><th>Collected</th><th>Visits</th><th>New</th><th>Overdue</th><th>Attend.</th></tr>
+    ${team.map(m=>`<tr><td>${h(m.name)}</td><td>${shortN(m.sales)}${m.salesAch!==null?` <span class="muted">${pctS(m.salesAch)}</span>`:''}</td><td>${shortN(m.collections)}</td><td>${m.visits}</td><td>${m.onboarded}</td><td style="color:${m.overdue>0?'var(--bad)':'inherit'}">${shortN(m.overdue)}</td><td>${pctS(m.attendance)}${m.late?` <span class="muted">${m.late}L</span>`:''}</td></tr>`).join('')}</table></div></div>
+  <div class="card"><h3>Product categories</h3>${svgDonut(r.categories,{fmt:money,center:shortN(k.sales),sub:'sales'})}
+    <h3 style="margin-top:12px">Top products</h3>${hBars(r.products.map(x=>({label:x.name,value:x.amount,sub:x.qty+' pcs'})),{fmt:shortN,color:PAL[1]})}</div>
+  <div class="card"><h3>Areas</h3>${hBars(r.areas.slice(0,12).map(a=>({label:a.area,value:a.sales,sub:'due '+shortN(a.outstanding)})),{fmt:shortN,color:PAL[3]})}</div>
+  <div class="card"><h3>Delivery</h3><div class="grid3">${kp('Delivered',k.deliveries,money(k.billed)+' billed')}${kp('Fill rate',pctS(k.fillRate),'pcs delivered / ordered')}${kp('Open orders',r.pending.openDeliveries,money(r.pending.openDeliveryValue))}</div>
+    ${svgDonut(Object.keys(r.delivery.outcome).map((x,i)=>({label:x,value:r.delivery.outcome[x],color:[PAL[2],PAL[1],PAL[4]][i]})),{center:String(k.deliveries),sub:'deliveries'})}
+    ${Object.keys(r.delivery.reasons).length?`<div class="muted" style="margin-top:6px">Short / return reasons: ${Object.keys(r.delivery.reasons).map(x=>h(x)+' '+r.delivery.reasons[x]).join(' · ')}</div>`:''}
+    <div style="overflow-x:auto;margin-top:8px"><table class="t"><tr><th>Delivery staff</th><th>Open</th><th>Done</th><th>Billed</th><th>Partial</th><th>Returned</th></tr>${r.delivery.staff.map(d=>`<tr><td>${h(d.name)}</td><td>${d.open}</td><td>${d.done}</td><td>${shortN(d.billed)}</td><td>${d.partial}</td><td>${d.returned}</td></tr>`).join('')}</table></div></div>
+  <div class="card"><h3>How customers pay</h3>${svgDonut(r.methods,{fmt:money,center:shortN(k.collections),sub:'verified'})}</div>
+  <div class="card"><h3>Top shops</h3><div class="list">${r.topShops.map(t=>`<div class="it" onclick="show('shop','${h(t.id)}')"><div class="grow"><b>${h(t.shop)}</b><div class="muted">${h(t.area)} · ${h(t.rep)}</div></div><div class="amt">${money(t.sales)}</div></div>`).join('')||'<div class="muted">No sales in this period</div>'}</div></div>
+  <div class="card"><h3>Overdue risk</h3><div class="list">${r.risk.map(t=>`<div class="it" onclick="show('shop','${h(t.id)}')"><div class="grow"><b>${h(t.shop)}</b><div class="muted">${h(t.area)} · ${h(t.rep)} · ${t.days} days</div></div><div style="text-align:right"><div class="amt" style="color:var(--bad)">${money(t.overdue)}</div><span class="chip ${t.risk==='High Risk'?'c-bad':'c-warn'}">${h(t.risk)}</span></div></div>`).join('')||'<div class="okbox">No overdue shops 🎉</div>'}</div></div>
+  <div class="card"><h3>Waiting for action</h3><div class="grid3">${kp('Shop approvals',r.pending.tailors)}${kp('Payments to verify',r.pending.verifications)}${kp('Orders to confirm',r.pending.submittedOrders)}${kp('Expenses',r.pending.expenses)}${kp('Leave requests',r.pending.leaves)}${kp('Expenses (period)',money(k.expenses))}</div></div>`;
+}
+
+// ---------------------------------------------------------------- HR panel
+const HR_TABS=[['overview','Overview'],['attendance','Attendance'],['leave','Leave'],['payroll','Payroll'],['performance','Performance']];
+function monthShift(m, d){ let y=+m.slice(0,4), mm=+m.slice(5,7)+d; while(mm<1){mm+=12;y--;} while(mm>12){mm-=12;y++;} return y+'-'+String(mm).padStart(2,'0'); }
+screens.hr = function(month, tab){
+  S.hr=S.hr||{}; S.hr.month=month||S.hr.month||today().slice(0,7); S.hr.tab=tab||S.hr.tab||'overview'; navArgs(S.hr.month, S.hr.tab);
+  const cur=today().slice(0,7);
+  page('HR panel', 'Attendance · leave · payroll · performance', `<div class="card"><div class="row"><button class="btn sm sec" style="width:auto;margin:0" onclick="screens.hr(monthShift(S.hr.month,-1))">‹</button>
+    <div class="grow" style="text-align:center"><b id="hr_m">${h(S.hr.month)}</b></div><button class="btn sm sec" style="width:auto;margin:0" ${S.hr.month>=cur?'disabled':''} onclick="screens.hr(monthShift(S.hr.month,1))">›</button></div></div>
+    <div class="tabs">${HR_TABS.map(t=>`<button class="${S.hr.tab===t[0]?'on':''}" onclick="hrTab('${t[0]}')">${t[1]}</button>`).join('')}</div>
+    <div id="hr_out"><div class="card"><div class="muted" style="text-align:center;padding:24px">Loading…</div></div></div>`);
+  loadHr();
+};
+function hrTab(t){ S.hr.tab=t; navArgs(S.hr.month, t); document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on', HR_TABS[i]&&HR_TABS[i][0]===t)); renderHr(); }
+async function loadHr(fresh){
+  if(!fresh && S.hr.data && S.hr.data.month===S.hr.month && Date.now()-S.hr.t<60000) return renderHr();
+  const r=await api('apiHrDashboard', S.hr.month);
+  if(!$('hr_out')) return;
+  if(!r.ok){ $('hr_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.hr.data=r; S.hr.t=Date.now(); if($('hr_m')) $('hr_m').textContent=r.monthLabel; renderHr();
+}
+function stChip(st){ const c={'Present':'c-ok','Late':'c-warn','Missing Check-out':'c-warn','Absent':'c-bad','On Leave':'c-info','Off-day Work':'c-info','Checked in':'c-ok','Not checked in':''}[st]; return `<span class="chip ${c===undefined?'':c}">${h(st)}</span>`; }
+function renderHr(){
+  const r=S.hr.data, box=$('hr_out'); if(!box||!r) return;
+  const tab=S.hr.tab, tr=r.rows.filter(x=>x.tracked), T=r.totals;
+  let body='';
+  if(tab==='overview'){
+    const sP=r.series.reduce((a,x)=>a+x.present,0), sL=r.series.reduce((a,x)=>a+x.late,0), sA=r.series.reduce((a,x)=>a+x.absent,0), sV=r.series.reduce((a,x)=>a+x.leave,0);
+    const flagged=r.rows.filter(x=>x.flags.length);
+    const nowC={}; r.now.forEach(x=>nowC[x.status]=(nowC[x.status]||0)+1);
+    body=`<div class="card"><h3>People</h3><div class="grid3">${r.headcount.map(x=>kp(x.role,x.n)).join('')}</div></div>
+    <div class="card"><h3>Today</h3>${svgDonut(Object.keys(nowC).map((k2,i)=>({label:k2,value:nowC[k2],color:{'Present':PAL[2],'Checked in':PAL[2],'Late':PAL[1],'On Leave':PAL[3],'Absent':PAL[4],'Missing Check-out':PAL[5],'Not checked in':PAL[8]}[k2]||PAL[i]})),{center:String(r.now.length),sub:'field staff'})}
+      <div class="list" style="margin-top:6px">${r.now.map(x=>`<div class="it" onclick="show('emp','${h(x.empId)}',S.hr.month)"><div class="grow"><b>${h(x.name)}</b><div class="muted">${h(x.role)}${x.checkIn?' · in '+h(x.checkIn):''}</div></div>${stChip(x.late?'Late':x.status)}</div>`).join('')}</div></div>
+    <div class="card"><h3>Attendance this month</h3>${svgStack(r.series.map(x=>String(Number(x.day.slice(8)))),[{name:'On time',color:PAL[2],values:r.series.map(x=>x.present)},{name:'Late',color:PAL[1],values:r.series.map(x=>x.late)},{name:'On leave',color:PAL[3],values:r.series.map(x=>x.leave)},{name:'Absent',color:PAL[4],values:r.series.map(x=>x.absent)}])}
+      <div class="grid4" style="margin-top:8px">${kp('On time',sP)}${kp('Late',sL)}${kp('Leave',sV)}${kp('Absent',sA)}</div></div>
+    <div class="card"><h3>Needs attention (${flagged.length})</h3>${flagged.length?`<div class="list">${flagged.map(x=>`<div class="it" onclick="show('emp','${h(x.empId)}',S.hr.month)"><div class="grow"><b>${h(x.name)}</b><div class="muted">${h(x.role)}</div><div>${x.flags.map(f=>`<span class="chip c-warn" style="margin:2px 2px 0 0">${h(f)}</span>`).join('')}</div></div><span class="muted">›</span></div>`).join('')}</div>`:'<div class="okbox">Nobody flagged this month.</div>'}</div>
+    <div class="card"><h3>Payroll ${h(r.monthLabel)}</h3>${svgDonut([{label:'Gross pay',value:T.gross-T.absenceDed-T.lateDed,color:PAL[0]},{label:'Incentive',value:T.incentive,color:PAL[1]},{label:'Expense refund',value:T.expenses,color:PAL[3]}],{fmt:money,center:shortN(T.net),sub:'net pay'})}
+      <div class="muted">Deductions ${money(T.absenceDed+T.lateDed)} (absence ${money(T.absenceDed)}, late ${money(T.lateDed)})</div>
+      <button class="btn sec" onclick="hrTab('payroll')">Open payroll ›</button></div>
+    ${r.pending.length?`<div class="card"><div class="warnbox" style="margin:0;cursor:pointer" onclick="hrTab('leave')">🌴 ${r.pending.length} leave request(s) waiting for approval ›</div></div>`:''}
+    ${r.actions.length?`<div class="card"><h3>Recent HR actions</h3><div class="list">${r.actions.map(a=>`<div class="it" onclick="show('emp','${h(a.empId)}',S.hr.month)"><div class="grow"><b>${h(a.type)} · ${h(a.name)}</b><div class="muted">${h(a.date)} · ${h(a.note)}</div></div></div>`).join('')}</div></div>`:''}`;
+  } else if(tab==='attendance'){
+    body=`<div class="card"><h3>Attendance % (present + paid leave ÷ working days)</h3>${hBars(tr.map(x=>({label:x.name,value:Math.round((x.attPct||0)*100),sub:x.workingDays+' days',color:(x.attPct||0)>=0.95?PAL[2]:(x.attPct||0)>=0.85?PAL[1]:PAL[4],click:`show('emp','${h(x.empId)}',S.hr.month)`})),{fmt:v=>v+'%'})}</div>
+    <div class="card" style="overflow-x:auto"><table class="t"><tr><th>Employee</th><th>Work days</th><th>Present</th><th>Late</th><th>Leave</th><th>Absent</th><th>No out</th><th>Avg hrs</th></tr>
+    ${tr.map(x=>`<tr onclick="show('emp','${h(x.empId)}',S.hr.month)" style="cursor:pointer"><td><b>${h(x.name)}</b><div class="muted">${h(x.role)}</div></td><td>${x.workingDays}</td><td>${x.presentDays}</td><td style="color:${x.lateDays>=3?'var(--bad)':'inherit'}">${x.lateDays}</td><td>${x.leaveDays+x.unpaidLeave}</td><td style="color:${x.absentDays?'var(--bad)':'inherit'}">${x.absentDays}</td><td>${x.missingCO}</td><td>${x.avgHours||'—'}</td></tr>`).join('')}</table>
+    <div class="muted" style="margin-top:6px">Office staff (CEO, HR, Accounts, Admin) do not check in, so they are not listed here.</div></div>`;
+  } else if(tab==='leave'){
+    const q=r.rules.quota;
+    body=`<div class="card"><h3>Waiting for approval (${r.pending.length})</h3>${r.pending.length?r.pending.map(l=>`<div class="opt" style="margin-bottom:8px"><div class="row"><div class="grow"><b>${h(l.name)}</b> <span class="muted">${h(l.role)}</span><div>${h(l.type)} · <b>${l.days} day(s)</b> · ${h(l.fromLabel)}${l.to!==l.from?' – '+h(l.toLabel):''}</div><div class="muted">${h(l.reason)} · applied ${h(l.applied)}</div></div></div>
+      ${r.canEdit?`<div class="grid2"><button class="btn sm ok" onclick="decideLeave('${h(l.id)}','Approved')">Approve</button><button class="btn sm bad" onclick="decideLeave('${h(l.id)}','Rejected')">Reject</button></div>`:''}</div>`).join(''):'<div class="okbox">No pending requests.</div>'}</div>
+    <div class="card" style="overflow-x:auto"><h3>Leave left ${h(S.hr.month.slice(0,4))}</h3><table class="t"><tr><th>Employee</th><th>Casual /${q.Casual}</th><th>Sick /${q.Sick}</th><th>Annual /${q.Annual}</th><th>Unpaid</th></tr>
+    ${r.rows.map(x=>{ const b=x.balance; const c=t=>`<span style="color:${b[t].left<=1?'var(--bad)':'inherit'}">${b[t].left}</span>${b[t].pending?` <span class="muted">(${b[t].pending}p)</span>`:''}`; return `<tr onclick="show('emp','${h(x.empId)}',S.hr.month)" style="cursor:pointer"><td>${h(x.name)}</td><td>${c('Casual')}</td><td>${c('Sick')}</td><td>${c('Annual')}</td><td>${b.Unpaid.used}</td></tr>`; }).join('')}</table></div>
+    <div class="card"><h3>Leave in ${h(r.monthLabel)}</h3><div class="list">${r.recentLeaves.slice().reverse().map(l=>`<div class="it"><div class="grow"><b>${h(l.name)}</b><div class="muted">${h(l.type)} · ${l.days} day(s) · ${h(l.fromLabel)}${l.to!==l.from?' – '+h(l.toLabel):''} · ${h(l.reason)}</div></div>${stChip({Approved:'On Leave',Pending:'Late',Rejected:'Absent',Cancelled:'Not checked in'}[l.status]||'').replace(/>[^<]*</,'>'+h(l.status)+'<')}</div>`).join('')||'<div class="muted">None</div>'}</div></div>`;
+  } else if(tab==='payroll'){
+    const R=r.rules, pay=r.rows.filter(x=>x.gross>0);
+    body=`<div class="card"><div class="grid3">${kp('Gross',money(T.gross))}${kp('Deductions',money(T.absenceDed+T.lateDed))}${kp('Incentive',money(T.incentive))}${kp('Expense refund',money(T.expenses))}${kp('Net pay',money(T.net))}${kp('People',pay.length)}</div>
+      ${r.saved?`<div class="okbox" style="margin-top:8px">Saved to the Payroll sheet ${h(r.saved.at)} by ${h(r.saved.by)} (net ${money(r.saved.net)}).</div>`:''}
+      ${r.canEdit?`<button class="btn" onclick="savePayroll()">${r.saved?'Save again (replace)':'Save payroll for '+h(r.monthLabel)}</button>`:''}
+      <button class="btn sec" onclick="window.print()">🖨 Print</button>
+      <div class="muted" style="margin-top:8px">Rules: one day = gross ÷ ${R.dayBase}; absent + unpaid leave days deducted; every ${R.perLate} late days = 1 day deducted; incentive ${R.sPct}% of sales and ${R.cPct}% of collections when the target is ≥ ${R.minAch}%; approved expenses refunded. Change in Settings (HR). Salaries: Employee Master.</div>
+      ${!pay.length?'<div class="warnbox">No salaries entered yet — fill Basic Salary and allowances in Employee Master.</div>':''}</div>
+    <div class="card" style="overflow-x:auto"><table class="t"><tr><th>Employee</th><th>Gross</th><th>Absent / late</th><th>Deduct</th><th>Incentive</th><th>Exp.</th><th>Net</th></tr>
+    ${pay.map(x=>`<tr onclick="show('emp','${h(x.empId)}',S.hr.month)" style="cursor:pointer"><td><b>${h(x.name)}</b><div class="muted">${h(x.role)}</div></td><td>${money(x.gross)}</td><td>${x.unpaidDays} / ${x.lateDays}</td><td style="color:${x.absenceDed+x.lateDed?'var(--bad)':'inherit'}">${money(x.absenceDed+x.lateDed)}</td><td>${x.incentive?money(x.incentive):'—'}${x.salesAch!==null?`<div class="muted">${pctS(x.salesAch)}</div>`:''}</td><td>${money(x.expenses)}</td><td><b>${money(x.net)}</b></td></tr>`).join('')}
+    <tr><td><b>Total</b></td><td>${money(T.gross)}</td><td></td><td>${money(T.absenceDed+T.lateDed)}</td><td>${money(T.incentive)}</td><td>${money(T.expenses)}</td><td><b>${money(T.net)}</b></td></tr></table></div>`;
+  } else if(tab==='performance'){
+    const reps=r.rows.filter(x=>x.tSales||x.sales||x.visits);
+    body=`<div class="card"><h3>Sales target achievement</h3>${hBars(reps.map(x=>({label:x.name,value:Math.round((x.salesAch||0)*100),sub:shortN(x.sales)+' / '+shortN(x.tSales),color:(x.salesAch||0)>=1?PAL[2]:(x.salesAch||0)>=0.7?PAL[1]:PAL[4],click:`show('emp','${h(x.empId)}',S.hr.month)`})),{fmt:v=>v+'%'})}</div>
+    <div class="card"><h3>Collection target achievement</h3>${hBars(reps.map(x=>({label:x.name,value:Math.round((x.collAch||0)*100),sub:shortN(x.collections)+' / '+shortN(x.tCollection),color:(x.collAch||0)>=1?PAL[2]:(x.collAch||0)>=0.7?PAL[1]:PAL[4]})),{fmt:v=>v+'%'})}</div>
+    <div class="card" style="overflow-x:auto"><table class="t"><tr><th>Employee</th><th>Visits</th><th>Orders</th><th>New shops</th><th>Attend.</th><th>Late</th><th>Incentive</th></tr>
+    ${r.rows.filter(x=>x.tracked).map(x=>`<tr onclick="show('emp','${h(x.empId)}',S.hr.month)" style="cursor:pointer"><td>${h(x.name)}</td><td>${x.visits}</td><td>${x.orders}</td><td>${x.onboarded}</td><td>${pctS(x.attPct)}</td><td>${x.lateDays}</td><td>${x.incentive?money(x.incentive):'—'}</td></tr>`).join('')}</table></div>`;
+  }
+  box.innerHTML=body;
+}
+async function decideLeave(id, d){
+  let rm=''; if(d==='Rejected'){ rm=prompt('Reason for rejecting'); if(!rm) return; }
+  busy(true,'Saving…'); const r=await api('apiDecideLeave', id, d, rm); busy(false);
+  if(!r.ok) return toast('⛔ '+r.message, 6000); toast('✅ '+r.message); loadHr(true);
+}
+async function savePayroll(){
+  if(!confirm('Save payroll for '+S.hr.data.monthLabel+' to the Payroll sheet? (replaces any earlier save of this month)')) return;
+  busy(true,'Saving payroll…'); const r=await api('apiSavePayroll', S.hr.month); busy(false);
+  if(!r.ok) return toast('⛔ '+r.message, 6000); toast('✅ '+r.message, 6000); loadHr(true);
+}
+
+// ---------------------------------------------------------------- employee HR detail
+screens.emp = async function(id, month){
+  page('Employee', id, '<div class="card"><div class="muted" style="text-align:center;padding:20px">Loading…</div></div>');
+  const r=await api('apiEmpHr', id, month||today().slice(0,7));
+  if(S.screen!=='emp') return;
+  if(!r.ok) return page('Employee', id, `<div class="badbox">${h(r.message)}</div>`);
+  const e=r.emp, x=r.row, b=r.balance;
+  page(e.name, e.role+' · '+e.id, `<div class="card"><div class="muted">${h(e.mobile)}${e.email?' · '+h(e.email):''} · joined ${h(e.joinDate)}${e.territory?' · '+h(e.territory):''}</div>
+    ${x&&x.flags.length?`<div>${x.flags.map(f=>`<span class="chip c-warn" style="margin:6px 4px 0 0">${h(f)}</span>`).join('')}</div>`:''}</div>
+    ${x?`<div class="card"><h3>${h(r.month)}</h3><div class="grid4">${kp('Work days',x.workingDays)}${kp('Present',x.presentDays)}${kp('Late',x.lateDays)}${kp('Absent',x.absentDays)}${kp('Leave',x.leaveDays+x.unpaidLeave)}${kp('No check-out',x.missingCO)}${kp('Avg hours',x.avgHours||'—')}${kp('Attendance',pctS(x.attPct))}</div>
+      ${x.tSales||x.sales?`<div class="grid3" style="margin-top:8px">${kp('Sales',shortN(x.sales),'target '+shortN(x.tSales)+' · '+pctS(x.salesAch))}${kp('Collections',shortN(x.collections),'target '+shortN(x.tCollection)+' · '+pctS(x.collAch))}${kp('Visits',x.visits,x.orders+' orders')}</div>`:''}</div>
+    ${x.gross?`<div class="card"><h3>Pay ${h(r.month)}</h3><table class="t">
+      <tr><td>Basic</td><td style="text-align:right">${money(x.basic)}</td></tr><tr><td>Allowances</td><td style="text-align:right">${money(x.allowances)}</td></tr>
+      <tr><td><b>Gross</b></td><td style="text-align:right"><b>${money(x.gross)}</b></td></tr>
+      <tr><td>Absence (${x.unpaidDays} day)</td><td style="text-align:right;color:var(--bad)">− ${money(x.absenceDed)}</td></tr><tr><td>Late (${x.lateDays} days)</td><td style="text-align:right;color:var(--bad)">− ${money(x.lateDed)}</td></tr>
+      <tr><td>Incentive</td><td style="text-align:right;color:var(--ok)">+ ${money(x.incentive)}</td></tr><tr><td>Expense refund</td><td style="text-align:right">+ ${money(x.expenses)}</td></tr>
+      <tr><td><b>Net pay</b></td><td style="text-align:right"><b>${money(x.net)}</b></td></tr></table></div>`:''}`:''}
+    <div class="card"><h3>Leave left ${h(r.month.slice(0,4))}</h3><div class="grid3">${['Casual','Sick','Annual'].map(t=>kp(t,b[t].left,'of '+b[t].quota+(b[t].pending?' · '+b[t].pending+' pending':''))).join('')}</div>
+      <div class="list" style="margin-top:6px">${r.leaves.map(l=>`<div class="it"><div class="grow"><b>${h(l.type)} · ${l.days} day(s)</b><div class="muted">${h(l.fromLabel)}${l.to!==l.from?' – '+h(l.toLabel):''} · ${h(l.reason)}</div></div><span class="chip">${h(l.status)}</span></div>`).join('')}</div></div>
+    <div class="card"><h3>Days</h3><div class="list">${r.days.slice().reverse().map(d=>`<div class="it"><div class="grow"><b>${h(d.label)}</b><div class="muted">${d.checkIn?'in '+h(d.checkIn):''}${d.checkOut?' · out '+h(d.checkOut):''}${d.hours?' · '+d.hours+' h':''}${d.late?' · '+d.lateMin+' min late':''}${d.note&&d.note!=='Matched'?' · '+h(d.note):''}</div></div>${stChip(d.status||(d.late?'Late':'Present'))}</div>`).join('')||'<div class="muted">No attendance records (office staff do not check in).</div>'}</div></div>
+    <div class="card"><h3>HR actions</h3><div class="list">${r.actions.map(a=>`<div class="it"><div class="grow"><b>${h(a.type)}</b> <span class="muted">${h(a.date)} · ${h(a.by)}</span><div>${h(a.note)}</div></div></div>`).join('')||'<div class="muted">None</div>'}</div>
+      ${r.canEdit?`<label>Record an action</label><select id="ha_t">${opts(r.actionTypes,'Note')}</select><textarea id="ha_n" placeholder="What happened / what was agreed"></textarea><button class="btn" onclick="hrAction('${h(e.id)}','${h(r.month)}')">Save action</button>`:''}</div>`);
+};
+async function hrAction(id, month){
+  if(!val('ha_n')) return toast('Write the note');
+  busy(true,'Saving…'); const r=await api('apiHrAction', id, val('ha_t'), val('ha_n')); busy(false);
+  if(!r.ok) return toast('⛔ '+r.message, 6000); toast('✅ '+r.message); if(S.hr) S.hr.t=0; screens.emp(id, month);
+}
+
+// ---------------------------------------------------------------- my leave (every employee)
+screens.leave = async function(){
+  page('My leave', 'Apply and track', '<div class="card"><div class="muted" style="text-align:center;padding:20px">Loading…</div></div>');
+  const r=await api('apiMyLeaves');
+  if(S.screen!=='leave') return;
+  if(!r.ok) return page('My leave', '', `<div class="badbox">${h(r.message)}</div>`);
+  const b=r.balance;
+  page('My leave', 'Year '+r.year, `<div class="card"><h3>Leave left</h3><div class="grid3">${['Casual','Sick','Annual'].map(t=>kp(t,b[t].left,'of '+b[t].quota+(b[t].pending?' · '+b[t].pending+' pending':''))).join('')}</div></div>
+    <div class="card"><h3>Apply for leave</h3><label>Type <span class="req">*</span></label><select id="lv_t">${opts(r.types,'Casual')}</select>
+      <div class="grid2"><div><label>From <span class="req">*</span></label><input type="date" id="lv_f" min="${addDays(today(),-30)}" value="${today()}"></div><div><label>To</label><input type="date" id="lv_to" min="${addDays(today(),-30)}" value="${today()}"></div></div>
+      <label>Reason <span class="req">*</span></label><textarea id="lv_r" placeholder="e.g. fever, family programme"></textarea>
+      <div class="hint">Weekly off-days and holidays are not counted. HR approves the request; approved days are not counted as absent.</div>
+      <button class="btn" onclick="applyLeave()">Send to HR</button></div>
+    <div class="card"><h3>My requests</h3><div class="list">${r.leaves.map(l=>`<div class="it"><div class="grow"><b>${h(l.type)} · ${l.days} day(s)</b><div class="muted">${h(l.fromLabel)}${l.to!==l.from?' – '+h(l.toLabel):''} · ${h(l.reason)}${l.remarks?' · HR: '+h(l.remarks):''}</div></div>
+      <div style="text-align:right"><span class="chip ${l.status==='Approved'?'c-ok':l.status==='Rejected'?'c-bad':l.status==='Pending'?'c-warn':''}">${h(l.status)}</span>${l.status==='Pending'?`<div><button class="btn sm sec" style="margin-top:6px;padding:6px 10px" onclick="cancelLeave('${h(l.id)}')">Cancel</button></div>`:''}</div></div>`).join('')||'<div class="muted">No requests yet.</div>'}</div></div>`);
+};
+async function applyLeave(){
+  const f=val('lv_f'), t=val('lv_to')||f; if(!f) return toast('Choose the first day'); if(t<f) return toast('The last day is before the first day'); if(!val('lv_r')) return toast('Write the reason');
+  busy(true,'Sending…'); const r=await api('apiSubmitLeave', {type:val('lv_t'), from:f, to:t, reason:val('lv_r'), submissionId:uid()}); busy(false);
+  if(!r.ok) return toast('⛔ '+r.message, 7000); toast('✅ '+r.message, 6000); screens.leave();
+}
+async function cancelLeave(id){ if(!confirm('Cancel this leave request?')) return; const r=await api('apiCancelLeave', id); if(!r.ok) return toast('⛔ '+r.message); toast('✅ '+r.message); screens.leave(); }
 
 // ---------------------------------------------------------------- profile
 screens.profile = function(){
