@@ -252,7 +252,7 @@ screens.home = function(){
     tiles.push(['🧵','Onboard tailor',"show('onboard')"],['🛒','New order',"show('order')"],['💵','Collect payment',"show('collect')"],
       ['📍','Field visit',"show('visit')"],['🏪','My tailors',"show('tailors')"],['⏰','Follow-ups',"show('followups')",b.followUps.length],['🧾','Expense',"show('expense')"]);
   }
-  if(P.delivery) tiles.push(['🚚','My deliveries',"show('deliveries','open')",c.deliveries],['🧾','Expense',"show('expense')"]);
+  if(P.delivery){ tiles.push(['🚚','My deliveries',"show('deliveries','open')",c.deliveries]); if(P.collect) tiles.push(['💵','Collect payment',"show('collect')"]); tiles.push(['🧾','Expense',"show('expense')"]); }
   tiles.push(['📊','My report',"show('report','month','summary')"]);
   if(!P.delivery) tiles.push(['🗺️','Map',"show('map')"]);
   const mg=[];
