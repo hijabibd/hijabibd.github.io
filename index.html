@@ -23,6 +23,7 @@
   .hb .hbr{margin-bottom:8px;font-size:13px}.hbt{position:relative;height:9px;background:var(--soft);border-radius:6px;margin-top:3px;overflow:visible}.hbt i{display:block;height:100%;border-radius:6px}.hbt s{position:absolute;top:-3px;width:2px;height:15px;background:var(--pd)}
   .kpi em{display:block;font-style:normal;font-size:11px;font-weight:700;margin-top:2px}.kpi em.up{color:var(--ok)}.kpi em.dn2{color:var(--bad)}
   .btn.sm{padding:9px;font-size:14px;margin-top:8px}
+  .dcst{display:none;font-size:12.5px;color:var(--mut);background:var(--soft);border-radius:10px;padding:7px 10px;margin:0 2px 8px}
   @media print{header.top,.tabs,.btn{display:none!important}.card{box-shadow:none;border:1px solid #ddd}}
   .muted{color:var(--mut);font-size:12.5px}
   .row{display:flex;gap:10px;align-items:center}
@@ -207,7 +208,7 @@ async function doLogin(){
   const c=cachedBoot(); if(c && c.user && c.user.empId===r.user.empId){ S.boot=c; S.screen='home'; screens.home(); refreshInBackground(); return; }
   await refreshBoot(true); screens.home();
 }
-function logout(silent){ const ub=obMine().length; if(!silent && ub && !confirm(ub+' saved item(s) are not yet on the server. They will be sent when you log in again on this phone. Log out anyway?')) return; if(!silent && S.token) call('apiLogout', S.token); S.token=null; S.user=null; S.boot=null; store('hbd_tok',null); store('hbd_boot',null); screens.login(); }
+function logout(silent){ const ub=obMine().length; if(!silent && ub && !confirm(ub+' saved item(s) are not yet on the server. They will be sent when you log in again on this phone. Log out anyway?')) return; if(!silent && S.token) call('apiLogout', S.token); S.token=null; S.user=null; S.boot=null; store('hbd_tok',null); store('hbd_boot',null); store('hbd_dash',null); screens.login(); }
 
 async function refreshBoot(showBusy){
   if(showBusy) busy(true,'Loading your workspace…');
@@ -1086,6 +1087,19 @@ function ledgerHtml(r){
    <div class="dnote">Debit = goods billed. Credit = payments verified by Accounts, returns and adjustments. Orders not yet delivered are shown at the ordered value.</div>`;
 }
 
+// ---------------------------------------------------------------- saved copies of dashboards (show at once, refresh behind)
+function dcAll(){ try{ return JSON.parse(load('hbd_dash')||'{}')||{}; }catch(e){ return {}; } }
+function dcGet(k){ const c=dcAll()[S.user.empId+'|'+k]; return c&&c.data?c:null; }
+function dcPut(k, data){ const a=dcAll(), key=S.user.empId+'|'+k; a[key]={t:Date.now(), data};
+  const ks=Object.keys(a).sort((x,y)=>a[y].t-a[x].t); ks.slice(8).forEach(x=>delete a[x]);
+  try{ localStorage.setItem('hbd_dash', JSON.stringify(a)); }catch(e){ try{ localStorage.setItem('hbd_dash', JSON.stringify({[key]:a[key]})); }catch(e2){} } }
+function dcAgo(t){ const m=Math.round((Date.now()-t)/60000); if(m<1) return 'just now'; if(m<60) return m+' min ago'; const hh=Math.floor(m/60); if(hh<24) return hh+' h ago'; return Math.floor(hh/24)+' day(s) ago'; }
+function dcStatus(id, state, t){ const el=$(id); if(!el) return;
+  el.innerHTML = state==='loading' ? `<span class="spin" style="width:13px;height:13px;border-width:2px;display:inline-block;vertical-align:-2px"></span> Showing the copy saved ${h(dcAgo(t))} · updating…`
+    : state==='fail' ? `⚠ Could not update — showing the copy saved ${h(dcAgo(t))}. <a href="javascript:void 0" onclick="${id==='ex_st'?'loadExec()':id==='hr_st'?'loadHr(true)':'screens.emp(S.empId,S.empMonth)'}">Try again</a>`
+    : state==='ok' ? '✓ Up to date' : ''; 
+  el.style.display=state?'block':'none'; if(state==='ok') setTimeout(()=>{ if($(id)&&el.textContent.indexOf('Up to date')>=0) el.style.display='none'; }, 2500); }
+
 // ---------------------------------------------------------------- charts (pure SVG, no internet needed)
 const PAL=['#6B2D4A','#C8A24A','#1E7B4F','#1D4E89','#B42318','#9A6700','#7A5C99','#2F8F9D','#8C8C8C','#D9822B'];
 function shortN(v){ v=Number(v)||0; const a=Math.abs(v); if(a>=1e7) return (v/1e7).toFixed(a>=1e8?0:1)+' Cr'; if(a>=1e5) return (v/1e5).toFixed(a>=1e6?0:1)+' L'; if(a>=1e3) return Math.round(v/1e3)+'k'; return String(Math.round(v)); }
@@ -1134,15 +1148,17 @@ screens.exec = function(preset){
   if(S.ex.preset!=='custom'){ const r=rangeFor(S.ex.preset); S.ex.from=r[0]; S.ex.to=r[1]; }
   page('Company dashboard', 'All teams · view only', `<div class="tabs">${EX_PRESETS.map(p=>`<button class="${S.ex.preset===p[0]?'on':''}" onclick="screens.exec('${p[0]}')">${p[1]}</button>`).join('')}</div>
     ${S.ex.preset==='custom'?`<div class="card"><div class="grid2"><div><label>From</label><input type="date" id="ex_f" value="${S.ex.from}" max="${today()}"></div><div><label>To</label><input type="date" id="ex_t" value="${S.ex.to}" max="${today()}"></div></div><button class="btn" onclick="S.ex.from=val('ex_f');S.ex.to=val('ex_t');loadExec()">Show</button></div>`:''}
-    <div id="ex_out"><div class="card"><div class="muted" style="text-align:center;padding:24px">Loading the company dashboard…</div></div></div>`);
+    <div id="ex_st" class="dcst"></div><div id="ex_out"><div class="card"><div class="muted" style="text-align:center;padding:24px">Loading the company dashboard… (first time can take ~20 s)</div></div></div>`);
   loadExec();
 };
 async function loadExec(){
   const box=$('ex_out'); if(!box) return;
+  const key='ex|'+S.ex.from+'|'+S.ex.to, seq=S.ex.seq=(S.ex.seq||0)+1, c=dcGet(key);
+  if(c){ S.ex.data=c.data; renderExec(); dcStatus('ex_st','loading',c.t); }
   const r=await api('apiExecDashboard', S.ex.from, S.ex.to);
-  if(!$('ex_out')) return;
-  if(!r.ok){ box.innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
-  S.ex.data=r; renderExec();
+  if(!$('ex_out') || S.screen!=='exec' || seq!==S.ex.seq) { if(r.ok) dcPut(key, r); return; }
+  if(!r.ok){ if(c) return dcStatus('ex_st','fail',c.t); $('ex_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  dcPut(key, r); S.ex.data=r; renderExec(); dcStatus('ex_st', c?'ok':'');
 }
 function renderExec(){
   const r=S.ex.data, k=r.kpi, p=r.prev, b=r.book, box=$('ex_out'); if(!box||!r) return;
@@ -1191,16 +1207,20 @@ screens.hr = function(month, tab){
   page('HR panel', 'Attendance · leave · payroll · performance', `<div class="card"><div class="row"><button class="btn sm sec" style="width:auto;margin:0" onclick="screens.hr(monthShift(S.hr.month,-1))">‹</button>
     <div class="grow" style="text-align:center"><b id="hr_m">${h(S.hr.month)}</b></div><button class="btn sm sec" style="width:auto;margin:0" ${S.hr.month>=cur?'disabled':''} onclick="screens.hr(monthShift(S.hr.month,1))">›</button></div></div>
     <div class="tabs">${HR_TABS.map(t=>`<button class="${S.hr.tab===t[0]?'on':''}" onclick="hrTab('${t[0]}')">${t[1]}</button>`).join('')}</div>
-    <div id="hr_out"><div class="card"><div class="muted" style="text-align:center;padding:24px">Loading…</div></div></div>`);
+    <div id="hr_st" class="dcst"></div><div id="hr_out"><div class="card"><div class="muted" style="text-align:center;padding:24px">Loading… (first time can take ~20 s)</div></div></div>`);
   loadHr();
 };
 function hrTab(t){ S.hr.tab=t; navArgs(S.hr.month, t); document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on', HR_TABS[i]&&HR_TABS[i][0]===t)); renderHr(); }
 async function loadHr(fresh){
+  const key='hr|'+S.hr.month, seq=S.hr.seq=(S.hr.seq||0)+1;
   if(!fresh && S.hr.data && S.hr.data.month===S.hr.month && Date.now()-S.hr.t<60000) return renderHr();
+  const c=fresh?null:dcGet(key);
+  if(c){ S.hr.data=c.data; S.hr.t=0; if($('hr_m')) $('hr_m').textContent=c.data.monthLabel; renderHr(); dcStatus('hr_st','loading',c.t); }
+  else if(fresh) dcStatus('hr_st','loading',Date.now());
   const r=await api('apiHrDashboard', S.hr.month);
-  if(!$('hr_out')) return;
-  if(!r.ok){ $('hr_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
-  S.hr.data=r; S.hr.t=Date.now(); if($('hr_m')) $('hr_m').textContent=r.monthLabel; renderHr();
+  if(!$('hr_out') || S.screen!=='hr' || seq!==S.hr.seq){ if(r.ok) dcPut(key, r); return; }
+  if(!r.ok){ if(c||fresh) return dcStatus('hr_st','fail',c?c.t:Date.now()); $('hr_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  dcPut(key, r); S.hr.data=r; S.hr.t=Date.now(); if($('hr_m')) $('hr_m').textContent=r.monthLabel; renderHr(); dcStatus('hr_st', (c||fresh)?'ok':'');
 }
 function stChip(st){ const c={'Present':'c-ok','Late':'c-warn','Missing Check-out':'c-warn','Absent':'c-bad','On Leave':'c-info','Off-day Work':'c-info','Checked in':'c-ok','Not checked in':''}[st]; return `<span class="chip ${c===undefined?'':c}">${h(st)}</span>`; }
 function renderHr(){
@@ -1267,12 +1287,18 @@ async function savePayroll(){
 
 // ---------------------------------------------------------------- employee HR detail
 screens.emp = async function(id, month){
-  page('Employee', id, '<div class="card"><div class="muted" style="text-align:center;padding:20px">Loading…</div></div>');
-  const r=await api('apiEmpHr', id, month||today().slice(0,7));
-  if(S.screen!=='emp') return;
-  if(!r.ok) return page('Employee', id, `<div class="badbox">${h(r.message)}</div>`);
+  month=month||today().slice(0,7); S.empId=id; S.empMonth=month;
+  const key='emp|'+id+'|'+month, seq=S.empSeq=(S.empSeq||0)+1, c=dcGet(key);
+  if(c){ empPage(c.data); dcStatus('emp_st','loading',c.t); }
+  else page('Employee', id, '<div class="card"><div class="muted" style="text-align:center;padding:20px">Loading…</div></div>');
+  const r=await api('apiEmpHr', id, month);
+  if(S.screen!=='emp' || seq!==S.empSeq){ if(r.ok) dcPut(key, r); return; }
+  if(!r.ok){ if(c) return dcStatus('emp_st','fail',c.t); return page('Employee', id, `<div class="badbox">${h(r.message)}</div>`); }
+  dcPut(key, r); const ta=$('ha_n'), keep=ta?ta.value:''; empPage(r); if(keep&&$('ha_n')) $('ha_n').value=keep; dcStatus('emp_st', c?'ok':'');
+};
+function empPage(r){
   const e=r.emp, x=r.row, b=r.balance;
-  page(e.name, e.role+' · '+e.id, `<div class="card"><div class="muted">${h(e.mobile)}${e.email?' · '+h(e.email):''} · joined ${h(e.joinDate)}${e.territory?' · '+h(e.territory):''}</div>
+  page(e.name, e.role+' · '+e.id, `<div id="emp_st" class="dcst"></div><div class="card"><div class="muted">${h(e.mobile)}${e.email?' · '+h(e.email):''} · joined ${h(e.joinDate)}${e.territory?' · '+h(e.territory):''}</div>
     ${x&&x.flags.length?`<div>${x.flags.map(f=>`<span class="chip c-warn" style="margin:6px 4px 0 0">${h(f)}</span>`).join('')}</div>`:''}</div>
     ${x?`<div class="card"><h3>${h(r.month)}</h3><div class="grid4">${kp('Work days',x.workingDays)}${kp('Present',x.presentDays)}${kp('Late',x.lateDays)}${kp('Absent',x.absentDays)}${kp('Leave',x.leaveDays+x.unpaidLeave)}${kp('No check-out',x.missingCO)}${kp('Avg hours',x.avgHours||'—')}${kp('Attendance',pctS(x.attPct))}</div>
       ${x.tSales||x.sales?`<div class="grid3" style="margin-top:8px">${kp('Sales',shortN(x.sales),'target '+shortN(x.tSales)+' · '+pctS(x.salesAch))}${kp('Collections',shortN(x.collections),'target '+shortN(x.tCollection)+' · '+pctS(x.collAch))}${kp('Visits',x.visits,x.orders+' orders')}</div>`:''}</div>
