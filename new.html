@@ -85,6 +85,11 @@
   .pf{font-size:11px;color:var(--mut);margin-top:2px}
   .padd{margin-top:6px;width:100%;border:1px solid var(--p);background:#fff;color:var(--p);border-radius:10px;padding:7px 0;font-weight:700;font-size:13px}
   .pc .qty{justify-content:center;margin-top:6px}.pc .qty input{width:44px;padding:7px 2px}.pc .qty button{width:32px;height:36px;font-size:18px}
+  .pst{display:inline-block;margin-top:4px;font-size:11px;font-weight:700;border-radius:10px;padding:2px 8px;line-height:1.4}.pst.ok{background:var(--okb);color:var(--ok)}.pst.low{background:var(--warnb);color:var(--warn)}.pst.out{background:var(--badb);color:var(--bad)}
+  .pc.short{border-color:var(--warn);box-shadow:0 0 0 2px rgba(138,97,0,.14)}
+  .ivr .cim{width:48px;height:48px}.ivr .r b{font-size:17px;color:var(--p);font-variant-numeric:tabular-nums}.ivn{font-variant-numeric:tabular-nums}
+  .sfl{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.sfl input{width:86px;text-align:center;padding:9px 4px}.sfl.on{background:var(--soft)}
+  table.t td.r,table.t th.r{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}table.t tr.sum td{font-weight:700;background:var(--soft)}
   .cart .ci{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
   .cim{width:44px;height:44px;border-radius:9px;object-fit:cover;background:var(--soft);flex:0 0 auto}
   .cart .x{background:var(--badb);color:var(--bad);border:0;border-radius:10px;width:32px;height:32px;font-size:16px}
@@ -143,6 +148,23 @@
   .dbox{display:inline-block;width:34px;height:16px;border:1px solid #888}
   .f-80 .dh,.f-80 .dp,.f-80 .dsig{flex-direction:column;gap:4px}.f-80 .dt,.f-80 .dp>div:last-child{text-align:left}.f-80 .dtot{width:100%;min-width:0}.f-80 .dn{font-size:15px}.f-80 .dtt{font-size:13px}.f-80 .dsig{margin-top:22px;gap:26px}.f-80 .dtab td,.f-80 .dtab th{padding:3px 2px}.f-80 .draft{position:static;margin-bottom:4px}.f-a5 .dn{font-size:17px}
   @media print{html,body{background:#fff}body *{visibility:hidden}#doc,#doc *{visibility:visible}#doc{position:absolute;left:0;top:0;box-shadow:none;margin:0;zoom:1!important;min-height:0}.doc.f-a4,.doc.f-a5{width:100%!important;padding:0}#toast,#busy{display:none}}
+  /* order fulfilment + notifications (012) */
+  header.top button.bell{position:relative;padding:8px 10px}
+  .bn{position:absolute;top:-4px;right:-4px;background:#C0392B;color:#fff;border-radius:10px;font-size:10.5px;font-weight:800;min-width:18px;height:18px;line-height:18px;padding:0 5px;text-align:center;box-shadow:0 0 0 2px var(--p)}
+  .ntf{display:flex;gap:10px;align-items:flex-start;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}.ntf:last-child{border-bottom:0}
+  .ntf.un{background:#F3F8F5}.ntf .ni{font-size:22px;flex:0 0 auto;width:30px;text-align:center}.ntf b{display:block;font-size:14px;color:var(--pd)}.ntf.un b::after{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--p);margin-left:6px;vertical-align:1px}
+  .tlm{display:flex;gap:2px;margin-top:10px;overflow-x:auto}.tlm>div{flex:1;min-width:52px;text-align:center;font-size:10px;color:var(--mut);line-height:1.2}
+  .tlm i{display:block;height:5px;border-radius:3px;background:var(--line);margin-bottom:4px}.tlm .d i{background:var(--p)}.tlm .c{color:var(--p);font-weight:800}.tlm .c i{background:#C9A227}.tlm .s{opacity:.55}
+  .tl{position:relative;margin:4px 0 0 8px;padding-left:18px;border-left:2px solid var(--line)}.tl>div{position:relative;padding:0 0 12px}.tl>div:last-child{padding-bottom:0}
+  .tl>div::before{content:'';position:absolute;left:-25px;top:3px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--line)}
+  .tl>div.d::before{background:var(--p);border-color:var(--p)}.tl>div.c::before{background:#C9A227;border-color:#C9A227;box-shadow:0 0 0 4px rgba(201,162,39,.2)}.tl>div.s{opacity:.6}
+  .tl b{font-size:13.5px;color:var(--pd)}.tl .hint{margin-top:1px}
+  .pkl{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
+  .pki{border:1.5px solid var(--line);border-radius:14px;padding:6px;text-align:center;cursor:pointer;position:relative;background:#fff}
+  .pki img,.pki .noimg{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;background:var(--soft)}
+  .pki b{display:block;font-size:13px;margin-top:5px;color:var(--pd);line-height:1.2}.pki .q{display:block;font-size:22px;font-weight:800;color:var(--p)}
+  .pki.ok{border-color:var(--ok);background:var(--okb)}.pki.ok::after{content:'✓';position:absolute;top:6px;left:8px;background:var(--ok);color:#fff;border-radius:50%;width:22px;height:22px;line-height:22px;font-weight:800}
+  .btn.big{font-size:17px;padding:16px}.age{font-weight:800}.age.late{color:var(--bad)}
 </style>
 </head>
 <body>
@@ -230,7 +252,7 @@ window.onpopstate = () => {
 };
 function topbar(title, sub, back){
   return `<header class="top">${back?`<button onclick="history.back()">‹</button>`:''}
-    <div class="brand">${h(title)}<small>${h(sub||'')}</small></div>${obBadge()}
+    <div class="brand">${h(title)}<small>${h(sub||'')}</small></div>${obBadge()}${bellBtn()}
     ${back?'':`<button onclick="show('profile')">👤</button>`}</header>`;
 }
 function page(title, sub, body){ S.clk=[]; app().innerHTML = `<div class="wrap">${topbar(title,sub,true)}<div class="pad">${body}</div></div>`; updOb(); }
@@ -266,7 +288,7 @@ async function refreshBoot(showBusy){
   S.refreshing=false; updBadge();
   if(showBusy) busy(false);
   if(!r.ok){ if(r.code!=='AUTH') toast(r.message); return false; }
-  S.boot=r; S.user=r.user; setTimeout(obRun, 300);
+  S.boot=r; S.user=r.user; setTimeout(obRun, 300); notifStart(r);
   try{ store('hbd_boot', JSON.stringify({t:Date.now(), empId:r.user.empId, today:r.today, boot:r})); }catch(e){}
   return true;
 }
@@ -302,6 +324,7 @@ screens.home = function(){
       ['📍','Field visit',"show('visit')"],['🏪','My shops',"show('tailors')"],['⏰','Follow-ups',"show('followups')",b.followUps.length],['🧾','Expense',"show('expense')"]);
   }
   if(P.delivery){ tiles.push(['🚚','My deliveries',"show('deliveries','open')",c.deliveries]); if(P.collect) tiles.push(['💵','Collect payment',"show('collect')"]); tiles.push(['🧾','Expense',"show('expense')"]); }
+  if(P.pick) tiles.unshift(['🛵','Ready to pick',"show('pickq')",c.ready]);
   tiles.push(['📊','My report',"show('report','month','summary')"]);
   if(!P.delivery) tiles.push(['🗺️','Map',"show('map')"]);
   const mg=[];
@@ -310,12 +333,14 @@ screens.home = function(){
   if(P.orders && c.discount) mg.unshift(['✅','Approve discounts',"show('deliveries','submitted')",c.discount]);
   if(P.orders) mg.push(['🚚','Orders & delivery',"show('deliveries','open')",c.orders]);
   if(P.team) mg.push(['👥','Team today',"show('team')"]);
+  if(P.stock) mg.push(['📦','Inventory',"show('stock')"]);
   if(P.exec) mg.unshift(['📈','Company dashboard',"show('exec','month')"]);
   if(P.hr||P.salary) mg.unshift(['🧑‍💼','HR panel',"show('hr')",P.hr?c.leaves:0]);
+  if(P.store && u.role==='Store Keeper') tiles.unshift(['🧺','Packing queue',"show('packq')",c.store]); else if(P.store) mg.push(['🧺','Packing queue',"show('packq')",c.store]);
   tiles.push(['🌴','My leave',"show('leave')"]);
   const tileHtml = arr => `<div class="tiles">${arr.map(t=>`<div class="tile" onclick="${t[2]}"><span class="ic">${t[0]}</span>${t[1]}${t[3]?`<span class="bdg">${t[3]}</span>`:''}</div>`).join('')}</div>`;
   app().innerHTML = `<div class="wrap"><header class="top"><div class="brand"><img class="wm" src="${LOGO_W}" alt="${h(COMPANY)}"><small>${h(u.name)} · ${h(u.role)}</small></div>
-    <span id="syncDot" class="spin" style="width:16px;height:16px;border-width:2px;visibility:${S.refreshing?'visible':'hidden'}" title="Updating…"></span>${obBadge()}<button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
+    <span id="syncDot" class="spin" style="width:16px;height:16px;border-width:2px;visibility:${S.refreshing?'visible':'hidden'}" title="Updating…"></span>${obBadge()}${bellBtn()}<button onclick="reloadHome()">⟳</button><button onclick="show('profile')">👤</button></header><div class="pad">
     ${att}
     ${obMine().some(x=>x.st==='failed')?`<div class="badbox" style="margin-bottom:10px;cursor:pointer" onclick="show('outbox')">⚠ ${obMine().filter(x=>x.st==='failed').length} item(s) were NOT saved on the server — tap to fix</div>`:''}
     ${P.field?`<div class="card"><h3>Today</h3><div class="grid4">
@@ -326,8 +351,8 @@ screens.home = function(){
       <div class="kpi tap" onclick="show('deliveries','open')"><b>${b.delivery.open}</b><span>To deliver ›</span></div><div class="kpi tap" onclick="show('deliveries','done')"><b>${b.delivery.done}</b><span>Delivered ›</span></div>
       <div class="kpi"><b>${money(b.delivery.billed)}</b><span>Billed</span></div><div class="kpi tap" onclick="show('report','today','cash')"><b>${money(b.delivery.cash)}</b><span>Cash ›</span></div></div>
       ${b.delivery.open?`<div class="hint">${money(b.delivery.openValue)} of goods still to deliver.</div>`:''}${b.delivery.short?`<div class="warnbox">${b.delivery.short} short / refused delivery today.</div>`:''}</div>`:''}
-    ${prog}
-    <div class="sect">${P.delivery?'Delivery':'Field actions'}</div>${tileHtml(tiles)}
+    ${fulHomeCard(b)}${prog}
+    <div class="sect">${P.delivery?'Delivery':(P.store&&!P.field?'Store':'Field actions')}</div>${tileHtml(tiles)}
     ${mg.length?`<div class="sect">Management</div>${tileHtml(mg)}`:''}
     <div class="hint" style="text-align:center;margin-top:18px">Location is recorded only when you submit a form. All times Bangladesh Standard Time.</div>
   </div></div>`;
@@ -555,7 +580,7 @@ screens.order = function(preTailor, pre){
   const isRep=S.user.role==='Sales Representative';
   const chipsD=[0,10,20,30,50,80,100].filter(v=>v<=st.maxPerPc);
   page('New order', 'Tap a colour to add it · '+P.length+' products', `<div class="card">
-    <label>Shop <span class="req">*</span></label>${tailorPicker('or_t', t=>t.status==='Approved', 'orderTailorInfo()', preTailor)}
+    <label>Shop <span class="req">*</span></label>${tailorPicker('or_t', t=>t.status==='Approved', 'orderTailorInfo();renderGrid();calcOrder()', preTailor)}
     <div id="or_tinfo"></div></div>
     <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Choose colours</h3><span class="muted" id="or_cnt"></span></div>
     <input id="or_q" placeholder="🔍 Search colour (e.g. navy, pink, sage)" oninput="S.ordQ=this.value.toLowerCase();renderGrid()" style="margin-top:10px">
@@ -571,16 +596,36 @@ screens.order = function(preTailor, pre){
     <div><label>Expected payment date</label><input id="or_due" type="date"></div></div>
     <label>Remarks</label><textarea id="or_rem" placeholder="Delivery instructions etc.">${pre&&pre.remarks?h(pre.remarks):''}</textarea>
     ${gpsBox('or')}<button class="btn" onclick="doOrder()">Review & submit order</button></div>`);
-  renderGrid(); setDue(); orderTailorInfo(); captureGps('or'); calcOrder();
+  renderGrid(); setDue(); orderTailorInfo(); captureGps('or'); calcOrder(); ordStockRefresh();
 };
+/* ---- stock on the order screen: availability in the warehouse that serves the chosen shop (else my warehouse) */
+function ordWh(){ const t=tailorById(val('or_t')); return (t&&t.wh)||S.boot.myWarehouse||''; }
+function ordAvail(sku){ const b=S.boot, wh=ordWh(), m=(b.stockWh&&wh)?b.stockWh[wh]:null;
+  if(m && m[sku]!==undefined) return Number(m[sku])||0;
+  const p=b.products.find(x=>x.sku===sku); return (p && typeof p.stock==='number') ? p.stock : null; }
+function stockBadge(sku, n){ const a=ordAvail(sku); if(a===null) return ''; const low=(S.boot.settings&&S.boot.settings.lowStock)||12;
+  if(n && n>a) return `<span class="pst out">Only ${a} in stock</span>`;
+  if(a<=0) return `<span class="pst out">Out of stock</span>`;
+  if(a<=low) return `<span class="pst low">Low · ${a} left</span>`;
+  return `<span class="pst ok">Stock ${a}</span>`; }
+function ordShorts(){ return cartLines().map(l=>({l, a:ordAvail(l.sku)})).filter(x=>x.a!==null && x.l.qty>x.a); }
+async function ordStockRefresh(){ const b=S.boot; if(!b || !b.warehouses || !b.warehouses.length) return;
+  const r=await api('apiStockAvail', {}); if(!r || !r.ok || !r.stockWh || S.boot!==b) return;
+  b.stockWh=r.stockWh; const my=r.stockWh[b.myWarehouse]||r.stock||{}; b.products.forEach(p=>{ if(my[p.sku]!==undefined) p.stock=my[p.sku]; });
+  if(S.screen==='order'){ renderGrid(); calcOrder(); } }
+/* booked here and now: lower the local copy at once (the server reserves it too; the next refresh brings the exact figure) */
+function ordReserveLocal(wh, lines){ const b=S.boot, m=b.stockWh&&wh?b.stockWh[wh]:null;
+  lines.forEach(l=>{ if(m && m[l.sku]!==undefined) m[l.sku]=Math.max(0, m[l.sku]-l.qty);
+    if(wh && wh===b.myWarehouse){ const p=b.products.find(x=>x.sku===l.sku); if(p && typeof p.stock==='number') p.stock=Math.max(0, p.stock-l.qty); } }); }
+function ordWarnBox(r){ const w=r&&r.stockWarnings; return (w&&w.length) ? `<div class="warnbox">📦 Above available stock${r.warehouse?' in '+h(r.warehouse):''}: ${w.map(x=>h(x.colour||x.name)+' (ordered '+x.ordered+', '+x.available+' available)').join('; ')}. The order is booked — the store will confirm supply.</div>` : ''; }
 function ordFab(btn,f){ S.ordFab=f; btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b===btn)); renderGrid(); }
 function prodImg(p, cls){ return p.img?`<img class="${cls||'pim'}" loading="lazy" src="${h(p.img)}" alt="${h(p.variant||p.name)}" onerror="this.style.visibility='hidden'">`:`<div class="${cls||'pim'} noimg">${h((p.variant||p.name).slice(0,2))}</div>`; }
 function renderGrid(){
   const el=$('or_grid'); if(!el) return;
   const q=S.ordQ||'', list=S.boot.products.filter(p=>(!S.ordFab||(p.fabric||p.category)===S.ordFab) && (!q || (p.name+' '+p.variant+' '+p.sku+' '+(p.fabric||'')).toLowerCase().indexOf(q)>=0));
-  el.innerHTML = list.map(p=>{ const n=S.cart[p.sku]||0;
-    return `<div class="pc ${n?'on':''}" id="pc_${h(p.sku)}"><div class="pimw" onclick="addQty('${h(p.sku)}',${n?0:1})">${prodImg(p)}${n?`<span class="pq">${n}</span>`:''}</div>
-      <div class="pn">${h(p.variant||p.name)}</div><div class="pf">${h(p.fabric||p.category)} · ${money(p.price)}</div>
+  el.innerHTML = list.map(p=>{ const n=S.cart[p.sku]||0, av=ordAvail(p.sku);
+    return `<div class="pc ${n?'on':''} ${n&&av!==null&&n>av?'short':''}" id="pc_${h(p.sku)}"><div class="pimw" onclick="addQty('${h(p.sku)}',${n?0:1})">${prodImg(p)}${n?`<span class="pq">${n}</span>`:''}</div>
+      <div class="pn">${h(p.variant||p.name)}</div><div class="pf">${h(p.fabric||p.category)} · ${money(p.price)}</div>${stockBadge(p.sku,n)}
       ${n?`<div class="qty"><button onclick="addQty('${h(p.sku)}',-1)">−</button><input type="number" inputmode="numeric" value="${n}" onchange="setQty('${h(p.sku)}',this.value)"><button onclick="addQty('${h(p.sku)}',1)">+</button></div>`:`<button class="padd" onclick="addQty('${h(p.sku)}',1)">＋ Add</button>`}</div>`; }).join('') || '<div class="hint">No colour matches your search.</div>';
 }
 function addQty(sku, d){ const n=Math.max(0,(S.cart[sku]||0)+(d===0?1:d)); if(n) S.cart[sku]=n; else delete S.cart[sku]; renderGrid(); calcOrder(); }
@@ -598,11 +643,12 @@ function calcOrder(){
   const ch=$('or_dchips'); if(ch) ch.querySelectorAll('label').forEach(l=>l.classList.toggle('on', l.textContent===(t.pc?'৳'+t.pc:'None')));
   const lines=cartLines(), cnt=$('or_cnt'); if(cnt) cnt.textContent=lines.length?lines.length+' colour'+(lines.length>1?'s':'')+' · '+t.units+' pcs':'';
   const c=$('or_cart');
-  if(c) c.innerHTML = lines.length ? `<div class="cart">${lines.map(l=>`<div class="ci">${prodImg(l.p,'cim')}<div class="grow"><b>${h(l.p.variant||l.p.name)}</b><div class="muted">${h(l.p.fabric||'')} · ${l.qty} × ${money(l.p.price-t.pc)}</div></div><div class="amt">${money((l.p.price-t.pc)*l.qty)}</div><button class="x" onclick="setQty('${h(l.sku)}',0)" aria-label="Remove">×</button></div>`).join('')}</div>` : '<div class="hint" style="margin:0 0 6px">No colours yet — tap a photo above to add it.</div>';
+  if(c) c.innerHTML = lines.length ? `<div class="cart">${lines.map(l=>`<div class="ci">${prodImg(l.p,'cim')}<div class="grow"><b>${h(l.p.variant||l.p.name)}</b><div class="muted">${h(l.p.fabric||'')} · ${l.qty} × ${money(l.p.price-t.pc)}${(a=>a!==null&&l.qty>a?` · <b style="color:var(--bad)">only ${a} in stock</b>`:'')(ordAvail(l.sku))}</div></div><div class="amt">${money((l.p.price-t.pc)*l.qty)}</div><button class="x" onclick="setQty('${h(l.sku)}',0)" aria-label="Remove">×</button></div>`).join('')}</div>` : '<div class="hint" style="margin:0 0 6px">No colours yet — tap a photo above to add it.</div>';
   el.innerHTML=`<div class="row"><span>Pieces</span><b>${t.units}</b></div><div class="row"><span>Gross (${money(lines[0]?lines[0].p.price:350)} each)</span><b>${money(t.gross)}</b></div>
     <div class="row"><span>Discount ${t.pc?'· '+money(t.pc)+' × '+t.units:''}</span><b>− ${money(t.disc)}</b></div>
     <div class="row"><span>Price per piece after discount</span><b>${t.units?money((t.net)/t.units):'—'}</b></div>
     <div class="row" style="font-size:17px"><span>Net order amount</span><b class="amt">${money(t.net)}</b></div>
+    ${(sh=>sh.length?`<div class="warnbox">📦 Above available stock: ${sh.map(x=>h(x.l.p.variant||x.l.p.name)+' (ordering '+x.l.qty+', '+x.a+' in stock)').join('; ')}. You can still book it — the store will confirm supply.</div>`:'')(ordShorts())}
     ${t.over?`<div class="badbox">Maximum discount is ${money(S.boot.settings.maxPerPc)} per piece.</div>`:''}${t.frac?`<div class="badbox">Use whole taka (no paisa).</div>`:''}
     ${!t.over&&t.needsAppr?`<div class="warnbox">${money(t.pc)} per piece is above ${money(S.boot.settings.repPerPc)} — the order will wait for your manager's approval.</div>`:''}`;
   orderTailorInfo();
@@ -624,12 +670,169 @@ async function doOrder(){
   const t=orderTotals(); if(t.over) return toast('Maximum discount is ৳'+S.boot.settings.maxPerPc+' per piece'); if(t.frac) return toast('Discount must be whole taka');
   const g=needGps('or'); if(!g) return;
   const tl=tailorById(tid);
-  if(!confirm(`Confirm order for ${tl.shop}\n${lines.length} colour(s), ${t.units} pcs\nDiscount: ${money(t.pc)} per piece (${money(t.disc)})\nNet: ${money(t.net)}\nTerms: ${val('or_terms')} · due ${val('or_due')}${t.needsAppr?'\n\n⚠ Needs manager approval (discount above ৳'+S.boot.settings.repPerPc+'/pc)':''}`)) return;
+  if(!confirm(`Confirm order for ${tl.shop}\n${lines.length} colour(s), ${t.units} pcs\nDiscount: ${money(t.pc)} per piece (${money(t.disc)})\nNet: ${money(t.net)}\nTerms: ${val('or_terms')} · due ${val('or_due')}${t.needsAppr?'\n\n⚠ Needs manager approval (discount above ৳'+S.boot.settings.repPerPc+'/pc)':''}${ordShorts().length?'\n\n⚠ Above available stock: '+ordShorts().map(x=>(x.l.p.variant||x.l.p.name)+' '+x.l.qty+' / '+x.a).join(', '):''}`)) return;
+  const owh=ordWh(), sh0=ordShorts();
   const q=await saveQueued('apiSubmitOrder', Object.assign({tailorId:tid,lines,discPerPc:t.pc,paymentTerms:val('or_terms'),expectedPayDate:val('or_due'),remarks:val('or_rem'),submissionId:uid()}, g), 'Order · '+tl.shop+' · '+money(t.net), 'Saving order…');
   if(!q) return;
+  if(S.boot.warehouses && S.boot.warehouses.length) ordReserveLocal(owh, lines);
   const inv=r=>r.ok?`<button class="btn gold" onclick="show('doc','${h(r.id)}','invoice')">🧾 ${r.status==='Submitted'?'View order':'Draft invoice — print / share'}</button>`:'';
-  if(q.sync){ const r=q.sync; if(r.doc){ S.docs=S.docs||{}; S.docs[r.id]=Object.assign({_t:Date.now()}, r.doc); } return done(r,'order', inv(r)); }
-  done({message:'Order for '+tl.shop+' saved: '+lines.length+' colour(s), '+t.units+' pcs, '+money(t.net)+'.'+(t.needsAppr?' Waiting for manager approval of the discount.':'')}, 'order', waitBox(q.it, r=>resultBox(r)+inv(r)));
+  if(q.sync){ const r=q.sync; if(r.doc){ S.docs=S.docs||{}; S.docs[r.id]=Object.assign({_t:Date.now()}, r.doc); } return done(r,'order', ordWarnBox(r)+inv(r)); }
+  const w0=sh0.length?ordWarnBox({warehouse:owh, stockWarnings:sh0.map(x=>({colour:x.l.p.variant||x.l.p.name, ordered:x.l.qty, available:x.a}))}):'';
+  done({message:'Order for '+tl.shop+' saved: '+lines.length+' colour(s), '+t.units+' pcs, '+money(t.net)+'.'+(t.needsAppr?' Waiting for manager approval of the discount.':'')}, 'order', w0+waitBox(q.it, r=>resultBox(r)+(w0?'':ordWarnBox(r))+inv(r)));
+}
+
+/* ---------------------------------------------------------------- inventory: stock by warehouse, stock ledger, receive / transfer / adjust */
+S.inv={wh:'', q:'', fab:'', low:false, data:null};
+const ivN = n => (Number(n)||0).toLocaleString('en-US');
+const ivTab = w => w.code ? w.code+' · '+String(w.name||'').split(' ')[0] : w.name;
+const ivDay = k => { const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return k ? Number(k.slice(8))+' '+M[Number(k.slice(5,7))-1] : ''; };
+function ivChip(x){ return x.available<0 ? '<span class="chip c-bad">Oversold</span>' : x.out ? '<span class="chip c-bad">Out of stock</span>' : x.low ? '<span class="chip c-warn">Low</span>' : ''; }
+screens.stock = async function(wh){
+  if(wh!==undefined && wh!==null) S.inv.wh=wh;
+  page('Inventory', 'Stock by warehouse', `<div id="iv_top"><div class="card"><div class="muted" style="text-align:center;padding:18px">Loading stock…</div></div></div>
+    <div class="card"><input id="iv_q" placeholder="🔍 Search colour or SKU" value="${h(S.inv.q)}" oninput="S.inv.q=this.value.toLowerCase();ivRender()"><div id="iv_fab"></div><div id="iv_list" style="margin-top:6px"></div></div>`);
+  const r=await api('apiStock', {warehouse:S.inv.wh});
+  if(S.screen!=='stock') return;
+  if(!r.ok){ $('iv_top').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.inv.data=r; ivRender();
+};
+function ivWh(code){ S.inv.wh=code; navArgs(code); screens.stock(code); }
+function ivFab(f){ S.inv.fab=f; ivRender(); }
+function ivLow(){ S.inv.low=!S.inv.low; ivRender(); }
+function ivRender(){
+  const r=S.inv.data; if(!r || !$('iv_list')) return; S.clk=[];
+  const t=r.totals, W=r.warehouses||[];
+  const tabs=`<div class="tabs" style="margin:0 0 10px">${[{code:'',name:'All warehouses'}].concat(W.filter(w=>w.status==='Active')).map(w=>`<button class="${S.inv.wh===w.code?'on':''}" onclick="ivWh('${h(w.code)}')" title="${h(w.name)}">${h(ivTab(w))}</button>`).join('')}</div>`;
+  const acts=r.canEdit?`<div><button class="btn sm" onclick="show('stockForm','receive',S.inv.wh)">📥 Receive</button><button class="btn sm sec" onclick="show('stockForm','transfer',S.inv.wh)">🔁 Transfer</button><button class="btn sm sec" onclick="show('stockForm','adjust',S.inv.wh)">⚖️ Count / damage</button>${r.canAdmin?`<button class="btn sm sec" onclick="show('warehouses')">🏬 Warehouses</button>`:''}</div>`:(r.canAdmin?`<div><button class="btn sm sec" onclick="show('warehouses')">🏬 Warehouses</button></div>`:'');
+  $('iv_top').innerHTML=`<div class="card">${tabs}${r.warehouse?`<div class="hint" style="margin:-4px 0 8px">${h(r.warehouse.type)} · ${h(r.warehouse.address||'')}${r.warehouse.areas&&r.warehouse.areas.length?' · serves '+h(r.warehouse.areas.join(', ')):''}</div>`:''}
+    <div class="tot"><div><b class="ivn">${ivN(t.onHand)}</b><span>On hand (pcs)</span></div><div><b class="ivn">${ivN(t.reserved)}</b><span>Booked, not delivered</span></div><div><b class="ivn">${ivN(t.available)}</b><span>Available</span></div>
+    <div><b>${money(t.value)}</b><span>Value at wholesale</span></div><div class="tapr" onclick="ivLow()"><b style="color:var(--warn)">${t.low}</b><span>Low (≤ ${r.lowStock}) ›</span></div><div class="tapr" onclick="ivLow()"><b style="color:var(--bad)">${t.out}</b><span>Out of stock ›</span></div></div>
+    ${W.length?'':`<div class="warnbox">No warehouse has been set up yet.${r.canAdmin?' Add one under 🏬 Warehouses, then enter the opening stock with 📥 Receive.':' Ask the admin to add one.'}</div>`}${acts}</div>`;
+  const fabs=r.fabrics||[];
+  $('iv_fab').innerHTML=`<div class="tabs" style="margin-top:8px">${fabs.length>1?[''].concat(fabs).map(f=>`<button class="${S.inv.fab===f?'on':''}" onclick="ivFab('${h(f)}')">${h(f||'All fabrics')}</button>`).join(''):''}<button class="${S.inv.low?'on':''}" onclick="ivLow()">⚠ Low / out only</button></div>`;
+  const q=S.inv.q, rows=r.rows.filter(x=>(!S.inv.fab||x.fabric===S.inv.fab) && (!S.inv.low||x.low||x.out) && (!q||(x.sku+' '+x.name+' '+x.colour+' '+x.fabric).toLowerCase().indexOf(q)>=0));
+  $('iv_list').innerHTML = rows.map(x=>`<div class="drow ivr" id="iv_${h(x.sku)}" onclick="show('stockLedger','${h(x.sku)}',S.inv.wh)">${prodImg({img:x.img,variant:x.colour,name:x.name},'cim')}
+      <div class="grow"><b>${h(x.colour||x.name)}</b> ${ivChip(x)}<div class="hint">${h(x.sku)} · ${h(x.fabric)}${!S.inv.wh&&x.byWh.length>1?'<br>'+x.byWh.map(w=>h(w.wh)+': '+ivN(w.onHand)).join(' · '):''}</div></div>
+      <div class="r"><b>${ivN(x.available)}</b><div class="hint">${ivN(x.onHand)} on hand<br>${ivN(x.reserved)} booked</div></div><span class="chev">›</span></div>`).join('')
+    || '<div class="muted" style="text-align:center;padding:18px">No product matches.</div>';
+}
+
+/* ---- stock ledger of one SKU (like the shop ledger): opening, every movement with running balance, closing */
+screens.stockLedger = function(sku, wh, from, to){
+  S.sl={sku, wh:wh||'', from:from||addDays(today(),-90), to:to||today(), data:null};
+  page('Stock ledger', sku, `<div id="sl_out"><div class="card"><div class="muted" style="text-align:center;padding:24px">Loading ledger…</div></div></div>`);
+  slLoad();
+};
+async function slLoad(){
+  const s=S.sl; navArgs(s.sku, s.wh, s.from, s.to);
+  const r=await api('apiStockLedger', s.sku, {warehouse:s.wh, from:s.from, to:s.to});
+  if(S.screen!=='stockLedger' || S.sl!==s) return;
+  if(!r.ok){ $('sl_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  s.data=r; slRender();
+}
+function slWh(code){ S.sl.wh=code; slLoad(); }
+function slPreset(p){ const g = p==='3m' ? [addDays(today(),-90), today()] : rangeFor(p); S.sl.from=g[0]; S.sl.to=g[1]; slLoad(); }
+function slCustom(){ const f=val('sl_f'), t=val('sl_t'); if(!f||!t||f>t) return toast('Choose a valid date range'); S.sl.from=f; S.sl.to=t; slLoad(); }
+function slRender(){
+  const s=S.sl, r=s.data, allWh=!s.wh;
+  const typeChip=k=>`<span class="chip ${({Delivery:'c-info',Receipt:'c-ok',Opening:'c-ok',Return:'c-ok',Damage:'c-bad','Transfer Out':'c-warn','Transfer In':'c-ok',Adjustment:'c-warn'})[k]||''}">${h(k)}</span>`;
+  $('sl_out').innerHTML=`<div class="card"><div class="row">${prodImg({img:r.img,variant:r.colour,name:r.name},'cim')}<div class="grow"><b>${h(r.colour||r.name)}</b><div class="hint">${h(r.sku)} · ${h(r.fabric)} · ${money(r.price)} wholesale</div></div></div>
+      <div class="grid3" style="margin-top:10px"><div class="kpi"><b class="ivn">${ivN(r.onHand)}</b><span>On hand now</span></div><div class="kpi"><b class="ivn">${ivN(r.reserved)}</b><span>Booked</span></div><div class="kpi"><b class="ivn" style="color:${r.available<0?'var(--bad)':'var(--p)'}">${ivN(r.available)}</b><span>Available</span></div></div></div>
+    <div class="card"><div class="tabs" style="margin:0 0 8px">${[{code:'',name:'All warehouses'}].concat(r.warehouses).map(w=>`<button class="${s.wh===w.code?'on':''}" onclick="slWh('${h(w.code)}')">${h(w.code||w.name)}</button>`).join('')}</div>
+      <div class="tabs" style="margin:0">${[['month','This month'],['3m','Last 3 months'],['year','This year']].map(p=>`<button onclick="slPreset('${p[0]}')">${p[1]}</button>`).join('')}</div>
+      <div class="grid2" style="margin-top:6px"><input id="sl_f" type="date" value="${h(r.from)}" onchange="slCustom()"><input id="sl_t" type="date" value="${h(r.to)}" onchange="slCustom()"></div></div>
+    <div class="card" style="padding:10px"><h3 style="margin:4px 4px 10px">${allWh?'All warehouses':h(r.warehouse.code+' · '+r.warehouse.name)} · ${h(fmtD(r.from))} – ${h(fmtD(r.to))}</h3>
+      <table class="t" id="sl_tab"><tr><th>Date</th><th>Details</th><th class="r">In</th><th class="r">Out</th><th class="r">Balance</th></tr>
+      <tr class="sum"><td>${h(ivDay(r.from))}</td><td>Opening balance</td><td class="r"></td><td class="r"></td><td class="r">${ivN(r.opening)}</td></tr>
+      ${r.rows.map(x=>`<tr><td style="white-space:nowrap">${h(ivDay(x.date))}</td><td>${typeChip(x.type)} ${h(x.ref)}${allWh?` <span class="chip">${h(x.wh)}</span>`:''}<div class="hint">${h(x.note)}${x.by?' · '+h(x.by):''}</div></td><td class="r">${x.in?ivN(x.in):''}</td><td class="r">${x.out?ivN(x.out):''}</td><td class="r"><b>${ivN(x.balance)}</b></td></tr>`).join('')}
+      <tr class="sum"><td>${h(ivDay(r.to))}</td><td>Closing balance</td><td class="r">${ivN(r.totalIn)}</td><td class="r">${ivN(r.totalOut)}</td><td class="r" id="sl_close">${ivN(r.closing)}</td></tr></table>
+      ${r.rows.length?'':'<div class="hint" style="padding:8px">No stock movement in this period.</div>'}
+      <div class="hint" style="padding:6px 4px 0">In = opening, receipts, transfers in, returns. Out = deliveries (delivered quantity only), transfers out, damage. Booked orders are not stock movements until they are delivered.</div></div>`;
+}
+
+/* ---- receive / transfer / count-damage-adjust (Store Keeper, Super Admin) */
+const SF_TITLES={receive:'Receive stock', transfer:'Transfer stock', adjust:'Count / damage / adjust'};
+screens.stockForm = function(mode, wh){
+  const W=(S.boot.warehouses||[]);
+  const w0=wh||S.boot.myWarehouse||(W[0]&&W[0].code)||'';
+  S.sf={mode, wh:w0, to:(W.find(w=>w.code!==w0)||{}).code||'', sub:uid(), lv:{}, kind:'count'};
+  const whSel=(id,v,on)=>`<select id="${id}" onchange="${on}">${W.map(w=>`<option value="${h(w.code)}" ${w.code===v?'selected':''}>${h(w.code+' · '+w.name)}</option>`).join('')}</select>`;
+  let top='';
+  if(mode==='receive') top=`<label>Into warehouse <span class="req">*</span></label>${whSel('sf_wh',w0,'S.sf.wh=this.value;sfLevels()')}
+      <label>Type</label><select id="sf_kind"><option value="Receipt">Received from factory / supplier</option><option value="Opening">Opening stock (first count)</option></select>
+      <div class="grid2"><div><label>Challan / batch no.</label><input id="sf_ref" placeholder="e.g. TAHOOR-B120"></div><div><label>Supplier</label><input id="sf_sup" placeholder="e.g. Tahoor factory"></div></div>`;
+  else if(mode==='transfer') top=`<div class="grid2"><div><label>From <span class="req">*</span></label>${whSel('sf_wh',w0,'S.sf.wh=this.value;sfLevels()')}</div><div><label>To <span class="req">*</span></label>${whSel('sf_to',S.sf.to,'S.sf.to=this.value')}</div></div>
+      <label>Reference</label><input id="sf_ref" placeholder="Challan / vehicle (optional)">`;
+  else top=`<label>Warehouse <span class="req">*</span></label>${whSel('sf_wh',w0,'S.sf.wh=this.value;sfLevels()')}
+      <label>What happened</label><div class="chips" id="sf_kinds">${[['count','Physical count'],['damage','Damaged / lost'],['adjust','Other correction (±)']].map((k,i)=>`<label class="${i?'':'on'}" onclick="sfKind('${k[0]}',this)">${k[1]}</label>`).join('')}</div>
+      <label>Reason <span class="req">*</span></label><input id="sf_reason" list="sf_reasons" placeholder="e.g. Monthly count, water damage"><datalist id="sf_reasons"><option value="Monthly stock count"><option value="Damaged in store"><option value="Lost / missing"><option value="Found during count"><option value="Wrong entry correction"></datalist>`;
+  page(SF_TITLES[mode]||'Stock', 'Inventory', `<div class="card">${W.length?top:'<div class="warnbox">No warehouse yet. The admin adds one under Inventory ▸ Warehouses.</div>'}
+      <div class="grid2"><div><label>Date</label><input id="sf_date" type="date" value="${today()}" max="${today()}"></div><div><label>Note</label><input id="sf_note" placeholder="optional"></div></div></div>
+    <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Colours</h3><span class="muted" id="sf_cnt"></span></div>
+      <div class="hint" id="sf_help"></div><input id="sf_q" placeholder="🔍 Search colour or SKU" oninput="sfFilter()" style="margin-top:8px"><div id="sf_lines"></div>
+      <button class="btn" onclick="sfSubmit()">${mode==='receive'?'📥 Save receipt':mode==='transfer'?'🔁 Save transfer':'⚖️ Save'}</button></div>`);
+  sfLines(); if(W.length) sfLevels();
+};
+function sfKind(k, el){ S.sf.kind=k; el.parentNode.querySelectorAll('label').forEach(x=>x.classList.toggle('on', x===el)); sfLines(); }
+async function sfLevels(){ const s=S.sf; const r=await api('apiStock', {warehouse:s.wh}); if(S.sf!==s || !r.ok) return; s.lv={}; r.rows.forEach(x=>s.lv[x.sku]=x); sfLines(true); }
+function sfHelp(){ const s=S.sf; return s.mode==='receive' ? 'Enter the pieces received for each colour. Leave the others empty.'
+  : s.mode==='transfer' ? 'Enter the pieces to send. You cannot send more than is on hand.'
+  : s.kind==='count' ? 'Enter the counted pieces. The system corrects the difference (0 = none left). Leave colours you did not count empty.'
+  : s.kind==='damage' ? 'Enter the damaged / lost pieces to write off.' : 'Enter + to add or − to remove pieces.'; }
+function sfLines(keep){
+  const s=S.sf, el=$('sf_lines'); if(!el) return; const old={};
+  if(keep) document.querySelectorAll('#sf_lines input').forEach(i=>{ if(i.value!=='') old[i.dataset.sku]=i.value; });
+  $('sf_help').textContent=sfHelp();
+  el.innerHTML=S.boot.products.map(p=>{ const l=s.lv[p.sku], oh=l?l.onHand:null;
+    return `<div class="sfl" data-s="${h((p.sku+' '+p.name+' '+(p.variant||'')).toLowerCase())}">${prodImg(p,'cim')}<div class="grow"><b>${h(p.variant||p.name)}</b><div class="hint">${h(p.sku)}${oh!==null?' · on hand '+ivN(oh)+(l.reserved?' · booked '+ivN(l.reserved):''):''}</div></div>
+      <input type="number" inputmode="numeric" ${s.mode==='adjust'&&s.kind==='adjust'?'':'min="0"'} step="1" id="sf_${h(p.sku)}" data-sku="${h(p.sku)}" value="${h(old[p.sku]||'')}" placeholder="${s.mode==='adjust'&&s.kind==='count'&&oh!==null?ivN(oh):'0'}" oninput="sfCount()"></div>`; }).join('');
+  sfFilter(); sfCount();
+}
+function sfFilter(){ const q=val('sf_q').toLowerCase(); document.querySelectorAll('#sf_lines .sfl').forEach(x=>{ x.style.display = !q||x.dataset.s.indexOf(q)>=0 ? '' : 'none'; }); }
+function sfCollect(){ const s=S.sf, out=[]; document.querySelectorAll('#sf_lines input').forEach(i=>{ const v=i.value.trim(); if(v==='') return; const n=Number(v);
+  if(s.mode==='adjust'&&s.kind==='count') out.push({sku:i.dataset.sku, counted:n}); else if(n!==0) out.push({sku:i.dataset.sku, qty:n}); }); return out; }
+function sfCount(){ const L=sfCollect(), c=$('sf_cnt'); document.querySelectorAll('#sf_lines .sfl').forEach(x=>{ const i=x.querySelector('input'); x.classList.toggle('on', i.value.trim()!==''); });
+  if(c) c.textContent = L.length ? L.length+' colour'+(L.length>1?'s':'')+(S.sf.mode==='adjust'&&S.sf.kind==='count'?'':' · '+L.reduce((a,x)=>a+Math.abs(x.qty||0),0)+' pcs') : ''; }
+async function sfSubmit(){
+  const s=S.sf, lines=sfCollect(); if(!lines.length) return toast('Enter at least one quantity');
+  if(lines.some(x=>!Number.isInteger(x.qty===undefined?x.counted:x.qty))) return toast('Use whole pieces only');
+  let fn, p={warehouse:s.wh, date:val('sf_date'), note:val('sf_note'), lines, submissionId:s.sub};
+  if(s.mode==='receive'){ fn='apiStockReceive'; p.kind=val('sf_kind'); p.refNo=val('sf_ref'); p.supplier=val('sf_sup'); if(p.kind==='Receipt'&&!p.refNo&&!p.supplier) return toast('Enter the challan / batch no. or the supplier'); }
+  else if(s.mode==='transfer'){ fn='apiStockTransfer'; p.from=s.wh; p.to=val('sf_to'); p.refNo=val('sf_ref'); delete p.warehouse; if(p.from===p.to) return toast('Choose two different warehouses'); }
+  else { fn='apiStockAdjust'; p.mode=s.kind; p.reason=val('sf_reason'); if(!p.reason) return toast('Please give the reason'); }
+  const sum=lines.map(x=>{ const pr=S.boot.products.find(y=>y.sku===x.sku); return (pr?(pr.variant||pr.name):x.sku)+' '+(x.counted!==undefined?'= '+x.counted:x.qty); }).join(', ');
+  if(!confirm(`${SF_TITLES[s.mode]}${s.mode==='transfer'?' '+p.from+' → '+p.to:' · '+s.wh}\n${sum}`)) return;
+  const r=await submit(fn, p, 'Saving…'); if(!r) return;
+  S.inv.data=null; refreshInBackground();
+  const ch=r.changes&&r.changes.length?`<div class="card"><table class="t"><tr><th>Colour</th><th class="r">Before</th><th class="r">After</th></tr>${r.changes.map(c=>`<tr><td>${h(c.name)}</td><td class="r">${ivN(c.before)}</td><td class="r">${ivN(c.after)}</td></tr>`).join('')}</table></div>`:'';
+  done(r, null, ch+`<button class="btn sec" onclick="show('stock', S.sf.mode==='transfer'?'':S.sf.wh)">📦 Back to Inventory</button>`);
+}
+
+/* ---- warehouses (Super Admin adds / edits; others read) */
+screens.warehouses = async function(){
+  page('Warehouses', 'Stock locations', `<div id="wh_out"><div class="card"><div class="muted" style="text-align:center;padding:18px">Loading…</div></div></div>`);
+  const r=await api('apiWarehouses'); if(S.screen!=='warehouses') return;
+  if(!r.ok){ $('wh_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.whl=r.list;
+  $('wh_out').innerHTML = `<div class="card">${r.list.length?r.list.map(w=>`<div class="drow" onclick="${r.canAdmin?`whEdit('${h(w.code)}')`:`show('stock','${h(w.code)}')`}"><div class="grow"><b>${h(w.code)} · ${h(w.name)}</b> <span class="chip">${h(w.type)}</span>${w.isDefault?' <span class="chip c-ok">Default</span>':''}${w.status!=='Active'?' <span class="chip c-warn">Inactive</span>':''}
+      <div class="hint">${w.areas.length?'Serves '+h(w.areas.join(', ')):'No areas — orders come here only as the default'}${w.holder?' · rider '+h(w.holder):''}</div></div><div class="r"><b class="ivn">${ivN(w.onHand)}</b><div class="hint">${money(w.value)}</div></div></div>`).join(''):'<div class="hint">No warehouse yet.</div>'}</div>
+    ${r.canAdmin?`<div class="card" id="wh_form"><h3 id="wh_ft">Add a warehouse / depot</h3><input type="hidden" id="wh_code">
+      <label>Name <span class="req">*</span></label><input id="wh_name" placeholder="e.g. Mirpur Depot">
+      <div class="grid2"><div><label>Type</label><select id="wh_type"><option>Warehouse</option><option>Depot</option><option>Van</option></select></div><div><label>Status</label><select id="wh_status"><option>Active</option><option>Inactive</option></select></div></div>
+      <label>Address</label><input id="wh_addr">
+      <label>Areas / districts it serves</label><input id="wh_areas" placeholder="Mirpur, Pallabi, Uttara"><div class="hint">An order is booked on the warehouse whose areas include the shop's area (then its district); otherwise on the default warehouse. A van is never chosen automatically.</div>
+      <div class="opt" onclick="const c=$('wh_def');c.checked=!c.checked;this.classList.toggle('on',c.checked)"><input type="checkbox" id="wh_def" onclick="event.stopPropagation();this.parentNode.classList.toggle('on',this.checked)"><div><b>Default warehouse</b><div class="hint">Used for shops no other warehouse covers.</div></div></div>
+      <button class="btn" onclick="whSave()">Save warehouse</button><button class="btn sec" onclick="screens.warehouses()">Clear form</button></div>`:''}`;
+};
+function whEdit(code){ const w=(S.whl||[]).find(x=>x.code===code); if(!w||!$('wh_form')) return;
+  $('wh_ft').textContent='Edit '+w.code; $('wh_code').value=w.code; $('wh_name').value=w.name; $('wh_type').value=w.type; $('wh_status').value=w.status;
+  $('wh_addr').value=w.address||''; $('wh_areas').value=w.areas.join(', '); $('wh_def').checked=w.isDefault; $('wh_def').parentNode.classList.toggle('on', w.isDefault);
+  $('wh_form').scrollIntoView({behavior:'smooth'}); }
+async function whSave(){
+  const p={action:'save', code:val('wh_code'), name:val('wh_name'), type:val('wh_type'), status:val('wh_status'), address:val('wh_addr'), areas:val('wh_areas'), isDefault:$('wh_def').checked, submissionId:uid()};
+  if(!p.name) return toast('Enter the warehouse name');
+  const r=await submit('apiWarehouses', p, 'Saving…'); if(!r) return;
+  toast('✅ '+r.message); refreshInBackground(); screens.warehouses();
 }
 
 // ---------------------------------------------------------------- collection
@@ -926,7 +1129,7 @@ screens.team = async function(){
 
 // ---------------------------------------------------------------- deliveries
 const money2 = n => '৳' + (Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
-function delChip(s){ const m={Pending:'c-warn',Dispatched:'c-info',Delivered:'c-ok','Partially Delivered':'c-warn',Returned:'c-bad'}; return `<span class="chip ${m[s]||''}">${h(s||'Pending')}</span>`; }
+function delChip(s){ const m={Pending:'c-warn',Packing:'c-warn','Ready to Pick':'c-info',Dispatched:'c-info',Delivered:'c-ok','Partially Delivered':'c-warn',Returned:'c-bad'}; return `<span class="chip ${m[s]||''}">${h(s||'Pending')}</span>`; }
 function navLink(lat,lng){ return lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${lat},${lng}">🧭 Go</a>`:''; }
 screens.deliveries = async function(tab){
   S.dv = S.dv || {tab:'open', who:''}; if(tab) S.dv.tab=tab;
@@ -968,7 +1171,7 @@ function renderDeliveries(){
       <div class="muted">${h(o.address||'')}${o.address?' · ':''}${h(o.area)}</div>
       <div class="hint">${h(o.owner)} · Rep ${h(o.rep)}${mg?' · '+(o.deliveryName?'🚚 '+h(o.deliveryName):'<b style="color:var(--bad)">not assigned</b>'):''}</div></div><div class="amt">${money(o.net)}</div></div>
       ${mg?`<label>Delivery person</label>${staffSel(o)}`:''}
-      <div>${o.mobile?`<a class="btn sm sec" href="tel:${h(o.mobile)}">📞 Call</a>`:''}${navLink(o.lat,o.lng)}<button class="btn sm sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button><button class="btn sm sec" onclick="show('doc','${h(o.id)}','invoice')">🧾 Invoice</button>${o.delivery==='Pending'?`<button class="btn sm sec" onclick="dispatchDel('${h(o.id)}')">🚚 Out for delivery</button>`:''}<button class="btn sm ok" onclick="show('deliver','${h(o.id)}')">✅ Deliver</button></div></div>`).join('') : '<div class="okbox">Nothing waiting for delivery. 🎉</div>';
+      <div>${o.mobile?`<a class="btn sm sec" href="tel:${h(o.mobile)}">📞 Call</a>`:''}${navLink(o.lat,o.lng)}<button class="btn sm sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button><button class="btn sm sec" onclick="show('doc','${h(o.id)}','invoice')">🧾 Invoice</button>${dvActions(o, mg)}</div>${tlMini(o.timeline)}</div>`).join('') : '<div class="okbox">Nothing waiting for delivery. 🎉</div>';
   else if(S.dv.tab==='done') list = done.length ? `<div class="card list">${done.map(o=>`<div class="it" onclick="show('doc','${h(o.id)}','invoice')"><div class="grow"><b>${h(o.shop)}</b> ${delChip(o.delivery)}<div class="muted">${h(o.invoiceNo||o.id)} · ${h(o.deliveredAt||o.date)} · ${o.billedQty===null?o.qty:o.billedQty}/${o.qty} pcs${mg&&o.deliveryName?' · '+h(o.deliveryName):''}</div>${o.shortReason?`<div class="hint">⚠ ${h(o.shortReason)}</div>`:''}</div><div style="text-align:right"><div class="amt">${money(o.billed===null?o.net:o.billed)}</div>${o.billed!==null&&o.billed<o.net?`<div class="hint"><s>${money(o.net)}</s></div>`:''}</div></div>`).join('')}</div>` : '<div class="hint">No deliveries in the last 7 days.</div>';
   else list = r.submitted.length ? r.submitted.map(o=>{ const da=o.approval==='Pending'; return `<div class="card" id="dv_${h(o.id)}"><div class="row"><div class="grow"><b>${h(o.shop)}</b>${da?' <span class="chip c-warn">Discount approval</span>':''}<div class="hint">${h(o.id)} · ${h(o.date)} · ${h(o.rep)} · ${h(o.area)} · ${h(o.terms)} · ${o.qty} pcs</div></div><div class="amt">${money(o.net)}</div></div>
       ${da?`<div class="warnbox">Discount <b>${money(o.discPerPc)} per piece</b> × ${o.qty} pcs = ${money(o.discount)} · price after discount ${money(o.qty?o.net/o.qty:0)}/pc (limit for reps ${money(S.boot.settings.repPerPc)})</div>`:''}
@@ -1070,7 +1273,7 @@ function renderDoc(){
   box.innerHTML = `<div class="card"><div class="tabs">${FMTS.map(f=>`<button class="${d.fmt===f[0]?'on':''}" onclick="docFmt('${f[0]}')">${f[1]}</button>`).join('')}${d.kind!=='ledger'?`<button onclick="docKind('${d.kind==='challan'?'invoice':'challan'}')">${d.kind==='challan'?'🧾 Invoice':'📄 Challan'}</button>`:''}</div>
      <div><button class="btn sm" onclick="printDoc()">🖨 Print</button><button class="btn sm gold" id="pdfBtn" onclick="sharePdf()">📤 Share PDF</button></div>
      <div class="hint">80 mm = thermal receipt printer. On a phone, Print ▸ "Save as PDF" also works.</div></div>
-     ${d.kind!=='ledger'?docInfo(r):''}
+     ${d.kind!=='ledger'?fulDocCard(r)+docInfo(r):''}
      <div class="docwrap" id="docwrap"><div id="doc" class="doc f-${d.fmt}">${body}</div></div>`;
   fitDoc();
 }
@@ -1500,7 +1703,7 @@ function renderHr(){
     ${r.pending.length?`<div class="card"><div class="warnbox" style="margin:0;cursor:pointer" onclick="hrTab('leave')">🌴 ${r.pending.length} leave request(s) waiting for approval ›</div></div>`:''}
     ${r.actions.length?`<div class="card"><h3>Recent HR actions</h3><div class="list">${r.actions.map(a=>`<div class="it" onclick="show('emp','${h(a.empId)}',S.hr.month)"><div class="grow"><b>${h(a.type)} · ${h(a.name)}</b><div class="muted">${h(a.date)} · ${h(a.note)}</div></div></div>`).join('')}</div></div>`:''}`;
   } else if(tab==='attendance'){
-    body=`<div class="card"><h3>Attendance % (present + paid leave ÷ working days)</h3>${hBars(tr.map(x=>({label:x.name,value:Math.round((x.attPct||0)*100),sub:x.workingDays+' days',color:(x.attPct||0)>=0.95?PAL[2]:(x.attPct||0)>=0.85?PAL[1]:PAL[4],click:`show('emp','${h(x.empId)}',S.hr.month)`})),{fmt:v=>v+'%'})}</div>
+    body=`<div id="att_box"></div><div class="card"><h3>Attendance % (present + paid leave ÷ working days)</h3>${hBars(tr.map(x=>({label:x.name,value:Math.round((x.attPct||0)*100),sub:x.workingDays+' days',color:(x.attPct||0)>=0.95?PAL[2]:(x.attPct||0)>=0.85?PAL[1]:PAL[4],click:`show('emp','${h(x.empId)}',S.hr.month)`})),{fmt:v=>v+'%'})}</div>
     <div class="card" style="overflow-x:auto"><table class="t"><tr><th>Employee</th><th>Work days</th><th>Present</th><th>Late</th><th>Leave</th><th>Absent</th><th>No out</th><th>Avg hrs</th></tr>
     ${tr.map(x=>`<tr onclick="show('emp','${h(x.empId)}',S.hr.month)" style="cursor:pointer"><td><b>${h(x.name)}</b><div class="muted">${h(x.role)}</div></td><td>${x.workingDays}</td><td>${x.presentDays}</td><td style="color:${x.lateDays>=3?'var(--bad)':'inherit'}">${x.lateDays}</td><td>${x.leaveDays+x.unpaidLeave}</td><td style="color:${x.absentDays?'var(--bad)':'inherit'}">${x.absentDays}</td><td>${x.missingCO}</td><td>${x.avgHours||'—'}</td></tr>`).join('')}</table>
     <div class="muted" style="margin-top:6px">Office staff (CEO, HR, Accounts, Admin) do not check in, so they are not listed here.</div></div>`;
@@ -1530,6 +1733,128 @@ function renderHr(){
     ${r.rows.filter(x=>x.tracked).map(x=>`<tr onclick="show('emp','${h(x.empId)}',S.hr.month)" style="cursor:pointer"><td>${h(x.name)}</td><td>${x.visits}</td><td>${x.orders}</td><td>${x.onboarded}</td><td>${pctS(x.attPct)}</td><td>${x.lateDays}</td><td>${x.incentive?money(x.incentive):'—'}</td></tr>`).join('')}</table></div>`;
   }
   box.innerHTML=body;
+  if(tab==='attendance') attInit();
+}
+const ATT_COL={ontime:'#2E7D5B',late:'#C98A00',absent:'#A8322A',leave:'#24507A',pending:'#B9B2A6'};
+const ATT_CHIP={'Present':'c-ok','Late':'c-warn','Missing Check-out':'c-warn','Absent':'c-bad','On Leave':'c-info','Off-day Work':'c-info','Not checked in yet':'','Weekly off':'','Holiday':'','Not yet':''};
+const ATT_F={present:['Present',x=>['ontime','late','missing','offwork'].indexOf(x.cat)>=0],late:['Late',x=>x.late],absent:['Absent',x=>x.cat==='absent'],leave:['On leave',x=>x.cat==='leave'],notin:['Not checked in',x=>x.cat==='pending'],missing:['Missing check-out',x=>x.cat==='missing'],offwork:['Off-day work',x=>x.cat==='offwork']};
+function attChip(st){ return `<span class="chip ${ATT_CHIP[st]||''}">${h(st)}</span>`; }
+function attInit(){
+  const box=$('att_box'); if(!box) return;
+  S.att=S.att||{mode:'day',date:today(),month:today().slice(0,7),filter:'',cal:{},day:{},seq:0};
+  if(!$('att_css')) document.head.insertAdjacentHTML('beforeend',`<style id="att_css">
+    .atabs{display:flex;gap:6px;margin:4px 0 10px}.atabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:20px;padding:8px 10px;font:600 13px var(--sans);color:var(--pd);cursor:pointer}.atabs button.on{background:var(--p);color:#fff;border-color:var(--p)}
+    .achips{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.achips button{border:1px solid var(--line);background:var(--soft);border-radius:20px;padding:6px 12px;font:600 12.5px var(--sans);color:var(--pd);cursor:pointer}.achips button.on{border-color:var(--p);color:var(--p);background:#fff}.achips input{flex:1;min-width:130px;margin:0}
+    .acalh{display:flex;align-items:center;gap:8px;margin:6px 0}.acalh b{flex:1;text-align:center;font-family:var(--serif);color:var(--p)}
+    .acal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.acal .dw{font-size:10.5px;color:var(--mut);text-align:center;text-transform:uppercase;letter-spacing:.3px}
+    .acd{background:var(--soft);border:1.5px solid transparent;border-radius:10px;min-height:46px;padding:4px 3px 5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+    .acd b{font-size:13px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}.acd.off{background:var(--soft2)}.acd.fut b{color:#B9B2A6}.acd.tdy{border-color:var(--p)}
+    .acd.sel{background:var(--p)}.acd.sel b,.acd.sel i{color:#fff}.acd i{font-style:normal;font-size:9.5px;color:var(--mut);font-weight:600}
+    .abar{display:flex;width:100%;height:6px;border-radius:3px;overflow:hidden;background:#E6DFD3}.abar s{display:block;height:100%}
+    .aleg{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin-top:8px}.aleg s{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+    .kpi.aon{border-color:var(--p);background:#fff}
+    .ainfo{background:var(--infob);color:var(--info);border-radius:10px;padding:9px 11px;font-size:13px;margin-top:8px}
+  </style>`);
+  box.innerHTML=`<div class="card"><h3>Daily attendance</h3><div class="atabs" id="att_mode"><button data-m="day" onclick="attMode('day')">One day</button><button data-m="range" onclick="attMode('range')">Date range</button></div><div id="att_ctl"></div></div><div id="att_out"></div>`;
+  attMode(S.att.mode);
+}
+function attMode(m){
+  S.att.mode=m; document.querySelectorAll('#att_mode button').forEach(b=>b.classList.toggle('on', b.dataset.m===m));
+  const c=$('att_ctl'); if(!c) return;
+  if(m==='day'){
+    const t=today(), y=addDays(t,-1);
+    c.innerHTML=`<div class="achips"><button id="att_q_t" class="${S.att.date===t?'on':''}" onclick="attPick('${t}')">Today</button><button id="att_q_y" class="${S.att.date===y?'on':''}" onclick="attPick('${y}')">Yesterday</button><input type="date" id="att_date" value="${S.att.date}" onchange="if(this.value) attPick(this.value)"></div><div id="att_cal"></div>`;
+    attDrawCal(); attLoadCal(S.att.month); attLoadDay(S.att.date);
+  } else {
+    if(!S.att.from){ const r=rangeFor('month'); S.att.from=r[0]; S.att.to=r[1]; }
+    c.innerHTML=`<div class="achips"><button onclick="attPreset('week')">This week</button><button onclick="attPreset('month')">This month</button><button onclick="attPreset('lastmonth')">Last month</button></div>
+      <div class="grid2"><div><label>From</label><input type="date" id="att_from" value="${S.att.from}"></div><div><label>To</label><input type="date" id="att_to" value="${S.att.to}"></div></div>
+      <button class="btn" onclick="attLoadRange()">Show range report</button><div class="hint">Up to 92 days. Weekly off-days and holidays are not counted as working days.</div>`;
+    attLoadRange();
+  }
+}
+function attPreset(p){ const r=rangeFor(p); S.att.from=r[0]; S.att.to=r[1]; if($('att_from')){ $('att_from').value=r[0]; $('att_to').value=r[1]; } attLoadRange(); }
+function attMonthShift(d){ S.att.month=monthShift(S.att.month,d); attDrawCal(); attLoadCal(S.att.month); }
+async function attLoadCal(m){
+  const r=await api('apiAttendanceCalendar', m);
+  if(!r.ok){ if($('att_cal')&&S.att.month===m&&!S.att.cal[m]) $('att_cal').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.att.cal[m]=r; if(S.att.month===m && S.att.mode==='day') attDrawCal();
+}
+function attDrawCal(){
+  const box=$('att_cal'); if(!box) return;
+  const m=S.att.month, c=S.att.cal[m];
+  const head=`<div class="acalh"><button class="btn sm sec" style="width:auto;margin:0" onclick="attMonthShift(-1)" aria-label="Previous month">‹</button><b>${h(c?c.monthLabel:m)}</b><button class="btn sm sec" style="width:auto;margin:0" onclick="attMonthShift(1)" aria-label="Next month">›</button></div>`;
+  if(!c){ box.innerHTML=head+'<div class="muted" style="text-align:center;padding:16px">Loading calendar…</div>'; return; }
+  const dw=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="dw">${d}</div>`).join('');
+  const blank='<div></div>'.repeat(c.firstDow-1);
+  const cells=c.days.map(d=>{
+    const work=d.dayType==='Working', ot=d.present-d.late, seg=[[ot,'ontime'],[d.late,'late'],[d.absent,'absent'],[d.leave,'leave'],[d.notIn,'pending']].filter(s=>s[0]>0);
+    const tip=d.day+(d.holiday?' · '+d.holiday:work?'':' · '+d.dayType)+(d.future?'':` · present ${d.present}, late ${d.late}, absent ${d.absent}, leave ${d.leave}`);
+    const mark=d.future?(work?'':`<i>${d.dayType==='Holiday'?'Holiday':'Off'}</i>`):!work&&!d.present?`<i>${d.dayType==='Holiday'?'Holiday':'Off'}</i>`:seg.length?`<div class="abar">${seg.map(s=>`<s style="flex:${s[0]};background:${ATT_COL[s[1]]}"></s>`).join('')}</div><i>${d.present}/${d.people}</i>`:'';
+    return `<div class="acd${work?'':' off'}${d.future?' fut':''}${d.isToday?' tdy':''}${d.day===S.att.date?' sel':''}" data-d="${d.day}" title="${h(tip)}" onclick="attPick('${d.day}')"><b>${d.n}</b>${mark}</div>`;
+  }).join('');
+  box.innerHTML=head+`<div class="acal">${dw}${blank}${cells}</div><div class="aleg"><span><s style="background:${ATT_COL.ontime}"></s>On time</span><span><s style="background:${ATT_COL.late}"></s>Late</span><span><s style="background:${ATT_COL.absent}"></s>Absent</span><span><s style="background:${ATT_COL.leave}"></s>On leave</span><span>n/N = present / people</span></div>`;
+}
+function attPick(d){
+  S.att.date=d; S.att.filter='';
+  if($('att_date')) $('att_date').value=d;
+  const t=today(); if($('att_q_t')) $('att_q_t').classList.toggle('on', d===t); if($('att_q_y')) $('att_q_y').classList.toggle('on', d===addDays(t,-1));
+  if(d.slice(0,7)!==S.att.month){ S.att.month=d.slice(0,7); attDrawCal(); attLoadCal(S.att.month); }
+  else document.querySelectorAll('#att_cal .acd').forEach(x=>x.classList.toggle('sel', x.dataset.d===d));
+  attLoadDay(d);
+}
+async function attLoadDay(d){
+  const seq=S.att.seq=(S.att.seq||0)+1, out=$('att_out'); if(!out) return;
+  if(S.att.day[d]) attDrawDay(); else out.innerHTML='<div class="card"><div class="muted" style="text-align:center;padding:20px">Loading attendance…</div></div>';
+  const r=await api('apiAttendanceDay', d);
+  if(!$('att_out') || S.screen!=='hr' || seq!==S.att.seq || S.att.mode!=='day') return;
+  if(!r.ok){ if(!S.att.day[d]) $('att_out').innerHTML=`<div class="card"><div class="badbox">${h(r.message)}</div></div>`; return; }
+  S.att.day[d]=r; if(S.att.date===d) attDrawDay();
+}
+function attFilter(k){ S.att.filter=S.att.filter===k?'':k; attDrawDay(); const l=$('att_list'); if(l&&S.att.filter) l.scrollIntoView({block:'nearest'}); }
+function attMap(lat,lng){ return (lat===null||lat===undefined||lat==='')?'':'https:\/\/www.google.com/maps?q='+encodeURIComponent(lat+','+lng); }
+function attDrawDay(){
+  const out=$('att_out'), r=S.att.day[S.att.date]; if(!out||!r) return;
+  const T=r.totals, f=S.att.filter, mon=r.date.slice(0,7);
+  const tile=(k,label,n,sub,color)=>`<div class="kpi tap${f===k?' aon':''}" data-f="${k}" role="button" onclick="attFilter('${k}')"><b style="color:${color}">${n}</b><span>${label}</span>${sub?`<div class="muted" style="font-size:11px">${sub}</div>`:''}</div>`;
+  let info='';
+  if(r.dayType==='Holiday') info=`<div class="ainfo">🎉 Holiday${r.holiday?': '+h(r.holiday):''} — nobody is marked absent.</div>`;
+  else if(r.dayType==='Weekly off') info='<div class="ainfo">Weekly off-day — nobody is marked absent. Anyone who worked shows as Off-day Work.</div>';
+  if(r.isFuture) info+='<div class="ainfo">This day has not come yet. Approved leave is shown in the notes.</div>';
+  else if(r.beforeCutoff) info+=`<div class="ainfo">Before ${String(r.cutoffHour).padStart(2,'0')}:00 — people who have not checked in show as “Not checked in yet”, not absent.</div>`;
+  const tiles=tile('present','Present',T.present,T.onTime+' on time',ATT_COL.ontime)+tile('late','Late',T.late,'',ATT_COL.late)+tile('absent','Absent',T.absent,'',ATT_COL.absent)+tile('leave','On leave',T.leave,'',ATT_COL.leave)+tile('notin','Not checked in',T.notIn,'','var(--mut)')+(T.missing?tile('missing','No check-out',T.missing,'','var(--warn)'):'')+(T.offDayWork?tile('offwork','Off-day work',T.offDayWork,'','var(--info)'):'');
+  const rows=f&&ATT_F[f]?r.rows.filter(ATT_F[f][1]):r.rows;
+  const line=x=>{
+    const bits=[h(x.role)]; if(x.checkIn) bits.push('in '+h(x.checkIn)); if(x.checkOut) bits.push('out '+h(x.checkOut)); if(x.hours) bits.push(x.hours+' h'); if(x.late) bits.push(`<b style="color:var(--warn)">${x.lateMin} min late</b>`);
+    const map=attMap(x.inLat,x.inLng);
+    return `<div class="it" data-emp="${h(x.empId)}" onclick="show('emp','${h(x.empId)}','${mon}')"><div class="grow"><b>${h(x.name)}</b><div class="muted">${bits.join(' · ')}</div>${map?`<a class="lnk" style="font-size:12.5px" href="${map}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📍 Check-in location</a>`:''}${x.summary?`<div class="muted">📝 ${h(x.summary)}</div>`:''}${x.note?`<div class="muted" style="font-size:12px">${h(x.note)}</div>`:''}</div>${attChip(x.status)}</div>`;
+  };
+  out.innerHTML=`<div class="card"><div class="row"><div class="grow"><h3 style="margin:0">${h(r.label)}</h3><div class="muted">${h(r.dayType)}${r.isToday?' · today':''} · ${T.people} people</div></div></div>${info}
+    <div class="grid3" style="margin-top:10px">${tiles}</div>
+    ${T.present?`<div class="muted" style="margin-top:8px">Day summary: ${T.present} present of ${T.people}${T.late?', '+T.late+' late':''}${T.absent?', '+T.absent+' absent':''}${T.leave?', '+T.leave+' on leave':''} · ${T.hours} working hours in total (average ${T.avgHours} h)</div>`:''}</div>
+    <div class="card" id="att_list"><div class="row"><h3 class="grow" style="margin:0">${f&&ATT_F[f]?h(ATT_F[f][0])+' ('+rows.length+')':'Everyone ('+rows.length+')'}</h3>${f?'<button class="btn sm sec" style="width:auto;margin:0" onclick="attFilter(\'\')">Show all</button>':''}</div>
+    <div class="list" style="margin-top:4px">${rows.map(line).join('')||'<div class="muted" style="padding:12px 0">Nobody in this group.</div>'}</div></div>`;
+}
+async function attLoadRange(){
+  const f=$('att_from')?$('att_from').value:S.att.from, t=$('att_to')?$('att_to').value:S.att.to;
+  if(!f||!t) return toast('Choose From and To dates'); if(t<f) return toast('The To date is before the From date');
+  S.att.from=f; S.att.to=t;
+  const seq=S.att.seq=(S.att.seq||0)+1, out=$('att_out'); if(!out) return;
+  out.innerHTML='<div class="card"><div class="muted" style="text-align:center;padding:20px">Loading range…</div></div>';
+  const r=await api('apiAttendanceRange', f, t);
+  if(!$('att_out') || S.screen!=='hr' || seq!==S.att.seq || S.att.mode!=='range') return;
+  if(!r.ok) return $('att_out').innerHTML=`<div class="card"><div class="badbox">${h(r.message)}</div></div>`;
+  S.att.range=r; attDrawRange();
+}
+function attDrawRange(){
+  const out=$('att_out'), r=S.att.range; if(!out||!r) return;
+  const T=r.totals, D=r.days, mon=r.to.slice(0,7);
+  out.innerHTML=`<div class="card"><h3 style="margin-bottom:2px">${h(r.label)}</h3><div class="muted">${D.total} days · ${D.working} working · ${D.off} off-days / holidays (weekly off: ${h(r.weeklyOff)})${D.future?' · '+D.future+' still to come':''}</div>
+    ${r.holidays.length?`<div class="ainfo">Holidays: ${r.holidays.map(x=>h(x.day)+(x.name?' '+h(x.name):'')).join(', ')}</div>`:''}
+    <div class="grid3" style="margin-top:10px">${kp('Present days',`<span style="color:${ATT_COL.ontime}">${T.present}</span>`,T.onTime+' on time')}${kp('Late days',`<span style="color:${ATT_COL.late}">${T.late}</span>`)}${kp('Absent days',`<span style="color:${ATT_COL.absent}">${T.absent}</span>`)}${kp('Leave days',`<span style="color:${ATT_COL.leave}">${T.leave}</span>`)}${kp('No check-out',T.missing)}${kp('Hours',T.hours)}</div></div>
+    <div class="card" style="overflow-x:auto"><h3>Per person</h3><table class="t" id="att_rtab"><tr><th>Employee</th><th>Work days</th><th>Present</th><th>Late</th><th>Absent</th><th>Leave</th><th>No out</th><th>Hours</th><th>Att.</th></tr>
+    ${r.rows.map(x=>`<tr onclick="show('emp','${h(x.empId)}','${mon}')" style="cursor:pointer"><td><b>${h(x.name)}</b><div class="muted">${h(x.role)}</div></td><td>${x.workingDays}</td><td>${x.present}${x.offDayWork?` <span class="muted">(${x.offDayWork} off-day)</span>`:''}</td><td style="color:${x.late?'var(--warn)':'inherit'}">${x.late}${x.lateMin?`<div class="muted">${x.lateMin} min</div>`:''}</td><td style="color:${x.absent?'var(--bad)':'inherit'}">${x.absent}</td><td>${x.leave}</td><td>${x.missing}</td><td>${x.hours||'—'}</td><td>${x.attPct===null?'—':pctS(x.attPct)}</td></tr>`).join('')||'<tr><td colspan="9" class="muted">Nobody in scope.</td></tr>'}</table>
+    <div class="muted" style="margin-top:6px">Att. = (present on working days + leave) ÷ working days. Tap a name for the employee page.</div></div>`;
 }
 async function decideLeave(id, d){
   let rm=''; if(d==='Rejected'){ rm=prompt('Reason for rejecting'); if(!rm) return; }
@@ -1612,6 +1937,171 @@ async function changePin(){
   if(val('pp_n')!==val('pp_c')) return toast('New PINs do not match');
   busy(true); const r=await call('apiChangePin', S.token, val('pp_o'), val('pp_n')); busy(false);
   toast(r.ok?'✅ '+r.message:'⛔ '+r.message);
+}
+
+/* ---------------------------------------------------------------- order fulfilment + in-app notifications (Postgres 012)
+   Only active when the home data carries "unread" (PostgreSQL backend); with Apps Script nothing here shows. */
+function FUL(){ return !!(S.boot && typeof S.boot.unread==='number'); }
+function bellBtn(){ if(!FUL()) return ''; const n=S.boot.unread||0; return `<button class="bell" id="bellBtn" onclick="show('notifs')" title="Notifications" aria-label="Notifications">🔔<span id="bellN" class="bn" style="display:${n?'inline-block':'none'}">${n>99?'99+':n}</span></button>`; }
+function updBell(){ const e=$('bellN'); if(!e||!FUL()) return; const n=S.boot.unread||0; e.textContent=n>99?'99+':String(n); e.style.display=n?'inline-block':'none'; }
+function notifStart(r){
+  if(!r || typeof r.unread!=='number') return;
+  if(S.nUser!==r.user.empId){ S.nUser=r.user.empId; S.nLast=r.notifLatest||0; }
+  updBell();
+  clearInterval(S.nTimer); S.nTimer=setInterval(notifPoll, Math.max(10,(r.fulfil&&r.fulfil.pollSec)||30)*1000);
+}
+/** Cheap poll (every 30 s while the app is open): new notifications since the last one seen -> badge, toast, vibration. */
+async function notifPoll(force){
+  if(!S.token || !FUL() || S.nBusy) return;
+  if(document.hidden && !force && !(window.Notification && Notification.permission==='granted')) return;
+  S.nBusy=true; let r;
+  try{ r=await call('apiNotifications', S.token, {sinceId:S.nLast||0}); } finally { S.nBusy=false; }
+  if(!r || !r.ok || !S.boot) return;
+  S.boot.unread=r.unread; updBell();
+  const fresh=(r.list||[]).filter(x=>x.id>(S.nLast||0));
+  if(r.latestId>(S.nLast||0)) S.nLast=r.latestId;
+  if(!fresh.length) return;
+  const n=fresh[0];
+  toast('🔔 '+n.title+(fresh.length>1?' (+'+(fresh.length-1)+' more)':''), 6000);
+  try{ if(navigator.vibrate) navigator.vibrate([180,80,180]); }catch(e){}
+  try{ if(window.Notification && Notification.permission==='granted' && document.hidden){ const bn=new Notification(n.title,{body:n.body, tag:n.refNo||String(n.id)}); bn.onclick=()=>{ window.focus(); openNotif(n.id, n.refNo); }; } }catch(e){}
+  if(S.screen==='packq' || S.screen==='pickq') screens[S.screen]();
+  else if(S.screen==='notifs') screens.notifs();
+  else if(S.screen==='home' || !S.screen) refreshInBackground();
+}
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) notifPoll(); });
+
+const NICON={order_new:'🧺',order_ready:'🛵',order_ready_open:'🛵',order_dispatched:'🚚',order_delivered:'✅',order_cancelled:'⛔',discount_decision:'🏷️',discount_approval:'🏷️',collection_rejected:'⚠️'};
+screens.notifs = async function(){
+  page('Notifications', S.user?S.user.name:'', `<div id="nfBox" class="hint">Loading…</div>`);
+  const r=await api('apiNotifications', {limit:40}); const box=$('nfBox'); if(!box) return;
+  if(!r.ok) return box.innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.nf={list:r.list||[], more:r.more}; if(S.boot){ S.boot.unread=r.unread; updBell(); } if(r.latestId>(S.nLast||0)) S.nLast=r.latestId;
+  renderNotifs();
+};
+function renderNotifs(){
+  const box=$('nfBox'); if(!box||!S.nf) return; const L=S.nf.list, un=(S.boot&&S.boot.unread)||0;
+  const perm = window.Notification ? Notification.permission : 'unsupported';
+  box.innerHTML = `${perm==='default'?`<div class="card"><div class="row"><div class="grow"><b>Phone alerts</b><div class="hint">Also show an alert when this app is in the background (it must stay open).</div></div><button class="btn sm" onclick="askNotifPerm()">Turn on</button></div></div>`:''}
+   <div class="card">${L.length?`<div class="row" style="margin-bottom:4px"><div class="grow muted">${un} unread</div>${un?'<button class="btn sm sec" onclick="notifReadAll()">✓ Mark all read</button>':''}</div>
+   <div id="nfList">${L.map(n=>`<div class="ntf ${n.read?'':'un'}" data-id="${n.id}" onclick="openNotif(${n.id})"><div class="ni">${NICON[n.kind]||'🔔'}</div><div class="grow"><b>${h(n.title)}</b><div class="muted">${h(n.body)}</div><div class="hint">${h(n.at)}</div></div></div>`).join('')}</div>
+   ${S.nf.more?`<button class="btn sec" onclick="notifMore()">Load older</button>`:''}`:'<div class="hint">No notifications yet. New orders, pick-ups and deliveries will show here.</div>'}</div>`;
+}
+async function notifMore(){ const L=S.nf.list; const r=await api('apiNotifications',{limit:40, before:L[L.length-1].id}); if(!r.ok) return toast('⛔ '+r.message); S.nf.list=L.concat(r.list||[]); S.nf.more=r.more; renderNotifs(); }
+async function notifReadAll(){ const r=await api('apiNotificationsRead','all'); if(!r.ok) return toast('⛔ '+r.message); S.nf.list.forEach(x=>x.read=true); S.boot.unread=r.unread; updBell(); renderNotifs(); }
+function openNotif(id, ref){
+  const n=((S.nf&&S.nf.list)||[]).find(x=>x.id===id) || {id, refNo:ref||''};
+  if(!n.read){ n.read=true; api('apiNotificationsRead', String(id)).then(r=>{ if(r.ok&&S.boot){ S.boot.unread=r.unread; updBell(); } }); }
+  if(n.refNo){ if(S.docs) delete S.docs[n.refNo]; show('doc', n.refNo, 'invoice'); } else renderNotifs();
+}
+async function askNotifPerm(){ try{ const p=await Notification.requestPermission(); toast(p==='granted'?'✅ Phone alerts on':'OK – alerts stay inside the app'); }catch(e){} renderNotifs(); }
+
+/* status timeline: compact strip on cards, full list on the order page */
+function tlMini(tl){ if(!tl||!tl.length) return ''; return `<div class="tlm">${tl.map(x=>`<div class="${x.current?'c':x.done?'d':''} ${x.skipped?'s':''}" title="${h(x.label)}${x.at?' · '+h(x.at):''}"><i></i>${h(x.label)}${x.at&&!x.skipped?'<br>'+h(String(x.at).split(', ').pop()):''}</div>`).join('')}</div>`; }
+function tlFull(tl){ return `<div class="tl">${(tl||[]).map(x=>`<div class="${x.current?'c':x.done?'d':''} ${x.skipped?'s':''}"><b>${h(x.label)}</b>${x.skipped?' <span class="hint">skipped</span>':''}<div class="hint">${x.at?h(x.at):(x.done?'':'—')}${x.by?' · '+h(x.by):''}</div></div>`).join('')}</div>`; }
+function fulDocCard(r){
+  const o=r&&r.order; if(!o||!o.timeline||!S.boot) return '';
+  const id=o.id, P=S.boot.perms||{}; let act='';
+  if(P.store && o.status==='Confirmed'){
+    if(o.delivery==='Pending') act=`<button class="btn sm sec" onclick="storeSet('${h(id)}','Packing',1)">📦 Mark Packing</button><button class="btn sm ok" onclick="storeSet('${h(id)}','Ready to Pick',1)">✅ Ready to Pick</button>`;
+    else if(o.delivery==='Packing') act=`<button class="btn sm ok" onclick="storeSet('${h(id)}','Ready to Pick',1)">✅ Ready to Pick</button>`;
+  }
+  if(P.pick && o.status==='Confirmed'){
+    const mine=o.deliveryBy===S.user.empId;
+    if(o.delivery==='Ready to Pick' && !o.deliveryBy) act=`<button class="btn sm ok" onclick="riderPick('${h(id)}','accept',1)">✋ Accept</button>`;
+    else if(o.delivery==='Ready to Pick' && mine) act=`<button class="btn sm ok" onclick="riderPick('${h(id)}','pickup',1)">📦 Picked up</button>`;
+    else if(o.delivery==='Dispatched' && mine) act=`<button class="btn sm ok" onclick="show('deliver','${h(id)}')">✅ Deliver</button>`;
+  }
+  return `<div class="card" id="fulCard"><div class="row"><h3 class="grow" style="margin:0">Order status</h3>${delChip(o.stage||o.delivery)}</div>${o.storeNote?`<div class="hint">📝 Store note: ${h(o.storeNote)}</div>`:''}<div style="margin-top:12px">${tlFull(o.timeline)}</div>${act?`<div>${act}</div>`:''}</div>`;
+}
+function fulHomeCard(b){
+  if(!FUL()) return ''; const c=b.counts||{}, P=b.perms||{};
+  if(P.store && b.user.role==='Store Keeper') return `<div class="card"><h3>Store today</h3><div class="grid2"><div class="kpi tap" onclick="show('packq','pack')"><b>${c.store||0}</b><span>To pack ›</span></div><div class="kpi tap" onclick="show('notifs')"><b>${b.unread||0}</b><span>Unread ›</span></div></div></div>`;
+  if(P.pick && c.ready) return `<div class="okbox" style="margin-bottom:14px;cursor:pointer" onclick="show('pickq')">🛵 <b>${c.ready}</b> order(s) ready to pick at the store — tap to see</div>`;
+  return '';
+}
+/* delivery card buttons: riders pick up first (Ready to Pick), then deliver (Dispatched) */
+function dvActions(o, mg){
+  const out=`<button class="btn sm sec" onclick="dispatchDel('${h(o.id)}')">🚚 Out for delivery</button>`, dl=`<button class="btn sm ok" onclick="show('deliver','${h(o.id)}')">✅ Deliver</button>`;
+  if(!FUL()) return (o.delivery==='Pending'?out:'')+dl;
+  if(mg || !(S.boot.fulfil&&S.boot.fulfil.pickupFlow)) return (o.delivery!=='Dispatched'?out:'')+dl;
+  if(o.delivery==='Dispatched') return dl;
+  if(o.delivery==='Ready to Pick') return `<button class="btn sm ok" onclick="riderPick('${h(o.id)}','pickup')">📦 Picked up</button>`;
+  return `<span class="chip c-warn" style="margin:8px 6px 0 0">⏳ ${o.delivery==='Packing'?'Store is packing':'Waiting for the store'}</span>`;
+}
+
+/* ---------------------------------------------------------------- store keeper: packing queue */
+function ageTxt(m){ m=m||0; return m<60? m+' min' : m<1440? Math.floor(m/60)+' h '+(m%60)+' min' : Math.floor(m/1440)+' d'; }
+screens.packq = async function(tab){
+  S.pq=S.pq||{tab:'pack', tick:{}, note:{}}; if(tab) S.pq.tab=tab;
+  if(!$('pqBox')) page('Packing queue', S.boot.todayLabel, `<div id="pqBox" class="hint">Loading…</div>`);
+  const r=await api('apiStoreQueue'); const box=$('pqBox'); if(!box) return;
+  if(!r.ok) return box.innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.pq.data=r; if(S.boot&&S.boot.counts) S.boot.counts.store=(r.counts.pending||0)+(r.counts.packing||0);
+  renderPackq();
+};
+function renderPackq(){
+  const r=S.pq.data, box=$('pqBox'); if(!box||!r) return; const c=r.counts;
+  const L=r.list.filter(o=>S.pq.tab==='ready' ? o.stage==='Ready to Pick' : o.stage!=='Ready to Pick');
+  const tabs=[['pack','To pack ('+(c.pending+c.packing)+')'],['ready','Waiting for rider ('+c.ready+')']];
+  box.innerHTML=`<div class="card"><div class="grid3"><div class="kpi tap" onclick="pqTab('pack')"><b>${c.pending}</b><span>New</span></div><div class="kpi tap" onclick="pqTab('pack')"><b>${c.packing}</b><span>Packing</span></div><div class="kpi tap" onclick="pqTab('ready')"><b>${c.ready}</b><span>Ready</span></div></div>
+    <div class="hint">${c.pcs} pcs to pack.${r.awaitingApproval?' '+r.awaitingApproval+' order(s) still wait for discount approval – they appear here once confirmed.':''}</div></div>
+    <div class="tabs">${tabs.map(x=>`<button class="${S.pq.tab===x[0]?'on':''}" onclick="pqTab('${x[0]}')">${x[1]}</button>`).join('')}</div>
+    ${L.length?L.map(pqCard).join(''):`<div class="okbox">${S.pq.tab==='ready'?'No packed orders waiting for a rider.':'Nothing to pack right now. 🎉'}</div>`}`;
+}
+function pqTab(t){ S.pq.tab=t; renderPackq(); }
+function pqTick(id, sl){ const t=S.pq.tick[id]=S.pq.tick[id]||{}; t[sl]=!t[sl]; renderPackq(); }
+function pqCard(o){
+  const tk=S.pq.tick[o.id]||{}, all=o.lines.every(l=>tk[l.sl]), rd=o.stage==='Ready to Pick';
+  return `<div class="card" id="pq_${h(o.id)}"><div class="row"><div class="grow"><b>${h(o.shop)}</b> ${delChip(o.stage)}
+    <div class="hint">${h(o.id)} · ${o.items} colour(s) · <span class="age ${o.ageMin>120&&!rd?'late':''}">${ageTxt(o.ageMin)} ago</span></div>
+    <div class="muted">${h(o.area)}${o.address?' · '+h(o.address):''} · Rep ${h(o.rep)}${o.wh?' · '+h(o.wh):''}</div>
+    <div class="hint">${o.deliveryName?'🛵 '+h(o.deliveryName):'🛵 open to riders in the area'}${o.packedBy?' · packing: '+h(o.packedBy):''}${o.remarks?' · '+h(o.remarks):''}</div></div><div class="amt">${o.qty}<span class="hint"> pcs</span></div></div>
+    <div class="pkl">${o.lines.map(l=>`<div class="pki ${tk[l.sl]?'ok':''}" onclick="pqTick('${h(o.id)}',${l.sl})">${l.img?`<img loading="lazy" src="${h(l.img)}" alt="${h(l.colour)}">`:`<div class="noimg">${h(String(l.colour||l.sku).slice(0,3))}</div>`}<span class="q">× ${l.qty}</span><b>${h(l.colour||l.name)}</b><span class="hint">${h(l.sku)}</span></div>`).join('')}</div>
+    ${!rd?`<div class="hint">Tap each colour when it is in the bag.${all?' ✓ all items packed':''}</div><input id="pqn_${h(o.id)}" placeholder="Note for the rider (optional) – shelf, bags…" value="${h(S.pq.note[o.id]!==undefined?S.pq.note[o.id]:(o.note||''))}" oninput="S.pq.note['${h(o.id)}']=this.value" style="margin-top:8px">`:(o.note?`<div class="hint">📝 ${h(o.note)}</div>`:'')}
+    ${o.stage==='Pending'?`<button class="btn big sec" onclick="storeSet('${h(o.id)}','Packing')">📦 Mark Packing</button>`:''}
+    ${!rd?`<button class="btn big ok" onclick="storeSet('${h(o.id)}','Ready to Pick')">✅ Ready to Pick</button>`:`<div class="hint">Ready ${h(o.readyAt)} · waiting for ${o.deliveryName?h(o.deliveryName):'a rider'}</div><button class="btn sm sec" onclick="storeSet('${h(o.id)}','Packing')">↩ Back to packing</button>`}
+    <button class="btn sm sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button></div>`;
+}
+async function storeSet(id, st, fromDoc){
+  if(st==='Ready to Pick' && !fromDoc && S.pq && S.pq.data){ const o=S.pq.data.list.find(x=>x.id===id), tk=S.pq.tick[id]||{}; if(o && !o.lines.every(l=>tk[l.sl]) && !confirm('Not every colour is ticked. Mark '+id+' Ready to Pick anyway?')) return; }
+  const el=$('pqn_'+id), note=el?el.value.trim():'';
+  busy(true, st==='Packing'?'Starting…':'Saving…');
+  const r=await api('apiStoreUpdate', {orderId:id, status:st, note, submissionId:uid()}); busy(false);
+  toast((r.ok?(st==='Ready to Pick'?'✅ ':'📦 '):'⛔ ')+r.message, 5000);
+  if(!r.ok) return;
+  if(S.docs) delete S.docs[id];
+  if(fromDoc) return screens.doc(id, (S.doc&&S.doc.kind)||'invoice');
+  if(st==='Ready to Pick' && S.pq){ delete S.pq.tick[id]; delete S.pq.note[id]; }
+  screens.packq();
+}
+
+/* ---------------------------------------------------------------- rider: ready to pick (accept / picked up) */
+screens.pickq = async function(){
+  if(!$('pkBox')) page('Ready to pick', S.boot.todayLabel, `<div id="pkBox" class="hint">Loading…</div>`);
+  const r=await api('apiRiderQueue'); const box=$('pkBox'); if(!box) return;
+  if(!r.ok) return box.innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.pk=r; if(S.boot&&S.boot.counts) S.boot.counts.ready=r.mine.length+r.available.length;
+  const card=(o,av)=>`<div class="card" id="pk_${h(o.id)}"><div class="row"><div class="grow"><b>${h(o.shop)}</b> ${delChip(o.delivery)}
+      <div class="hint">${h(o.id)} · ${o.qty} pcs · ${h(o.terms)}${o.readyAt?' · ready '+h(String(o.readyAt).split(', ').pop()):''}</div>
+      <div class="muted">${h(o.address||'')}${o.address?' · ':''}${h(o.area)} · ${h(o.owner)}</div>
+      ${o.storeNote?`<div class="hint">📝 ${h(o.storeNote)}</div>`:''}</div><div class="amt">${money(o.net)}</div></div>
+      <div class="pkl">${(o.lines||[]).map(l=>`<div class="pki" style="cursor:default">${l.img?`<img loading="lazy" src="${h(l.img)}" alt="${h(l.colour)}">`:`<div class="noimg">${h(String(l.colour||l.sku).slice(0,3))}</div>`}<span class="q">× ${l.qty}</span><b>${h(l.colour||l.name)}</b></div>`).join('')}</div>
+      ${av?`<button class="btn big ok" onclick="riderPick('${h(o.id)}','accept')">✋ Accept</button>`:`<button class="btn big ok" onclick="riderPick('${h(o.id)}','pickup')">📦 Picked up</button>`}
+      <div>${o.mobile?`<a class="btn sm sec" href="tel:${h(o.mobile)}">📞 Call shop</a>`:''}${navLink(o.lat,o.lng)}<button class="btn sm sec" onclick="show('doc','${h(o.id)}','challan')">📄 Challan</button></div>${tlMini(o.timeline)}</div>`;
+  box.innerHTML=`${r.waiting?`<div class="hint" style="margin-bottom:10px">⏳ ${r.waiting} more order(s) for you are still with the store. You get a notification when they are ready.</div>`:''}
+    <div class="sect">For you (${r.mine.length})</div>${r.mine.length?r.mine.map(o=>card(o,false)).join(''):'<div class="hint">Nothing ready for you right now.</div>'}
+    <div class="sect">Available to pick (${r.available.length})</div>${r.available.length?r.available.map(o=>card(o,true)).join(''):'<div class="hint">No open orders in your area. When one is ready, the first rider to tap Accept gets it.</div>'}
+    <button class="btn sec" onclick="show('deliveries','open')">🚚 My deliveries</button>`;
+};
+async function riderPick(id, act, fromDoc){
+  busy(true, act==='accept'?'Accepting…':'Saving…');
+  const r=await api('apiRiderPick', {orderId:id, action:act, submissionId:uid()}); busy(false);
+  toast((r.ok?(act==='accept'?'✋ ':'📦 '):'⛔ ')+r.message, 5000);
+  if(S.docs) delete S.docs[id];
+  if(fromDoc) return r.ok ? screens.doc(id, (S.doc&&S.doc.kind)||'invoice') : null;
+  if(S.screen==='deliveries') return screens.deliveries();
+  screens.pickq();
 }
 
 // ---------------------------------------------------------------- start
