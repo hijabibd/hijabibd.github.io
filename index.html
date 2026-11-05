@@ -166,7 +166,7 @@
   .pki.ok{border-color:var(--ok);background:var(--okb)}.pki.ok::after{content:'✓';position:absolute;top:6px;left:8px;background:var(--ok);color:#fff;border-radius:50%;width:22px;height:22px;line-height:22px;font-weight:800}
   .btn.big{font-size:17px;padding:16px}.age{font-weight:800}.age.late{color:var(--bad)}
 input.picked{border-color:var(--p);background:#EAF2EE;font-weight:600;color:var(--p)}
-  .ivtabs{margin:0 0 12px}.ivtabs button{font-weight:700}.bn2{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;line-height:18px;text-align:center}
+  .chip.abc{min-width:20px;text-align:center;font-weight:800}.chip.abcA{background:#1A473C;color:#F8F3EC}.chip.abcB{background:#B8925A;color:#fff}.chip.abcC{background:#E8E1D6;color:#282626}.roq{width:72px!important;padding:6px 8px!important;margin-top:4px;text-align:right;font-size:15px}.cbt{margin-top:4px}.ivtabs{margin:0 0 12px}.ivtabs button{font-weight:700}.bn2{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;line-height:18px;text-align:center}
   .tlc{font-weight:800;color:var(--bad)}.rcl{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.rcl.ok{background:var(--okb)}.rcl.diff{background:var(--warnb)}
   .rcl .tick{flex:0 0 56px;height:56px;border-radius:50%;border:2px solid var(--ok);background:#fff;color:var(--ok);font-size:28px;font-weight:800}.rcl .tick.on{background:var(--ok);color:#fff}
   .rcx{margin-top:6px}.rcx select,.rcx input{margin-top:4px}
@@ -404,7 +404,9 @@ screens.home = function(){
   if(P.orders && c.discount) mg.unshift(['✅','Approve discounts',"show('deliveries','submitted')",c.discount]);
   if(P.orders) mg.push(['🚚','Orders & delivery',"show('deliveries','open')",c.orders]);
   if(P.team) mg.push(['👥','Team today',"show('team')"]);
-  if(P.stock) mg.push(['📦','Inventory',"show('stock')",(c.trfIncoming||0)+(c.trfRequests||0)+(P.resolve?(c.trfDiscrepancy||0):0)]);
+  if(P.stock) mg.push(['📦','Inventory',"show('stock')",(c.trfIncoming||0)+(c.trfRequests||0)+(P.resolve?(c.trfDiscrepancy||0):0)+(c.cntApprove||0)+(c.rtnReceive||0)+(c.rtnApprove||0)]);
+  if(P.count && u.role==='Store Keeper') tiles.push(['🧮','Stock count',"show('counts')",c.cntOpen||0],['↩️','Shop returns',"show('rtns','receive')",c.rtnReceive||0]);
+  if(P.rtnCreate && !P.stock && u.role!=='Store Keeper') tiles.push(['↩️','Returns',"show('rtns','requests')",0]);
   if(P.transfer && u.role==='Store Keeper') tiles.push(['🚚','Transfers',"show('trfs','incoming')",(c.trfIncoming||0)+(c.trfRequests||0)]);
   if(P.exec) mg.unshift(['📈','Company dashboard',"show('exec','month')"]);
   if(P.hr||P.salary) mg.unshift(['🧑‍💼','HR panel',"show('hr')",P.hr?c.leaves:0]);
@@ -800,7 +802,7 @@ function ivRender(){
   $('iv_fab').innerHTML=`<div class="tabs" style="margin-top:8px">${fabs.length>1?[''].concat(fabs).map(f=>`<button class="${S.inv.fab===f?'on':''}" onclick="ivFab('${h(f)}')">${h(f||'All fabrics')}</button>`).join(''):''}<button class="${S.inv.low?'on':''}" onclick="ivLow()">⚠ Low / out only</button></div>`;
   const q=S.inv.q, rows=r.rows.filter(x=>(!S.inv.fab||x.fabric===S.inv.fab) && (!S.inv.low||x.low||x.out) && (!q||(x.sku+' '+x.name+' '+x.colour+' '+x.fabric).toLowerCase().indexOf(q)>=0));
   $('iv_list').innerHTML = rows.map(x=>`<div class="drow ivr" id="iv_${h(x.sku)}" onclick="show('stockLedger','${h(x.sku)}',S.inv.wh)">${prodImg({img:x.img,variant:x.colour,name:x.name},'cim')}
-      <div class="grow"><b>${h(x.colour||x.name)}</b> ${ivChip(x)}<div class="hint">${h(x.sku)} · ${h(x.fabric)}${x.inTransit?' · 🚚 '+ivN(x.inTransit)+' in transit':''}${(x.batches||[]).length?' · '+x.batches.length+' batch'+(x.batches.length>1?'es':'')+' (oldest '+h(x.batches[0].batch)+(x.batches[0].ageDays!==null&&x.batches[0].ageDays!==undefined?', '+x.batches[0].ageDays+' d':'')+')':''}${!S.inv.wh&&x.byWh.length>1?'<br>'+x.byWh.map(w=>h(w.wh)+': '+ivN(w.onHand)).join(' · '):''}</div></div>
+      <div class="grow"><b>${h(x.colour||x.name)}</b> ${ivChip(x)} ${x.stockStatus&&x.stockStatus!=='OK'&&x.stockStatus!=='Out of stock'?icChip(x.stockStatus):''} ${abcChip(x.abc)}<div class="hint">${h(x.sku)} · ${h(x.fabric)}${x.dailyDemand?' · '+icNum(x.dailyDemand)+'/day · cover '+(x.cover===null||x.cover===undefined?'–':icNum(x.cover)+' d'):''}${x.inTransit?' · 🚚 '+ivN(x.inTransit)+' in transit':''}${(x.batches||[]).length?' · '+x.batches.length+' batch'+(x.batches.length>1?'es':'')+' (oldest '+h(x.batches[0].batch)+(x.batches[0].ageDays!==null&&x.batches[0].ageDays!==undefined?', '+x.batches[0].ageDays+' d':'')+')':''}${!S.inv.wh&&x.byWh.length>1?'<br>'+x.byWh.map(w=>h(w.wh)+': '+ivN(w.onHand)).join(' · '):''}</div></div>
       <div class="r"><b>${ivN(x.available)}</b><div class="hint">${ivN(x.onHand)} on hand<br>${ivN(x.reserved)} booked</div></div><span class="chev">›</span></div>`).join('')
     || '<div class="muted" style="text-align:center;padding:18px">No product matches.</div>';
 }
@@ -941,6 +943,7 @@ function invTabs(on){
   const P=ivBP(), c=(S.boot&&S.boot.counts)||{};
   const T=[['stock','📦 Stock',"show('stock')",0],['grns','🏭 Factory receipts',"show('grns')",0],['trfs','🚚 Transfers',"show('trfs')",(c.trfIncoming||0)+(c.trfRequests||0)]];
   if(P.resolve) T.push(['disc','⚠️ Discrepancies',"show('trfs','discrepancy')",c.trfDiscrepancy||0]);
+  if(P.invCtl) T.push(['reorder','🔁 Reorder',"show('reorder')",0],['counts','🧮 Counts',"show('counts')",(c.cntApprove||0)+(c.cntOpen||0)],['rtns','↩️ Returns',"show('rtns')",(c.rtnReceive||0)+(c.rtnApprove||0)],['aging','⏳ Aging',"show('aging')",0],['shrink','📉 Shrinkage',"show('shrink')",0]);
   return `<div class="tabs ivtabs">${T.map(t=>`<button class="${t[0]===on?'on':''}" onclick="${t[2]}">${t[1]}${t[3]?` <span class="bn2">${t[3]}</span>`:''}</button>`).join('')}</div>`;
 }
 function ivPresetTabs(cur, fn){ return `<div class="tabs" style="margin:0">${[['month','This month'],['3m','Last 3 months'],['year','This year']].map(p=>`<button class="${cur===p[0]?'on':''}" onclick="${fn}('${p[0]}')">${p[1]}</button>`).join('')}</div>`; }
@@ -1259,6 +1262,328 @@ async function shopBatches(id){
 }
 function lineBatches(l){ return (l.batches||[]).length ? ' · batch '+l.batches.map(b=>h(b.batch)+(l.batches.length>1?' ×'+b.qty:'')).join(', ') : ''; }
 
+/* ---------------------------------------------------------------- inventory control (018): reorder + production requests for the factory,
+   cycle counts (blind, tolerance, approvals), shop returns, stock aging / dead stock, shrinkage, CEO card, generic drill rows */
+const ICS={'Out of stock':'c-bad','Below reorder':'c-warn','Overstock':'c-info','OK':'c-ok'};
+const icChip = s => s?`<span class="chip ${ICS[s]||''}">${h(s)}</span>`:'';
+const abcChip = c => c?`<span class="chip abc abc${h(c)}" title="ABC class by sales value">${h(c)}</span>`:'';
+const RTN_ST={Requested:'c-warn',Received:'c-info',Approved:'c-ok',Rejected:'c-bad',Cancelled:''};
+const CNT_ST={Counting:'c-info','Pending approval':'c-warn',Closed:'c-ok',Cancelled:''};
+const CL_ST={Pending:'',Counted:'c-info',Skipped:'',Matched:'c-ok','Auto-posted':'c-ok','Needs approval':'c-warn',Approved:'c-ok',Rejected:'c-bad',Recount:'c-info'};
+const PRQ_ST={Open:'c-warn','Partly received':'c-info',Received:'c-ok',Cancelled:''};
+const icSt=(m,s)=>`<span class="chip ${m[s]||''}">${h(s)}</span>`;
+const CNT_REASONS=['Miscount','Theft/Loss','Damage found','Unrecorded receipt','Other'];
+const RTN_REASONS=['Wrong colour','Damaged in transit','Quality issue','Not sold/slow','Other'];
+const SRC_LABEL={variance:'recent difference',never:'never counted','due-A':'A · due','due-B':'B · due','due-C':'C · due',manual:'added',recount:'recount'};
+const icNum = v => v===null||v===undefined ? '–' : (Math.round(Number(v)*10)/10).toLocaleString('en-US');
+const icPct = v => v===null||v===undefined ? '–' : (Math.round(Number(v)*100)/100)+' %';
+function icWhTabs(cur, fn, all){
+  const W=((S.boot&&S.boot.warehouses)||[]).filter(w=>w.type!=='Van');
+  return `<div class="tabs" style="margin:0 0 8px">${(all?[{code:'',name:'All'}]:[]).concat(W).map(w=>`<button class="${(cur||'')===w.code?'on':''}" onclick="${fn}('${h(w.code)}')">${h(w.code||'All warehouses')}</button>`).join('')}</div>`;
+}
+function icGps(ms){ return new Promise(res=>{ if(!navigator.geolocation) return res(null); let fin=false; const t=setTimeout(()=>{ if(!fin){ fin=true; res(null); } }, ms);
+  navigator.geolocation.getCurrentPosition(p=>{ if(fin) return; fin=true; clearTimeout(t); res({lat:+p.coords.latitude.toFixed(6), lng:+p.coords.longitude.toFixed(6), accuracy:Math.round(p.coords.accuracy)}); },
+    ()=>{ if(!fin){ fin=true; clearTimeout(t); res(null); } }, {enableHighAccuracy:true, timeout:ms, maximumAge:60000}); }); }
+const icMonthEnd = m => new Date(Date.UTC(+m.slice(0,4), +m.slice(5,7), 0)).toISOString().slice(0,10);
+function icGo(g){ if(!g||!g.s) return; if(g.s==='drill') return drill(g.a[0], g.a[1], g.a[2]); show(g.s, ...(g.a||[])); }
+
+/* ---- reorder list + production request */
+screens.reorder = async function(wh, st){
+  S.ro={wh:wh||'', st:st||'attention', q:'', data:null, pick:{}}; navArgs(S.ro.wh, S.ro.st); const s=S.ro;
+  page('Inventory', 'Low stock & reorder', `${invTabs('reorder')}<div class="card">${icWhTabs(s.wh,'roWh',true)}<div id="ro_top">${ivLoading()}</div></div>
+    <div class="card"><input id="ro_q" placeholder="🔍 Search colour or SKU" oninput="S.ro.q=this.value.toLowerCase();roRender()"><div id="ro_list"></div></div><div id="ro_act"></div>`);
+  const r=await api('apiReorder', {warehouse:s.wh, status:'all'}); if(S.screen!=='reorder'||S.ro!==s) return;
+  if(!r.ok){ $('ro_top').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  s.data=r; (r.rows||[]).forEach(x=>{ if(x.suggestQty>0 && !s.wh) s.pick[x.sku]=x.suggestQty; }); roRender();
+};
+function roWh(c){ screens.reorder(c, S.ro.st); }
+function roSt(v){ S.ro.st=v; navArgs(S.ro.wh, v); roRender(); }
+function roRender(){
+  const s=S.ro, r=s.data; if(!r||!$('ro_list')) return; const t=r.totals, c=r.settings;
+  const F=[['attention','Needs action',t.out+t.below],['out','Out of stock',t.out],['below','Below reorder',t.below],['ok','OK',t.ok],['over','Overstock',t.over],['all','All',t.skus]];
+  $('ro_top').innerHTML=`<div class="tot"><div class="tapr" onclick="roSt('out')"><b style="color:var(--bad)">${t.out}</b><span>Out of stock</span></div><div class="tapr" onclick="roSt('below')"><b style="color:var(--warn)">${t.below}</b><span>Below reorder</span></div>
+    <div class="tapr" onclick="roSt('over')"><b>${t.over}</b><span>Overstock</span></div><div><b>${icNum(t.coverDays)}</b><span>Days of cover</span></div><div><b style="color:${t.lostPerDay?'var(--bad)':'inherit'}">${money(t.lostPerDay)}</b><span>Lost sales / day</span></div><div><b>${ivN(t.suggestQty)}</b><span>Suggested pcs</span></div></div>
+    <div class="hint">Reorder point = daily demand (last ${c.windowDays} days) × (factory lead ${c.leadDays} d + safety ${c.safetyDays} d). Suggested order covers lead + safety + review ${c.reviewDays} d, minus available, in transit and already requested.</div>
+    <div class="tabs" style="margin-top:8px">${F.map(f=>`<button class="${s.st===f[0]?'on':''}" onclick="roSt('${f[0]}')">${f[1]} (${f[2]})</button>`).join('')}</div>`;
+  const ok=x=>(s.st==='all'||(s.st==='attention'&&(x.status==='Out of stock'||x.status==='Below reorder'))||(s.st==='out'&&x.status==='Out of stock')||(s.st==='below'&&x.status==='Below reorder')||(s.st==='over'&&x.status==='Overstock')||(s.st==='ok'&&x.status==='OK'))
+    && (!s.q||(x.sku+' '+x.name+' '+x.colour+' '+x.fabric).toLowerCase().indexOf(s.q)>=0);
+  const rows=r.rows.filter(ok), canP=r.canPrq&&!s.wh;
+  $('ro_list').innerHTML = rows.map(x=>`<div class="drow ivr" id="ro_${h(x.sku)}">${prodImg({img:x.img,variant:x.colour,name:x.name},'cim')}
+      <div class="grow" onclick="show('stockLedger','${h(x.sku)}',S.ro.wh)"><b>${h(x.colour||x.name)}</b> ${icChip(x.status)} ${abcChip(x.abc)}${x.xyz?' <span class="chip">'+h(x.xyz)+'</span>':''}
+      <div class="hint">${h(x.sku)} · ${h(x.fabric)} · ${icNum(x.dailyDemand)}/day · cover ${x.cover===null?'–':icNum(x.cover)+' d'} · ROP ${x.rop}${x.inTransit?' · 🚚 '+x.inTransit:''}${x.onOrder?' · 🏭 '+x.onOrder+' requested':''}${x.lostPerDay?' · <b style="color:var(--bad)">'+money(x.lostPerDay)+'/day at risk</b>':''}</div></div>
+      <div class="r"><b>${ivN(x.available)}</b><div class="hint">available</div>${canP?`<input type="number" inputmode="numeric" min="0" class="roq" id="rq_${h(x.sku)}" value="${s.pick[x.sku]||''}" placeholder="${x.suggestQty||0}" oninput="roPick('${h(x.sku)}',this.value)">`:''}</div></div>`).join('')
+    || '<div class="muted" style="text-align:center;padding:18px">Nothing here.</div>';
+  roAct();
+}
+function roPick(sku, v){ const n=Math.max(0, Math.floor(Number(v)||0)); if(n) S.ro.pick[sku]=n; else delete S.ro.pick[sku]; roAct(); }
+function roAct(){
+  const s=S.ro, r=s.data, el=$('ro_act'); if(!el||!r) return;
+  const L=Object.keys(s.pick).filter(k=>s.pick[k]>0), q=L.reduce((a,k)=>a+s.pick[k],0);
+  el.innerHTML = r.canPrq&&!s.wh ? `<div class="card"><b>Production request for ${h(S.boot.factoryName||'the factory')}</b><div class="hint">${L.length} colour(s) · ${ivN(q)} pcs (filled with the suggested quantities – change any number above).</div>
+    <div class="grid2"><div><label>Need by</label><input type="date" id="ro_need" min="${today()}" value="${addDays(today(), Number(r.settings.leadDays)||14)}"></div><div><label>Note</label><input id="ro_note" placeholder="optional"></div></div>
+    <button class="btn" onclick="roPrq()" ${L.length?'':'disabled'}>🏭 Create production request</button><button class="btn sec" onclick="show('prqs')">📋 Production requests</button></div>`
+    : `<div class="card"><button class="btn sec" onclick="show('prqs')">📋 Production requests</button>${s.wh?'<div class="hint">Production requests are made for the whole company: choose “All”.</div>':''}</div>`;
+}
+async function roPrq(){
+  const s=S.ro, L=Object.keys(s.pick).filter(k=>s.pick[k]>0); if(!L.length) return toast('Enter at least one quantity');
+  const rows=s.data.rows; if(!confirm('Production request: '+L.length+' colour(s), '+L.reduce((a,k)=>a+s.pick[k],0)+' pcs?')) return;
+  s.sub=s.sub||uid();
+  const r=await submit('apiPrqCreate', {needBy:val('ro_need'), note:val('ro_note'), submissionId:s.sub, lines:L.map(k=>({sku:k, qty:s.pick[k], suggested:(rows.find(x=>x.sku===k)||{}).suggestQty||0}))});
+  if(!r) return; s.sub=null; refreshInBackground();
+  done(r, null, `<button class="btn gold" onclick="show('prq','${h(r.id)}')">🧾 View / share ${h(r.id)}</button><button class="btn sec" onclick="show('reorder')">🔁 Reorder list</button>`);
+}
+screens.prqs = async function(){
+  page('Production requests', S.boot.factoryName||'Factory', `${invTabs('reorder')}<div id="pq_out">${ivLoading()}</div>`);
+  const r=await api('apiPrqs', {status:'all'}); if(S.screen!=='prqs') return;
+  if(!r.ok){ $('pq_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  $('pq_out').innerHTML=`<div class="card">${r.canCreate?`<button class="btn sm" onclick="show('reorder','','attention')">＋ New from the reorder list</button>`:''}${r.list.map(x=>`<div class="drow" onclick="show('prq','${h(x.id)}')"><div class="grow"><b>${h(x.id)}</b> ${icSt(PRQ_ST,x.status)}${x.sample?' <span class="chip">Sample</span>':''}
+    <div class="hint">${h(fmtD(x.date))} · ${h(x.supplier)} · need by ${x.needBy?h(fmtD(x.needBy)):'–'} · ${x.lines} colour(s) · ${h(x.by)}</div></div><div class="r"><b>${ivN(x.qty)}</b><div class="hint">${ivN(x.received)} received</div></div><span class="chev">›</span></div>`).join('')||'<div class="muted" style="text-align:center;padding:18px">No production request yet.</div>'}</div>`;
+};
+screens.prq = async function(id){
+  const f=load('hbd_fmt'); S.doc={id, kind:'stk', sk:'prq', fmt:f==='a5'?'a5':'a4', pdf:null};
+  page('Production request', id, `<div id="docBox" class="hint">Loading…</div>`);
+  const r=await api('apiPrqDoc', id); if(S.screen!=='prq') return;
+  if(!r.ok) return $('docBox').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.doc.data=r; prqRender();
+};
+function prqRender(){
+  const d=S.doc, r=d.data, x=r.doc, box=$('docBox'); if(!box) return;
+  const meta=kv('Request No','<b>'+h(x.id)+'</b>')+kv('Date',h(fmtD(x.date)))+kv('Need by',x.needBy?h(fmtD(x.needBy)):'')+kv('Status',h(x.status));
+  const body=`${docHead(r.company,'PRODUCTION REQUEST',meta)}<div class="dp"><div><div class="dl2">To</div><b>${h(x.supplier)}</b></div><div><div class="dl2">Deliver to</div><b>${x.warehouse?h(x.warehouse.code)+' · '+h(x.warehouse.name):''}</b><br>${x.warehouse?h(x.warehouse.address||''):''}</div></div>
+    ${x.groups.map(g=>`<div class="dl2" style="margin-top:8px">${h(g.fabric)} · ${ivN(g.qty)} pcs</div><table class="dtab"><thead><tr><th></th><th>Colour</th><th>SKU</th><th class="r">Qty</th><th class="r">Received</th></tr></thead><tbody>
+      ${g.lines.map(l=>`<tr><td>${l.img?`<img src="${h(l.img)}" style="width:34px;height:34px;object-fit:cover;border-radius:6px" alt="">`:''}</td><td>${h(l.colour||l.name)}</td><td>${h(l.sku)}</td><td class="r">${l.qty}</td><td class="r">${l.received||''}</td></tr>`).join('')}</tbody></table>`).join('')}
+    <table class="dtab"><tbody><tr class="dsum"><td>Total pieces</td><td class="r">${ivN(x.totalQty)}</td><td class="r">${x.receivedQty?ivN(x.receivedQty)+' received':''}</td></tr></tbody></table>
+    ${x.note?`<div class="dnote">${h(x.note)}</div>`:''}${x.links.length?`<div class="dnote"><b>Received against:</b> ${x.links.map(l=>h(l.grn)+' ('+h(fmtD(l.date))+', '+l.qty+' pcs)').join('; ')}</div>`:''}
+    <div class="dsig"><div>Requested by<br><b>${h(x.by)}</b></div><div>Accepted by (factory)</div></div>`;
+  box.innerHTML=`<div class="card"><div class="tabs">${FMTS.filter(f=>f[0]!=='80').map(f=>`<button class="${d.fmt===f[0]?'on':''}" onclick="S.doc.fmt='${f[0]}';S.doc.pdf=null;prqRender()">${f[1]}</button>`).join('')}</div>
+     <div><button class="btn sm" onclick="printDoc()">🖨 Print</button><button class="btn sm gold" id="pdfBtn" onclick="sharePdf()">📤 Share PDF</button><button class="btn sm sec" onclick="prqShare()">💬 Share as text</button></div>
+     ${r.canEdit&&x.status!=='Cancelled'&&x.status!=='Received'?`<div class="grid2" style="margin-top:6px"><input id="pq_grn" placeholder="GRN no. received against it"><button class="btn sm sec" onclick="prqAct('link')">🔗 Received against</button></div>`:''}
+     ${r.canEdit&&x.status==='Open'?`<button class="btn sm sec" onclick="prqAct('cancel')">✖ Cancel request</button>`:''}</div>
+     <div class="docwrap" id="docwrap"><div id="doc" class="doc f-${d.fmt}">${body}</div></div>`;
+  fitDoc();
+}
+async function prqShare(){ const t=S.doc.data.doc.shareText; try{ if(navigator.share){ await navigator.share({text:t, title:S.doc.id}); return; } }catch(e){} try{ await navigator.clipboard.writeText(t); toast('Copied – paste it in WhatsApp / SMS'); }catch(e){ prompt('Copy the request', t); } }
+async function prqAct(a){
+  const p={prqNo:S.doc.id, action:a, submissionId:uid()};
+  if(a==='link'){ p.grnNo=val('pq_grn'); if(!p.grnNo) return toast('Enter the GRN number'); }
+  if(a==='cancel'){ p.reason=prompt('Why cancel this request?')||''; if(!p.reason) return; }
+  const r=await submit('apiPrqAction', p); if(!r) return; toast('✅ '+r.message); screens.prq(S.doc.id);
+}
+
+/* ---- cycle counts */
+screens.counts = async function(wh){
+  S.cn={wh:wh||'', data:null}; const s=S.cn;
+  page('Inventory', 'Stock counts', `${invTabs('counts')}<div id="cn_out">${ivLoading()}</div>`);
+  const r=await api('apiCountPlan', {warehouse:s.wh}); if(S.screen!=='counts'||S.cn!==s) return;
+  if(!r.ok){ $('cn_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  s.data=r; s.wh=r.warehouse?r.warehouse.code:''; navArgs(s.wh); cnRender();
+};
+function cnRender(){
+  const s=S.cn, r=s.data, st=r.settings; const sess=x=>`<div class="drow" onclick="show('cnt','${h(x.id)}')"><div class="grow"><b>${h(x.id)}</b> ${icSt(CNT_ST,x.status)}${x.blind&&x.status==='Counting'?' <span class="chip">Blind</span>':''}${x.sample?' <span class="chip">Sample</span>':''}
+      <div class="hint">${h(x.warehouse)} · ${h(x.startedAt)} · ${h(x.startedBy)} · ${x.counted}/${x.lines} counted${x.pending?' · <b>'+x.pending+' to approve</b> ('+money(x.openValue)+')':''}${x.recountOf?' · recount of '+h(x.recountOf):''}</div></div><span class="chev">›</span></div>`;
+  $('cn_out').innerHTML=`<div class="card">${icWhTabs(s.wh,'screens.counts',false)}
+      <div class="hint">Proposed for today at <b>${h(s.wh)}</b>: colours with a recent difference, never counted, or due (A every ${st.freqA} d · B ${st.freqB} d · C ${st.freqC} d). Differences up to ${st.tolQty} pc or ${st.tolPct} % are posted at once; bigger ones go to a manager.</div>
+      <div id="cn_sug">${(r.suggested||[]).map(x=>`<label class="drow" style="cursor:pointer"><input type="checkbox" class="cn_ck" value="${h(x.sku)}" checked style="width:auto;margin-right:8px">${prodImg({img:x.img,variant:x.colour,name:x.name},'cim')}<div class="grow"><b>${h(x.colour||x.name)}</b> ${abcChip(x.abc)}<div class="hint">${h(x.sku)} · ${h(SRC_LABEL[x.source]||x.source)}${x.lastCounted?' · last counted '+h(fmtD(x.lastCounted)):''}</div></div></label>`).join('')||'<div class="okbox">Nothing is due today.</div>'}</div>
+      ${r.canCount?`<label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="cn_blind" ${st.blind?'checked':''} style="width:auto"> Blind count (hide the system quantity while counting)</label>
+        <button class="btn" onclick="cnStart()">🧮 Start count${(r.suggested||[]).length?' ('+r.suggested.length+')':''}</button>`:''}</div>
+    ${r.pending.length?`<div class="card"><h3>Waiting for approval</h3>${r.pending.map(sess).join('')}</div>`:''}
+    ${r.open.length?`<div class="card"><h3>Counting now</h3>${r.open.map(sess).join('')}</div>`:''}
+    <div class="card"><h3>Count accuracy (90 days)</h3>${r.accuracy.length?r.accuracy.map(a=>`<div class="drow" style="cursor:default"><div class="grow"><b>${h(a.wh)}</b><div class="hint">${a.lines} lines counted · ${a.exact} exact · net ${money(a.value)} posted</div></div><div class="r"><b>${icPct(a.pct)}</b><div class="hint">within tolerance</div></div></div>`).join(''):'<div class="hint">No count yet.</div>'}
+      <button class="btn sm sec" onclick="drill('ic_counts',{},'Count differences')">📋 All differences</button></div>`;
+}
+async function cnStart(){
+  const sk=[...document.querySelectorAll('.cn_ck')].filter(x=>x.checked).map(x=>x.value);
+  if(!sk.length) return toast('Tick at least one colour');
+  const r=await submit('apiCountStart', {warehouse:S.cn.wh, skus:sk, blind:$('cn_blind')?$('cn_blind').checked:true, submissionId:uid()}); if(!r) return;
+  toast('✅ '+r.message); refreshInBackground(); show('cnt', r.id);
+};
+screens.cnt = async function(id){
+  page('Stock count', id, `<div id="ct_out">${ivLoading()}</div>`);
+  const r=await api('apiCount', id); if(S.screen!=='cnt') return;
+  if(!r.ok){ $('ct_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.ct={id, r, v:{}, bb:{}, dec:{}, sub:uid()}; ctRender();
+};
+function ctLine(l, i){
+  const s=S.ct, d=s.r.doc, can=s.r.canCount, hide=d.hideSystem, bat=(l.batches||[]).filter(b=>b.batch!==undefined);
+  const vv = s.v[l.sku]!==undefined ? s.v[l.sku] : (l.counted===null?'':l.counted), useB=!!s.bb[l.sku];
+  const sys = hide ? '' : ` · system ${l.system!==null?l.system:l.snap}${l.moved?' ('+(l.moved>0?'+':'')+l.moved+' moved while counting)':''}`;
+  const varTxt = (!hide && l.variance!==null && l.variance!==undefined && l.status!=='Pending') ? ` · <b style="color:${l.variance<0?'var(--bad)':l.variance>0?'var(--warn)':'var(--ok)'}">${l.variance>0?'+':''}${l.variance}</b> (${money(l.value)})` : '';
+  const dec = s.r.canDecide && l.status==='Needs approval' ? `<div class="grid2" style="margin-top:6px"><select id="cd_a_${i}" onchange="ctDec(${i})"><option value="">Decide…</option><option value="approve">✓ Approve (post)</option><option value="recount">🔁 Recount</option><option value="reject">✗ Reject</option></select>
+      <select id="cd_r_${i}" onchange="ctDec(${i})"><option value="">Reason…</option>${CNT_REASONS.map(o=>`<option>${o}</option>`).join('')}</select></div><input id="cd_n_${i}" placeholder="Note (needed for Other)" oninput="ctDec(${i})">` : '';
+  return `<div class="rcl ${l.status==='Needs approval'?'diff':(['Matched','Auto-posted','Approved'].indexOf(l.status)>=0?'ok':'')}" id="ct_${h(l.sku)}">${prodImg({img:l.img,variant:l.colour,name:l.name},'cim')}<div class="grow"><b>${h(l.colour||l.name)}</b> ${abcChip(l.abc)} ${icSt(CL_ST,l.status)}
+    <div class="hint">${h(l.sku)} · ${h(SRC_LABEL[l.source]||l.source)}${sys}${varTxt}${l.reason?' · '+h(l.reason):''}${l.reasonNote?' · '+h(l.reasonNote):''}</div>
+    ${can?(useB?`<div class="cbt">${bat.map((b,j)=>`<div class="row" style="gap:6px;margin-top:4px"><span class="grow hint">${h(b.batch)}${b.receivedOn?' · '+h(fmtD(b.receivedOn)):''}${!hide&&b.snap!==null&&b.snap!==undefined?' · sys '+b.snap:''}</span><input type="number" inputmode="numeric" min="0" style="max-width:90px" id="cb_${i}_${j}" value="${b.counted!==null&&b.counted!==undefined?b.counted:''}" placeholder="0"></div>`).join('')}</div>`
+      :`<div class="qty" style="margin-top:6px"><button onclick="ctStep('${h(l.sku)}',-1)">−</button><input type="number" inputmode="numeric" min="0" id="cq_${h(l.sku)}" value="${vv}" placeholder="count" oninput="S.ct.v['${h(l.sku)}']=this.value"><button onclick="ctStep('${h(l.sku)}',1)">+</button></div>`)
+      +(bat.length>1?`<button class="btn sm sec" style="margin-top:4px" onclick="ctBatch('${h(l.sku)}')">${useB?'Count the colour as a whole':'Count per batch ('+bat.length+')'}</button>`:''):''}${dec}</div></div>`;
+}
+function ctRender(){
+  const s=S.ct, r=s.r, d=r.doc, L=d.lineRows;
+  $('ct_out').innerHTML=`<div class="card"><b>${h(d.id)} · ${h(d.warehouse)} ${h(d.whName||'')}</b> ${icSt(CNT_ST,d.status)}${d.blind?' <span class="chip">Blind</span>':''}
+      <div class="hint">Started ${h(d.startedAt)} by ${h(d.startedBy)} · ${d.counted}/${d.lines} counted${d.recountOf?' · recount of '+h(d.recountOf):''}${d.postedQty?' · posted '+(d.postedQty>0?'+':'')+d.postedQty+' pcs ('+money(d.postedValue)+')':''}${d.note?' · '+h(d.note):''}</div>
+      ${d.hideSystem?'<div class="hint">🙈 Blind count: count what is on the shelf; the system quantity is shown after you submit.</div>':''}</div>
+    <div class="card" id="ct_lines">${L.map(ctLine).join('')}</div>
+    ${r.canCount?`<div class="card"><label>Found a colour that is not on this count?</label><div class="grid2"><select id="ct_add"><option value="">Choose colour…</option>${S.boot.products.filter(p=>!L.some(x=>x.sku===p.sku)).map(p=>`<option value="${h(p.sku)}">${h(p.variant||p.name)} · ${h(p.sku)}</option>`).join('')}</select><button class="btn sm sec" onclick="ctAdd()">＋ Add</button></div></div>
+      <button class="btn sec" onclick="ctSave(false)">💾 Save counted</button><button class="btn" id="ct_submit" onclick="ctSave(true)">✅ Submit count</button><button class="btn sm sec" onclick="ctCancel()">✖ Cancel count</button>`:''}
+    ${r.canDecide?`<div class="card"><div class="hint">Approve posts the difference to stock (shortages from the oldest batch). Recount sends the colour back to the store keeper.</div><button class="btn" id="ct_decide" onclick="ctDecide()">💾 Save decisions</button></div>`:''}`;
+}
+function ctStep(sku, dd){ const el=$('cq_'+sku); const v=Math.max(0,(Number(el.value)||0)+dd); el.value=v; S.ct.v[sku]=String(v); }
+function ctBatch(sku){ S.ct.bb[sku]=!S.ct.bb[sku]; ctKeep(); ctRender(); }
+function ctKeep(){ S.ct.r.doc.lineRows.forEach((l,i)=>{ const el=$('cq_'+l.sku); if(el) S.ct.v[l.sku]=el.value; (l.batches||[]).forEach((b,j)=>{ const e=$('cb_'+i+'_'+j); if(e&&e.value!=='') b.counted=Number(e.value); }); }); }
+function ctAdd(){ const sku=val('ct_add'); if(!sku) return toast('Choose the colour'); const p=S.boot.products.find(x=>x.sku===sku)||{};
+  ctKeep(); S.ct.r.doc.lineRows.push({sku, name:p.name, colour:p.variant||p.name, img:p.img, abc:'', source:'manual', status:'Pending', counted:null, batches:[], snap:null, system:null, variance:null}); ctRender(); }
+function ctCollect(){
+  const out=[]; let err='';
+  S.ct.r.doc.lineRows.forEach((l,i)=>{
+    if(S.ct.bb[l.sku]){ const B=(l.batches||[]).map((b,j)=>({batch:b.batch, counted:val('cb_'+i+'_'+j)})); if(B.every(b=>b.counted==='')) return; if(B.some(b=>b.counted==='')) err='Count every batch of '+(l.colour||l.sku)+' (0 if none)'; out.push({sku:l.sku, batches:B.map(b=>({batch:b.batch, counted:Number(b.counted)||0}))}); return; }
+    const v=val('cq_'+l.sku); if(v==='') return; if(!/^[0-9]+$/.test(v)) err='Counted quantity for '+(l.colour||l.sku)+' must be a whole number'; out.push({sku:l.sku, counted:Number(v)});
+  });
+  return err ? {err} : {lines:out};
+}
+async function ctSave(sub){
+  const c=ctCollect(); if(c.err) return toast(c.err);
+  if(sub){ const n=S.ct.r.doc.lineRows.filter(l=>l.counted===null).length-c.lines.filter(x=>S.ct.r.doc.lineRows.find(l=>l.sku===x.sku&&l.counted===null)).length;
+    if(!confirm('Submit '+S.ct.id+'?'+(n>0?'\n'+n+' colour(s) not counted will be skipped.':'')+'\nSmall differences are posted at once; bigger ones go to a manager.')) return; }
+  else if(!c.lines.length) return toast('Enter at least one counted quantity');
+  const r=await submit('apiCountSave', {cntNo:S.ct.id, lines:c.lines, submit:sub, submissionId:S.ct.sub}); if(!r) return;
+  S.ct.sub=uid(); toast('✅ '+r.message, 6000); refreshInBackground(); screens.cnt(S.ct.id);
+}
+async function ctCancel(){ if(!confirm('Cancel '+S.ct.id+'? Nothing is posted.')) return; const r=await submit('apiCountSave', {cntNo:S.ct.id, cancel:true, submissionId:uid()}); if(!r) return; toast('✅ '+r.message); show('counts', S.ct.r.doc.warehouse); }
+function ctDec(i){ const l=S.ct.r.doc.lineRows[i]; S.ct.dec[l.sku]={action:val('cd_a_'+i), reason:val('cd_r_'+i), note:val('cd_n_'+i)}; }
+async function ctDecide(){
+  const L=Object.keys(S.ct.dec).map(k=>Object.assign({sku:k}, S.ct.dec[k])).filter(x=>x.action);
+  if(!L.length) return toast('Choose approve, recount or reject for at least one colour');
+  const bad=L.find(x=>x.action==='approve'&&!x.reason); if(bad) return toast('Choose the reason for '+bad.sku);
+  const r=await submit('apiCountDecide', {cntNo:S.ct.id, lines:L, submissionId:S.ct.sub}); if(!r) return;
+  refreshInBackground(); done(r, null, `<button class="btn gold" onclick="show('cnt','${h(S.ct.id)}')">🧮 Open ${h(S.ct.id)}</button>${r.recount?`<button class="btn sec" onclick="show('cnt','${h(r.recount)}')">🔁 Recount ${h(r.recount)}</button>`:''}<button class="btn sec" onclick="show('counts')">Stock counts</button>`);
+}
+
+/* ---- shop returns */
+screens.rtns = async function(tab){
+  const P=ivBP(); S.rt={tab:tab||(P.rtnDecide?'approve':(P.rtnReceive?'receive':'all'))}; navArgs(S.rt.tab); const s=S.rt;
+  page(P.invCtl?'Inventory':'Returns', 'Shop returns', `${P.invCtl?invTabs('rtns'):''}<div class="card" id="rt_tabs"></div><div id="rt_out">${ivLoading()}</div>`);
+  const r=await api('apiReturns', {tab:s.tab}); if(S.screen!=='rtns'||S.rt!==s) return;
+  if(!r.ok){ $('rt_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  const c=r.counts||{}, T=[['requests','Requested',c.requests]].concat(r.canReceive?[['receive','To receive',c.receive]]:[]).concat(r.canDecide?[['approve','To approve',c.approve]]:[]).concat([['all','All (90 days)',0]]);
+  $('rt_tabs').innerHTML=`<div class="tabs" style="margin:0">${T.map(t=>`<button class="${s.tab===t[0]?'on':''}" onclick="show('rtns','${t[0]}')">${t[1]}${t[2]?` <span class="bn2">${t[2]}</span>`:''}</button>`).join('')}</div>
+    <button class="btn sm sec" style="margin-top:8px" onclick="drill('ic_returns',{group:'reason'},'Returns by reason')">📊 Returns report</button>`;
+  $('rt_out').innerHTML=`<div class="card">${r.list.map(rtRow).join('')||'<div class="muted" style="text-align:center;padding:18px">Nothing here.</div>'}</div>`;
+};
+function rtRow(x){ return `<div class="drow" onclick="show('rtn','${h(x.id)}')"><div class="grow"><b>${h(x.shop)}</b> ${icSt(RTN_ST,x.status)}${x.sample?' <span class="chip">Sample</span>':''}
+  <div class="hint">${h(x.id)} · ${h(fmtD(x.date))} · ${h(x.invoice||x.order)} · ${h(x.reasons||'')} · to ${h(x.warehouse)} · by ${h(x.requestedBy)}</div></div>
+  <div class="r"><b>${x.qty} pcs</b><div class="hint">${x.credit?money(x.credit):(x.good!==null&&x.good!==undefined?x.good+' good · '+(x.damaged||0)+' dmg':'')}</div></div><span class="chev">›</span></div>`; }
+screens.rtn = async function(id){
+  page('Shop return', id, `<div id="rn_out">${ivLoading()}</div>`);
+  const r=await api('apiReturnDoc', id); if(S.screen!=='rtn') return;
+  if(!r.ok){ $('rn_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  S.rn={id, r, sub:uid()}; const d=r.doc;
+  $('rn_out').innerHTML=`<div class="card"><h3>${h(d.shop)} ${icSt(RTN_ST,d.status)}</h3><div class="hint">${h(d.id)} · order ${h(d.invoice||d.order)} · rep ${h(d.rep)} · to ${h(d.warehouse)}<br>Recorded ${h(d.at)} by ${h(d.requestedBy)} (${h(d.requestedRole)})${d.note?' · “'+h(d.note)+'”':''}
+      ${d.receivedBy?'<br>Received '+h(d.receivedAt)+' by '+h(d.receivedBy)+(d.recvNote?' · '+h(d.recvNote):''):''}${d.decidedBy?'<br>'+h(d.status)+' '+h(d.decidedAt)+' by '+h(d.decidedBy)+(d.decisionNote?' · '+h(d.decisionNote):''):''}</div>
+      ${d.credit?`<div class="okbox">Shop credited ${money(d.credit)}${d.adjustment?' · '+h(d.adjustment):''}</div>`:''}${d.photo?`<img src="${h(d.photo)}" style="max-width:100%;border-radius:10px;margin-top:8px" alt="return photo">`:''}</div>
+    <div class="card" id="rn_lines">${d.lines.map((l,i)=>`<div class="rcl" id="rn_${h(l.sku)}">${prodImg({img:l.img,variant:l.colour,name:l.name},'cim')}<div class="grow"><b>${h(l.colour||l.name)}</b> <span class="chip ${l.condition==='Damaged'?'c-bad':''}">${h(l.condition)}</span>
+      <div class="hint">${h(l.sku)} · ${l.qty} pcs · ${h(l.reason)}${l.batch?' · batch '+h(l.batch):''} · ${l.delivered} delivered${l.good!==null&&l.good!==undefined?' · received '+l.good+' good + '+l.damaged+' damaged':''}${l.credit?' · '+money(l.credit):''}${(l.batches||[]).length?' · back to '+l.batches.map(b=>h(b.batch)+' ×'+b.qty).join(', '):''}</div>
+      ${r.canReceive?`<div class="grid2" style="margin-top:6px"><div><label>Good</label><input type="number" inputmode="numeric" min="0" id="rg_${i}" value="${l.condition==='Good'?l.qty:0}"></div><div><label>Damaged</label><input type="number" inputmode="numeric" min="0" id="rdm_${i}" value="${l.condition==='Damaged'?l.qty:0}"></div></div>`:''}</div></div>`).join('')}</div>
+    ${r.canReceive?`<div class="card"><div class="hint">Count the goods and check their condition. Good pieces go back into stock (same dye lot) and damaged ones are written off when a manager approves.</div><input id="rn_note" placeholder="Note (optional)">${(r.myWarehouses||[]).length>1?`<label>Received at</label><select id="rn_wh">${r.myWarehouses.map(c=>`<option ${c===d.warehouse?'selected':''}>${h(c)}</option>`).join('')}</select>`:''}<button class="btn" id="rn_recv" onclick="rnReceive()">📥 Received & checked</button></div>`:''}
+    ${r.canDecide?`<div class="card"><input id="rn_dn" placeholder="Note (needed to reject)">${d.status==='Received'?`<button class="btn ok" id="rn_ok" onclick="rnDecide('approve')">✅ Approve & credit the shop</button>`:'<div class="hint">Approve after the store keeper has received and checked the goods.</div>'}<button class="btn sec" onclick="rnDecide('reject')">✗ Reject</button></div>`:''}
+    ${r.canCancel?`<button class="btn sm sec" onclick="rnDecide('cancel')">✖ Cancel request</button>`:''}`;
+};
+async function rnReceive(){
+  const L=S.rn.r.doc.lines.map((l,i)=>({sku:l.sku, good:Number(val('rg_'+i))||0, damaged:Number(val('rdm_'+i))||0}));
+  if(!confirm('Received '+L.reduce((a,x)=>a+x.good,0)+' good + '+L.reduce((a,x)=>a+x.damaged,0)+' damaged?')) return;
+  const p={rtnNo:S.rn.id, lines:L, note:val('rn_note'), submissionId:S.rn.sub}; if($('rn_wh')) p.warehouse=val('rn_wh');
+  const r=await submit('apiReturnReceive', p); if(!r) return; toast('✅ '+r.message, 6000); refreshInBackground(); screens.rtn(S.rn.id);
+}
+async function rnDecide(dec){
+  const note=$('rn_dn')?val('rn_dn'):''; if(dec==='reject'&&!note) return toast('Give the reason for rejecting');
+  if(!confirm({approve:'Approve '+S.rn.id+'? Good pieces go back into stock and the shop is credited.', reject:'Reject '+S.rn.id+'?', cancel:'Cancel '+S.rn.id+'?'}[dec])) return;
+  const r=await submit('apiReturnDecide', {rtnNo:S.rn.id, decision:dec, note, submissionId:S.rn.sub}); if(!r) return;
+  refreshInBackground(); done(r, null, `<button class="btn gold" onclick="show('rtn','${h(S.rn.id)}')">↩️ Open ${h(S.rn.id)}</button>`);
+}
+/* rep / rider: record a return at the shop (from the order page or the shop page) */
+screens.rtnForm = async function(orderId, shopId){
+  page('Record return', orderId||shopId||'', `<div id="rf_out">${ivLoading()}</div>`); S.photos={};
+  if(!orderId){
+    const s=await api('apiShopDetail', shopId); if(S.screen!=='rtnForm') return;
+    if(!s.ok) return $('rf_out').innerHTML=`<div class="badbox">${h(s.message)}</div>`;
+    const O=(s.orders||[]).filter(o=>o.status==='Confirmed'&&(o.delivery==='Delivered'||o.delivery==='Partially Delivered'));
+    $('rf_out').innerHTML=`<div class="card"><h3>Which delivery?</h3>${O.map(o=>`<div class="drow" onclick="show('rtnForm','${h(o.id)}')"><div class="grow"><b>${h(o.invoiceNo||o.id)}</b><div class="hint">${h(o.date)} · ${h(o.delivery)}</div></div><div class="r">${money(o.net)}</div><span class="chev">›</span></div>`).join('')||'<div class="hint">No delivered order for this shop yet.</div>'}</div>`;
+    return;
+  }
+  const r=await api('apiReturnOptions', orderId); if(S.screen!=='rtnForm') return;
+  if(!r.ok) return $('rf_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.rf={o:r.order, L:r.lines, sub:uid()}; const o=r.order;
+  $('rf_out').innerHTML=`<div class="card"><h3>${h(o.shop)}</h3><div class="hint">${h(o.invoiceNo||o.id)} · delivered ${o.deliveryDate?h(fmtD(o.deliveryDate)):''} · goods go back to ${h(o.warehouse)}</div>
+      ${r.openReturns.length?`<div class="warnbox">Open return(s) on this order: ${r.openReturns.map(x=>h(x.id)+' ('+h(x.status)+')').join(', ')}</div>`:''}${r.canCreate?'':'<div class="badbox">You cannot record a return for this order.</div>'}</div>
+    <div class="card" id="rf_lines">${r.lines.map((l,i)=>`<div class="rcl" id="rf_${h(l.sku)}">${prodImg({img:l.img,variant:l.colour,name:l.product||l.name},'cim')}<div class="grow"><b>${h(l.colour||l.name)}</b><div class="hint">${h(l.sku)} · ${l.delivered} delivered · ${l.returned?l.returned+' already returned · ':''}<b>${l.returnable} can come back</b> · ${money(l.price)}/pc${(l.batches||[]).length?' · batch '+l.batches.map(b=>h(b.batch)).join(', '):''}</div>
+      ${l.returnable?`<div class="grid2" style="margin-top:6px"><input type="number" inputmode="numeric" min="0" max="${l.returnable}" id="rfq_${i}" placeholder="Qty back" oninput="rfSum()"><select id="rfc_${i}"><option>Good</option><option>Damaged</option></select></div>
+      <select id="rfr_${i}"><option value="">Reason…</option>${RTN_REASONS.map(x=>`<option>${x}</option>`).join('')}</select>`:''}</div></div>`).join('')}</div>
+    <div class="card"><label>Note</label><input id="rf_note" placeholder="what the shop said (needed for Other)">${photoBox('rtn','Photo of the goods (optional)',false)}<div id="rf_sum" class="hint"></div>
+      <button class="btn" id="rf_save" onclick="rfSave()" ${r.canCreate?'':'disabled'}>↩️ Record return</button></div>`;
+};
+function rfLines(){ return S.rf.L.map((l,i)=>({sku:l.sku, qty:Number(val('rfq_'+i))||0, condition:val('rfc_'+i)||'Good', reason:val('rfr_'+i), max:l.returnable, name:l.colour||l.sku})).filter(x=>x.qty>0); }
+function rfSum(){ const L=rfLines(); $('rf_sum').textContent=L.length?L.length+' colour(s) · '+L.reduce((a,x)=>a+x.qty,0)+' pcs coming back':''; }
+async function rfSave(){
+  const L=rfLines(); if(!L.length) return toast('Enter the quantity coming back');
+  const big=L.find(x=>x.qty>x.max); if(big) return toast(big.name+': only '+big.max+' can come back');
+  const nr=L.find(x=>!x.reason); if(nr) return toast('Choose the reason for '+nr.name);
+  if(L.some(x=>x.reason==='Other')&&!val('rf_note')) return toast('Explain "Other" in the note');
+  const p={orderId:S.rf.o.id, note:val('rf_note'), photo:S.photos.rtn||'', submissionId:S.rf.sub, lines:L.map(x=>({sku:x.sku, qty:x.qty, condition:x.condition, reason:x.reason}))};
+  const g=await icGps(4000); if(g){ p.lat=g.lat; p.lng=g.lng; p.accuracy=g.accuracy; p.gpsMethod='GPS'; }
+  const r=await submit('apiReturnCreate', p); if(!r) return; refreshInBackground();
+  done(r, null, `<button class="btn gold" onclick="show('rtn','${h(r.id)}')">↩️ Open ${h(r.id)}</button><button class="btn sec" onclick="show('doc','${h(S.rf.o.id)}','invoice')">🧾 Back to the order</button>`);
+}
+function rtnDocCard(r){
+  const o=r&&r.order, P=(S.boot&&S.boot.perms)||{}; if(!o||!P.rtnCreate||o.status!=='Confirmed'||(o.delivery!=='Delivered'&&o.delivery!=='Partially Delivered')) return '';
+  return `<div class="card"><button class="btn sm sec" onclick="show('rtnForm','${h(o.id)}')">↩️ Record return from the shop</button></div>`;
+}
+
+/* ---- stock aging & dead stock */
+screens.aging = async function(wh){
+  S.ag={wh:wh||''}; navArgs(S.ag.wh); const s=S.ag;
+  page('Inventory', 'Stock age & dead stock', `${invTabs('aging')}<div class="card">${icWhTabs(s.wh,'screens.aging',true)}<div id="ag_top">${ivLoading()}</div></div><div id="ag_out"></div>`);
+  const r=await api('apiStockAging', {warehouse:s.wh}); if(S.screen!=='aging'||S.ag!==s) return;
+  if(!r.ok){ $('ag_top').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  const B=r.buckets, tot=B.reduce((a,b)=>a+b.value,0)||1;
+  $('ag_top').innerHTML=`<div class="tot">${B.map(b=>`<div class="tapr" onclick="drill('ic_aging',{bucket:'${h(b.key)}',warehouse:'${h(s.wh)}'},'Stock age ${h(b.label)}')"><b>${ivN(b.qty)}</b><span>${h(b.label)}</span><div class="hint">${money(b.value)} · ${Math.round(100*b.value/tot)} %</div></div>`).join('')}</div>
+    <div class="hint">Age of each dye lot from its factory receipt. Value at GRN cost when known, else wholesale.</div>`;
+  $('ag_out').innerHTML=`<div class="card"><h3>Dead / slow-moving (no order in ${r.deadDays} days)</h3><div class="hint">${r.deadTotals.skus} colour(s) · ${ivN(r.deadTotals.qty)} pcs · ${money(r.deadTotals.value)}</div>
+    ${r.dead.map(x=>`<div class="drow" onclick="show('stockLedger','${h(x.sku)}',S.ag.wh)">${prodImg({img:x.img,variant:x.colour,name:x.name},'cim')}<div class="grow"><b>${h(x.colour||x.name)}</b> ${abcChip(x.abc)}<div class="hint">${h(x.sku)} · ${x.lastSale?'last order '+h(fmtD(x.lastSale))+' ('+x.daysSince+' d)':'never ordered'}${x.oldestAge!==null?' · oldest lot '+x.oldestAge+' d':''}</div><div class="hint">💡 ${h(x.suggestion)}</div></div><div class="r"><b>${ivN(x.onHand)}</b><div class="hint">${money(x.value)}</div></div></div>`).join('')||'<div class="okbox">No dead stock.</div>'}</div>
+    <div class="card"><h3>Oldest lots</h3>${r.rows.slice(0,40).map(x=>`<div class="drow" onclick="show('stockLedger','${h(x.sku)}','${h(x.wh)}')">${prodImg({img:x.img,variant:x.colour,name:x.name},'cim')}<div class="grow"><b>${h(x.colour||x.name)}</b> <span class="chip ${x.age>180?'c-bad':x.age>90?'c-warn':''}">${x.age} d</span><div class="hint">${h(x.sku)} · ${h(x.wh)} · batch ${h(x.batch)} · ${h(fmtD(x.receivedOn))}</div></div><div class="r"><b>${ivN(x.qty)}</b><div class="hint">${money(x.value)}</div></div></div>`).join('')}</div>`;
+};
+
+/* ---- shrinkage */
+screens.shrink = async function(preset){
+  S.sh={preset:preset||'month'}; navArgs(S.sh.preset); const s=S.sh, rg=ivRange(s.preset);
+  page('Inventory', 'Shrinkage', `${invTabs('shrink')}<div class="card">${ivPresetTabs(s.preset,'screens.shrink')}</div><div id="sh_out">${ivLoading()}</div>`);
+  const r=await api('apiShrinkage', {from:rg[0], to:rg[1]}); if(S.screen!=='shrink'||S.sh!==s) return;
+  if(!r.ok){ $('sh_out').innerHTML=`<div class="badbox">${h(r.message)}</div>`; return; }
+  const t=r.totals, q={from:r.from, to:r.to}, basis={cost:'GRN cost',wholesale:'wholesale',mixed:'GRN cost / wholesale'}[t.basis]||'–';
+  const grp=(title, L, g)=>`<div class="card"><h3>${title}</h3>${L.map(x=>`<div class="drow" onclick="${dk('ic_shrink', Object.assign({}, q, g==='sku'?{sku:x.key}:(g==='warehouse'?{warehouse:x.key==='In transit'?'TRANSIT':x.key}:{reason:x.key})), 'Shrinkage · '+(x.colour||x.key))}">${x.img!==undefined?prodImg({img:x.img,variant:x.colour,name:x.name||x.key},'cim'):''}<div class="grow"><b>${h(x.colour||x.key)}</b><div class="hint">${x.qty>0?x.qty+' pcs lost':(-x.qty)+' pcs found'} · ${h(x.basis)}</div></div><div class="r amt" style="color:${x.value>0?'var(--bad)':'var(--ok)'}">${money(x.value)}</div></div>`).join('')||'<div class="hint">None.</div>'}</div>`;
+  $('sh_out').innerHTML=`<div class="card"><div class="tot"><div><b style="color:${t.value>0?'var(--bad)':'inherit'}">${money(t.value)}</b><span>Shrink (${ivN(t.qty)} pcs)</span></div><div><b>${icPct(t.rateBook)}</b><span>of stock value</span></div><div><b>${icPct(t.rateSales)}</b><span>of sales</span></div><div><b>${ivN(t.lostQty)} / ${ivN(t.foundQty)}</b><span>Lost / found pcs</span></div></div>
+      <div class="hint">Counts, damage, transit losses and damaged returns (net). Valued at ${basis}. Stock value ${money(t.bookValue)} · sales ${money(t.sales)}.</div></div>
+    ${grp('By reason', r.byReason, 'reason')}${grp('By warehouse', r.byWarehouse, 'warehouse')}${grp('By colour', r.bySku.slice(0,30), 'sku')}
+    <div class="card"><h3>Trend (6 months)</h3>${hBars(r.trend.map(m=>({label:m.month, value:Math.max(0,m.value), sub:(m.rateSales!==null?m.rateSales+' % of sales':'')+' · '+m.qty+' pcs', click:dk('ic_shrink',{from:m.month+'-01', to:icMonthEnd(m.month), group:'reason'},'Shrinkage · '+m.month)})),{fmt:v=>money(v),color:PAL[3]||PAL[0]})}</div>`;
+};
+
+/* ---- CEO dashboard: inventory-control block (every number opens its list) */
+function invCtlCard(r){
+  const c=r.stock&&r.stock.control; if(!c) return '';
+  const rng={from:r.from,to:r.to}, sh=c.shrink||{}, rt=c.returns||{}, ag=c.aging||[], dd=c.dead||{}, cn=c.counts||{}, tot=ag.reduce((a,b)=>a+b.value,0)||1;
+  return `<div class="card" id="exCtl"><h3>Inventory control</h3><div class="grid2">
+    ${kp('Stock value', money(c.value.cost), money(c.value.wholesale)+' at wholesale', '', dk('ic_value',{},'Stock value'))}
+    ${kp('Days of cover', icNum(c.coverDays), 'available ÷ daily demand', '', dk('ic_reorder',{status:'all'},'Days of cover'))}
+    ${kp('Out of stock', `<span style="color:${c.outOfStock?'var(--bad)':'inherit'}">${c.outOfStock}</span>`, money(c.lostPerDay)+'/day lost-sales risk', '', dk('ic_reorder',{status:'out'},'Out of stock'))}
+    ${kp('Below reorder', `<span style="color:${c.belowReorder?'var(--warn)':'inherit'}">${c.belowReorder}</span>`, ivN(c.suggestQty)+' pcs suggested', '', dk('ic_reorder',{status:'below'},'Below reorder point'))}
+    ${kp('Shrinkage', money(sh.value), icPct(sh.rateSales)+' of sales · '+icPct(sh.rateBook)+' of stock', '', dk('ic_shrink',Object.assign({group:'reason'},rng),'Shrinkage by reason'))}
+    ${kp('Returns', icPct(rt.ratePct), (rt.qty||0)+' pcs · '+money(rt.credit)+' credited', '', dk('ic_returns',Object.assign({group:'reason'},rng),'Returns by reason'))}
+    ${kp('Dead stock', ivN(dd.qty)+' pcs', (dd.skus||0)+' colours · '+money(dd.value), '', dk('ic_dead',{},'Dead / slow-moving'))}
+    ${kp('Count accuracy', icPct(cn.accuracyPct), (cn.pendingLines||0)+' difference(s) to approve', '', dk('ic_counts',cn.pendingLines?{status:'pending'}:rng,'Count differences'))}</div>
+    <div style="margin-top:10px">${hBars(ag.map(b=>({label:b.label, value:b.value, sub:ivN(b.qty)+' pcs · '+Math.round(100*b.value/tot)+' %', click:dk('ic_aging',{bucket:b.key},'Stock age '+b.label)})),{fmt:v=>money(v),color:PAL[1]||PAL[0]})}</div>
+    <div class="muted">Stock age by dye lot · overstock ${c.overstock} colour(s) · factory lead ${c.leadDays} d</div></div>`;
+}
+
+/* generic drill row of the ic_* kinds: {title,sub,chip,chipCls,img,right,rightSub,amount,qty,go:{s,a}} */
+function icDrRow(x){ return `<div class="drow" onclick="${ck(()=>icGo(x.go))}">${x.img?`<img class="cim" loading="lazy" src="${h(x.img)}" alt="">`:''}<div class="grow"><b>${h(x.title)}</b>${x.chip?` <span class="chip ${h(x.chipCls)}">${h(x.chip)}</span>`:''}<div class="hint">${h(x.sub)}</div></div><div class="r"><div class="amt">${h(x.right)}</div><div class="hint">${h(x.rightSub)}</div></div><span class="chev">›</span></div>`; }
+
 /* ---- CEO dashboard: inventory card */
 function invExecCard(r){
   const s=r.stock; if(!s||!s.byWarehouse) return '';
@@ -1380,7 +1705,7 @@ screens.shop = async function(id){
     <div class="muted">${h(t.owner)} · ${h(t.mobile)}<br>${h(t.address)}<br>${h(t.area)}, ${h(t.district)} · ${h(t.shopType)} · Rep ${h(t.repName)}</div>
     <div class="grid3" style="margin-top:10px"><div class="kpi"><b>${money(t.netSales)}</b><span>Net sales</span></div><div class="kpi"><b>${money(t.outstanding)}</b><span>Outstanding</span></div><div class="kpi"><b style="color:${t.overdue>0?'var(--bad)':'var(--ok)'}">${money(t.overdue)}</b><span>Overdue</span></div></div>
     <div><a class="btn sm sec" href="tel:${h(t.mobile)}">📞 Call</a>${t.lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps?q=${t.lat},${t.lng}">📍 Map</a><a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}">🧭 Directions</a>`:''}${t.shopPhoto?`<a class="btn sm sec" target="_blank" href="${h(t.shopPhoto)}">🖼 Photo</a>`:''}${P.ledger?`<button class="btn sm sec" onclick="show('doc','${h(t.id)}','ledger')">📒 Ledger</button>`:''}</div>
-    ${P.field&&ap?`<div><button class="btn sm" onclick="show('order','${t.id}')">🛒 Order</button><button class="btn sm" onclick="show('collect','${t.id}')">💵 Collect</button><button class="btn sm" onclick="show('visit','${t.id}')">📍 Visit</button></div>`:''}</div>
+    ${P.field&&ap?`<div><button class="btn sm" onclick="show('order','${t.id}')">🛒 Order</button><button class="btn sm" onclick="show('collect','${t.id}')">💵 Collect</button><button class="btn sm" onclick="show('visit','${t.id}')">📍 Visit</button></div>`:''}${P.rtnCreate&&ap?`<div><button class="btn sm sec" onclick="show('rtnForm','','${h(t.id)}')">↩️ Record return</button></div>`:''}</div>
     <div class="card"><h3>Orders</h3>${r.orders.length?`<table class="t"><tr><th>Order</th><th>Net</th><th>Status</th><th>Due</th></tr>${r.orders.map(o=>`<tr onclick="show('doc','${h(o.id)}','invoice')" style="cursor:pointer"><td>${h(o.invoiceNo||o.id)} ›<div class="hint">${h(o.date)}</div></td><td>${money(o.net)}</td><td>${h(o.payment)}<div class="hint">${h(dlvTxt(o))}</div></td><td class="amt">${money(o.outstanding)}</td></tr>`).join('')}</table>`:'<div class="hint">No orders yet.</div>'}</div>
     <div class="card"><h3>Payments</h3>${r.collections.length?`<table class="t"><tr><th>ID</th><th>Amount</th><th>Status</th></tr>${r.collections.map(c=>`<tr><td>${h(c.id)}<div class="hint">${h(c.date)} · ${h(c.method)}</div></td><td>${money(c.amount)}</td><td>${statusChip(c.status)}</td></tr>`).join('')}</table>`:'<div class="hint">No payments yet.</div>'}</div>
     <div class="card"><h3>Visit history</h3>${r.visits.length?r.visits.map(v=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>${h(v.purpose)}</b> · ${h(v.outcome)}<div class="hint">${h(v.when)} · ${h(v.rep)} · ${h(v.geo)}${v.distance!==''?' ('+v.distance+' m)':''}${v.remarks?' · '+h(v.remarks):''}</div></div>`).join(''):'<div class="hint">No visits yet.</div>'}</div>`;
@@ -1713,7 +2038,7 @@ function renderDoc(){
   box.innerHTML = `<div class="card"><div class="tabs">${FMTS.map(f=>`<button class="${d.fmt===f[0]?'on':''}" onclick="docFmt('${f[0]}')">${f[1]}</button>`).join('')}${d.kind!=='ledger'?`<button onclick="docKind('${d.kind==='challan'?'invoice':'challan'}')">${d.kind==='challan'?'🧾 Invoice':'📄 Challan'}</button>`:''}</div>
      <div><button class="btn sm" onclick="printDoc()">🖨 Print</button><button class="btn sm gold" id="pdfBtn" onclick="sharePdf()">📤 Share PDF</button></div>
      <div class="hint">80 mm = thermal receipt printer. On a phone, Print ▸ "Save as PDF" also works.</div></div>
-     ${d.kind!=='ledger'?fulDocCard(r)+docInfo(r):''}
+     ${d.kind!=='ledger'?fulDocCard(r)+rtnDocCard(r)+docInfo(r):''}
      <div class="docwrap" id="docwrap"><div id="doc" class="doc f-${d.fmt}">${body}</div></div>`;
   fitDoc();
 }
@@ -1955,13 +2280,15 @@ function renderExec(){
   <div class="card"><h3>Overdue risk</h3><div class="list">${r.risk.map(t=>`<div class="it" onclick="show('shop','${h(t.id)}')"><div class="grow"><b>${h(t.shop)}</b><div class="muted">${h(t.area)} · ${h(t.rep)} · ${t.days} days</div></div><div style="text-align:right"><div class="amt" style="color:var(--bad)">${money(t.overdue)}</div><span class="chip ${t.risk==='High Risk'?'c-bad':'c-warn'}">${h(t.risk)}</span></div></div>`).join('')||'<div class="okbox">No overdue shops 🎉</div>'}</div>
     <button class="btn sec" onclick="${dk('shops',R({risk:'overdue'}),'Overdue shops')}">All overdue shops ›</button></div>
   </div>
-  ${invExecCard(r)}
+  ${invExecCard(r)}${invCtlCard(r)}
   <div class="card"><h3>Waiting for action</h3><div class="grid3">${kp('Shop approvals',r.pending.tailors,'','',dk('shops',{status:'pending'},'Shops waiting for approval'))}${kp('Payments to verify',r.pending.verifications,'','',dk('collections',{from:addDays(r.today,-90),to:r.today,verification:'Pending'},'Payments to verify'))}${kp('Orders to confirm',r.pending.submittedOrders,'','',dk('orders',{status:'Submitted'},'Waiting for approval'))}${kp('Expenses',r.pending.expenses,'','',dk('expenses',{from:addDays(r.today,-90),to:r.today,status:'Pending'},'Expenses to approve'))}${kp('Leave requests',r.pending.leaves,'','',S.boot.perms.hr?ck(()=>show('hr')):'')}${kp('Expenses (period)',money(k.expenses),'','',dk('expenses',R(),'Expenses'))}</div></div>`;
 }
 
 // ---------------------------------------------------------------- drill-down: the list behind every number
-const DR_TITLES={grns:'Factory receipts',transfers:'Transfer challans',discrepancies:'Transfer discrepancies',stock:'Stock',orders:'Orders',collections:'Payments',returns:'Returns',shops:'Shops',visits:'Visits',deliveries:'Deliveries',products:'Products',fabrics:'Fabrics',colours:'Colours',discounts:'Discounts',expenses:'Expenses',onboarded:'New shops',areas:'Areas'};
+const DR_TITLES={ic_reorder:'Reorder',ic_value:'Stock value',ic_shrink:'Shrinkage',ic_aging:'Stock age',ic_dead:'Dead stock',ic_returns:'Shop returns',ic_counts:'Count differences',grns:'Factory receipts',transfers:'Transfer challans',discrepancies:'Transfer discrepancies',stock:'Stock',orders:'Orders',collections:'Payments',returns:'Returns',shops:'Shops',visits:'Visits',deliveries:'Deliveries',products:'Products',fabrics:'Fabrics',colours:'Colours',discounts:'Discounts',expenses:'Expenses',onboarded:'New shops',areas:'Areas'};
 const DR_SORTS={
+  ic_reorder:[['','Default'],['amount','Value / risk'],['qty','Available']], ic_value:[['amount','Value'],['qty','Pieces']], ic_shrink:[['amount','Value'],['qty','Pieces']],
+  ic_aging:[['','Oldest'],['amount','Value'],['qty','Pieces']], ic_dead:[['amount','Value'],['qty','Pieces']], ic_returns:[['','Default'],['qty','Pieces'],['amount','Credit']], ic_counts:[['','Newest'],['amount','Value'],['qty','Pieces']],
   grns:[['date','Newest'],['qty','Pieces'],['value','Value']], transfers:[['date','Newest'],['sentQty','Pieces'],['pendingQty','In transit']],
   discrepancies:[['date','Newest'],['value','Value']], stock:[['available','Available'],['onHand','On hand'],['value','Value']],
   orders:[['date','Newest'],['amount','Amount'],['qty','Pieces'],['perPc','Discount/pc'],['outstanding','Due']],
@@ -2022,10 +2349,12 @@ function drRender(){
   else if(k==='discrepancies') tot=box('Lines',t.count)+box('Open',t.open)+box('Short / excess',t.shortQty+' / '+t.excessQty)+box('Damaged',t.damaged)+box('Value',money(t.value));
   else if(k==='stock') tot=box('Colours',t.count)+box('On hand',ivN(t.onHand))+box('Value',money(t.value))+box('Low / out',t.low+' / '+t.out);
   else if(k==='reviews') tot=box('Reviewed',t.count)+box('Confirmed',t.confirmed)+box('Held',t.holds+(t.released?' · '+t.released+' released':''))+box('Cancelled',t.cancels)+box('Avg time',t.avgMin+' min');
+  if(r.generic) tot=(r.boxes||[]).map(b=>box(h(b[0]),h(b[1]))).join('');
   $('dr_tot').innerHTML=`<div class="card"><div class="tot">${tot}</div>${r.cached?'':''}</div>`;
   const rp=(name,id)=>id?`<span class="lnk" onclick="event.stopPropagation();${pk(id)}">${h(name)}</span>`:h(name);
   const chipS=s=>s?statusChip(s):'';
   const one=x=>{
+    if(r.generic) return icDrRow(x);
     if(k==='orders'||(k==='discounts'&&r.mode!=='byRep')) return `<div class="drow" onclick="${ck(()=>show('doc',x.id,'invoice'))}"><div class="grow"><b>${h(x.shop)}</b> <span class="chip">${h(x.type)}</span>${x.status==='Submitted'?' <span class="chip c-warn">Waiting approval</span>':''}${x.approval==='Rejected'?' <span class="chip c-bad">Discount rejected</span>':''}${x.delivery==='On Hold'&&x.status==='Confirmed'?` <span class="chip c-bad">On hold${x.holdReason?': '+h(x.holdReason):''}</span>${x.holdDecision==='Allowed'?' <span class="chip c-ok">Manager allowed</span>':' <span class="chip c-warn">Waiting for manager</span>'}`:x.delivery==='New'&&x.status==='Confirmed'?' <span class="chip c-info">Store review</span>':''}${x.status==='Cancelled'&&x.cancelKind&&x.cancelKind!=='other'?` <span class="chip c-bad">${h({discount:'Discount rejected',store:'Cancelled by store',manager:'Rejected by manager'}[x.cancelKind]||x.cancelKind)}</span>`:''}${x.status==='Cancelled'&&x.cancelReason?` <span class="chip c-bad">${h(x.cancelReason)}</span>`:''}${x.hours!==undefined&&x.hours!==null?` <span class="chip">${x.hours} h</span>`:''}
       <div class="hint">${h(x.id)} · ${h(fmtD(x.date))} · ${rp(x.rep,x.repId)} · ${x.qty} pcs${x.perPc?` · disc ${money(x.perPc)}/pc`:''}${x.delivery?' · '+h(dlvTxt(x)):''}${x.heldBy&&x.delivery==='On Hold'?' · held by '+h(x.heldBy)+(x.holdAgeH!==null&&x.holdAgeH!==undefined?' '+x.holdAgeH+' h ago':''):''}${x.cancelledBy?' · cancelled by '+h(x.cancelledBy):''}</div></div>
       <div class="r"><div class="amt">${money(Q.status==='outstanding'?x.outstanding:x.amount)}</div>${x.outstanding>0&&Q.status!=='outstanding'?`<div class="hint">due ${money(x.outstanding)}</div>`:''}${x.days>0?`<span class="chip c-bad">${x.days}d late</span>`:''}</div></div>`;
@@ -2428,7 +2757,7 @@ async function notifPoll(force){
 }
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) notifPoll(); });
 
-const NICON={trf_dispatched:'🚚',trf_request:'📨',trf_received:'📥',trf_discrepancy:'⚠️',trf_resolved:'✅',trf_cancelled:'⛔',stock_adjusted:'⚖️',order_hold:'⏸️',order_released:'▶️',order_new:'🧺',order_ready:'🛵',order_ready_open:'🛵',order_dispatched:'🚚',order_delivered:'✅',order_cancelled:'⛔',discount_decision:'🏷️',discount_approval:'🏷️',collection_rejected:'⚠️'};
+const NICON={reorder:'📉',prq:'🏭',count_approval:'🧮',count_decided:'🧮',return_new:'↩️',return_received:'📥',return_approved:'✅',return_rejected:'⛔',trf_dispatched:'🚚',trf_request:'📨',trf_received:'📥',trf_discrepancy:'⚠️',trf_resolved:'✅',trf_cancelled:'⛔',stock_adjusted:'⚖️',order_hold:'⏸️',order_released:'▶️',order_new:'🧺',order_ready:'🛵',order_ready_open:'🛵',order_dispatched:'🚚',order_delivered:'✅',order_cancelled:'⛔',discount_decision:'🏷️',discount_approval:'🏷️',collection_rejected:'⚠️'};
 screens.notifs = async function(){
   page('Notifications', S.user?S.user.name:'', `<div id="nfBox" class="hint">Loading…</div>`);
   const r=await api('apiNotifications', {limit:40}); const box=$('nfBox'); if(!box) return;
@@ -2454,6 +2783,10 @@ function openNotif(id, ref){
   if(n.refNo && /^TRF-/.test(n.refNo)) return show('trf', n.refNo);
   if(n.refNo && /^GRN-/.test(n.refNo)) return show('stkDoc', 'grn', n.refNo);
   if(n.refNo && /^STA-/.test(n.refNo)) return show('stock');
+  if(n.refNo && /^CNT-/.test(n.refNo)) return show('cnt', n.refNo);
+  if(n.refNo && /^RTN-/.test(n.refNo)) return show('rtn', n.refNo);
+  if(n.refNo && /^PRQ-/.test(n.refNo)) return show('prq', n.refNo);
+  if(n.kind==='reorder') return show('reorder', /^WH-/.test(n.refNo||'')?n.refNo:'', 'attention');
   if(n.refNo){ if(S.docs) delete S.docs[n.refNo]; show('doc', n.refNo, 'invoice'); } else renderNotifs();
 }
 async function askNotifPerm(){ try{ const p=await Notification.requestPermission(); toast(p==='granted'?'✅ Phone alerts on':'OK – alerts stay inside the app'); }catch(e){} renderNotifs(); }
