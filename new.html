@@ -165,6 +165,7 @@
   .pki b{display:block;font-size:13px;margin-top:5px;color:var(--pd);line-height:1.2}.pki .q{display:block;font-size:22px;font-weight:800;color:var(--p)}
   .pki.ok{border-color:var(--ok);background:var(--okb)}.pki.ok::after{content:'✓';position:absolute;top:6px;left:8px;background:var(--ok);color:#fff;border-radius:50%;width:22px;height:22px;line-height:22px;font-weight:800}
   .btn.big{font-size:17px;padding:16px}.age{font-weight:800}.age.late{color:var(--bad)}
+input.picked{border-color:var(--p);background:#EAF2EE;font-weight:600;color:var(--p)}
 </style>
 </head>
 <body>
@@ -411,11 +412,15 @@ const val = id => { const e=$(id); return e ? e.value.trim() : ''; };
 function statusChip(s){ const m={Approved:'c-ok',Rejected:'c-bad',Interested:'c-info',Prospect:'',Verified:'c-ok',Pending:'c-warn','High Risk':'c-bad',Watch:'c-warn',OK:'c-ok','Credit Balance':'c-info',High:'c-bad',Medium:'c-warn',Low:'c-info',Active:'c-ok',Inactive:'c-warn'}; return `<span class="chip ${m[s]||''}">${h(s)}</span>`; }
 function tailorPicker(id, filterFn, onchange, selected){
   const list=S.boot.tailors.filter(filterFn).sort((a,b)=>a.shop.localeCompare(b.shop));
-  return `<input id="${id}_q" placeholder="🔍 Search shop, owner, ID, area, mobile" oninput="filterPicker('${id}')">
-    <select id="${id}" size="5" style="margin-top:6px" onchange="${onchange||''}">${list.map(t=>`<option value="${h(t.id)}" ${t.id===selected?'selected':''} data-s="${h((t.shop+' '+t.owner+' '+t.id+' '+t.area+' '+t.mobile).toLowerCase())}">${h(t.shop)} · ${h(t.area)} · ${h(t.id)}${t.outstanding>0?' · '+money(t.outstanding):''}</option>`).join('')}</select>
+  const lab=t=>t.shop+' · '+t.area+' · '+t.id;
+  const pre=selected?list.find(t=>t.id===selected):null;
+  return `<input id="${id}_q" class="${pre?'picked':''}" value="${pre?h('✓ '+lab(pre)):''}" placeholder="🔍 Search shop, owner, ID, area, mobile" oninput="filterPicker('${id}')" onfocus="pickerOpen('${id}')">
+    <select id="${id}" size="5" style="margin-top:6px${pre?';display:none':''}" onchange="pickerChose('${id}');${onchange||''}">${list.map(t=>`<option value="${h(t.id)}" ${t.id===selected?'selected':''} data-l="${h(lab(t))}" data-s="${h((t.shop+' '+t.owner+' '+t.id+' '+t.area+' '+t.mobile).toLowerCase())}">${h(lab(t))}${t.outstanding>0?' · '+money(t.outstanding):''}</option>`).join('')}</select>
     ${list.length?'':'<div class="warnbox">No shops available for this action.</div>'}`;
 }
-function filterPicker(id){ const q=val(id+'_q').toLowerCase(); Array.from($(id).options).forEach(o=>{ o.hidden = q && o.dataset.s.indexOf(q)<0; }); }
+function filterPicker(id){ const i=$(id+'_q'), s=$(id); if(i.classList.contains('picked')){ i.classList.remove('picked'); i.value=i.value.replace(/^✓ /,''); } s.style.display=''; const q=i.value.trim().toLowerCase(); Array.from(s.options).forEach(o=>{ o.hidden = q && o.dataset.s.indexOf(q)<0; }); }
+function pickerChose(id){ const s=$(id), i=$(id+'_q'), o=s.options[s.selectedIndex]; if(!o) return; i.value='✓ '+(o.dataset.l||o.textContent); i.classList.add('picked'); s.style.display='none'; i.blur(); }
+function pickerOpen(id){ const i=$(id+'_q'), s=$(id); if(i.classList.contains('picked')){ i.select(); s.style.display=''; Array.from(s.options).forEach(o=>{ o.hidden=false; }); } }
 function tailorById(id){ return S.boot.tailors.find(t=>t.id===id); }
 screens._saved = function(r, again, extra){ done(r, again, (extra||'').replace(/id="obw_[^"]*"/g,'')); };
 function done(r, again, extra){
