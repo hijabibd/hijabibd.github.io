@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head><title>Hijabi DMS · TEST (new database)</title><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><link rel="apple-touch-icon" href="/icon-180.png">
+<head>
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -338,6 +338,11 @@ screens.home = function(){
   if(P.exec) mg.unshift(['📈','Company dashboard',"show('exec','month')"]);
   if(P.hr||P.salary) mg.unshift(['🧑‍💼','HR panel',"show('hr')",P.hr?c.leaves:0]);
   if(P.store && u.role==='Store Keeper') tiles.unshift(['🧺','Packing queue',"show('packq')",c.store]); else if(P.store) mg.push(['🧺','Packing queue',"show('packq')",c.store]);
+  if(GATE()){
+    if(P.review && u.role==='Store Keeper'){ tiles.splice(1,0,['🛵','Ready to pick',"show('packq','ready')",0],['🚚','Dispatched',"show('review','dispatched')",0]); tiles.unshift(['🆕','New orders',"show('review','new')",c.review],['⏸️','Hold',"show('review','hold')",c.hold]); }
+    else if(P.review) mg.unshift(['🔎','Store review',"show('review','new')",(c.review||0)+(c.hold||0)]);
+    if(P.holdDecide) mg.unshift(['⏸️','Held orders',"show('review','hold')",c.holdWaiting||0]);
+  }
   tiles.push(['🌴','My leave',"show('leave')"]);
   const tileHtml = arr => `<div class="tiles">${arr.map(t=>`<div class="tile" onclick="${t[2]}"><span class="ic">${t[0]}</span>${t[1]}${t[3]?`<span class="bdg">${t[3]}</span>`:''}</div>`).join('')}</div>`;
   app().innerHTML = `<div class="wrap"><header class="top"><div class="brand"><img class="wm" src="${LOGO_W}" alt="${h(COMPANY)}"><small>${h(u.name)} · ${h(u.role)}</small></div>
@@ -949,7 +954,7 @@ screens.shop = async function(id){
     <div class="grid3" style="margin-top:10px"><div class="kpi"><b>${money(t.netSales)}</b><span>Net sales</span></div><div class="kpi"><b>${money(t.outstanding)}</b><span>Outstanding</span></div><div class="kpi"><b style="color:${t.overdue>0?'var(--bad)':'var(--ok)'}">${money(t.overdue)}</b><span>Overdue</span></div></div>
     <div><a class="btn sm sec" href="tel:${h(t.mobile)}">📞 Call</a>${t.lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps?q=${t.lat},${t.lng}">📍 Map</a><a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}">🧭 Directions</a>`:''}${t.shopPhoto?`<a class="btn sm sec" target="_blank" href="${h(t.shopPhoto)}">🖼 Photo</a>`:''}${P.ledger?`<button class="btn sm sec" onclick="show('doc','${h(t.id)}','ledger')">📒 Ledger</button>`:''}</div>
     ${P.field&&ap?`<div><button class="btn sm" onclick="show('order','${t.id}')">🛒 Order</button><button class="btn sm" onclick="show('collect','${t.id}')">💵 Collect</button><button class="btn sm" onclick="show('visit','${t.id}')">📍 Visit</button></div>`:''}</div>
-    <div class="card"><h3>Orders</h3>${r.orders.length?`<table class="t"><tr><th>Order</th><th>Net</th><th>Status</th><th>Due</th></tr>${r.orders.map(o=>`<tr onclick="show('doc','${h(o.id)}','invoice')" style="cursor:pointer"><td>${h(o.invoiceNo||o.id)} ›<div class="hint">${h(o.date)}</div></td><td>${money(o.net)}</td><td>${h(o.payment)}<div class="hint">${h(o.delivery)}</div></td><td class="amt">${money(o.outstanding)}</td></tr>`).join('')}</table>`:'<div class="hint">No orders yet.</div>'}</div>
+    <div class="card"><h3>Orders</h3>${r.orders.length?`<table class="t"><tr><th>Order</th><th>Net</th><th>Status</th><th>Due</th></tr>${r.orders.map(o=>`<tr onclick="show('doc','${h(o.id)}','invoice')" style="cursor:pointer"><td>${h(o.invoiceNo||o.id)} ›<div class="hint">${h(o.date)}</div></td><td>${money(o.net)}</td><td>${h(o.payment)}<div class="hint">${h(dlvTxt(o))}</div></td><td class="amt">${money(o.outstanding)}</td></tr>`).join('')}</table>`:'<div class="hint">No orders yet.</div>'}</div>
     <div class="card"><h3>Payments</h3>${r.collections.length?`<table class="t"><tr><th>ID</th><th>Amount</th><th>Status</th></tr>${r.collections.map(c=>`<tr><td>${h(c.id)}<div class="hint">${h(c.date)} · ${h(c.method)}</div></td><td>${money(c.amount)}</td><td>${statusChip(c.status)}</td></tr>`).join('')}</table>`:'<div class="hint">No payments yet.</div>'}</div>
     <div class="card"><h3>Visit history</h3>${r.visits.length?r.visits.map(v=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>${h(v.purpose)}</b> · ${h(v.outcome)}<div class="hint">${h(v.when)} · ${h(v.rep)} · ${h(v.geo)}${v.distance!==''?' ('+v.distance+' m)':''}${v.remarks?' · '+h(v.remarks):''}</div></div>`).join(''):'<div class="hint">No visits yet.</div>'}</div>`;
 };
@@ -1013,7 +1018,7 @@ function renderReport(){
   } else if(tab==='visits'){
     body=r.visits.length?`<div class="card list">${r.visits.map(v=>`<div class="it" onclick="show('shop','${h(v.tailorId)}')"><div class="grow"><b>${h(v.shop||'—')}</b><div class="muted">${h(v.when)} · ${h(v.purpose)} → ${h(v.outcome)}${S.rp.who?' · '+h(v.rep):''}</div></div>${v.geo&&v.geo!=='OK'?`<span class="chip c-warn">${h(v.geo)}</span>`:''}</div>`).join('')}</div>`:empty('No shop visits in this period.');
   } else if(tab==='orders'){
-    body=r.orders.length?`<div class="card list">${r.orders.map(o=>`<div class="it" onclick="show('doc','${h(o.id)}','invoice')"><div class="grow"><b>${h(o.shop)}</b><div class="muted">${h(o.id)} · ${h(o.date)} · ${o.qty} pcs · ${h(o.delivery||'')}${S.rp.who?' · '+h(o.rep):''}</div></div><div style="text-align:right"><div class="amt">${money(o.net)}</div>${o.status==='Cancelled'?'<span class="chip c-bad">Cancelled</span>':`<span class="chip ${o.outstanding>0.5?'c-warn':'c-ok'}">${h(o.payment||o.status)}</span>`}</div></div>`).join('')}</div>`:empty('No orders in this period.');
+    body=r.orders.length?`<div class="card list">${r.orders.map(o=>`<div class="it" onclick="show('doc','${h(o.id)}','invoice')"><div class="grow"><b>${h(o.shop)}</b><div class="muted">${h(o.id)} · ${h(o.date)} · ${o.qty} pcs · ${o.delivery==='Hold'?'<b style="color:var(--bad)">'+h(dlvTxt(o))+'</b>':h(dlvTxt(o))}${S.rp.who?' · '+h(o.rep):''}</div></div><div style="text-align:right"><div class="amt">${money(o.net)}</div>${o.status==='Cancelled'?'<span class="chip c-bad">Cancelled</span>':`<span class="chip ${o.outstanding>0.5?'c-warn':'c-ok'}">${h(o.payment||o.status)}</span>`}</div></div>`).join('')}</div>`:empty('No orders in this period.');
   } else if(tab==='sales'){
     const tot=r.products.reduce((a,p)=>a+p.amount,0);
     body=r.products.length?`<div class="card"><table class="t"><tr><th>Product</th><th style="text-align:right">Qty</th><th style="text-align:right">Amount</th><th style="text-align:right">%</th></tr>
@@ -1134,7 +1139,9 @@ screens.team = async function(){
 
 // ---------------------------------------------------------------- deliveries
 const money2 = n => '৳' + (Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
-function delChip(s){ const m={Pending:'c-warn',Packing:'c-warn','Ready to Pick':'c-info',Dispatched:'c-info',Delivered:'c-ok','Partially Delivered':'c-warn',Returned:'c-bad'}; return `<span class="chip ${m[s]||''}">${h(s||'Pending')}</span>`; }
+function delChip(s, why){ const m={New:'c-info',Hold:'c-bad','On Hold':'c-bad',Pending:'c-warn',Packing:'c-warn','Ready to Pick':'c-info',Dispatched:'c-info',Delivered:'c-ok','Partially Delivered':'c-warn',Returned:'c-bad'}; const t=s==='New'?'Waiting for store review':(s==='Hold'||s==='On Hold')?'On hold'+(why?': '+why:''):s==='Pending'?'Packing queue':(s||'Pending'); return `<span class="chip ${m[s]||''}">${h(t)}</span>`; }
+/* friendly delivery text for order lists (store review: New / On Hold) */
+function dlvTxt(o){ if(!o) return ''; if(o.stageLabel) return o.stageLabel; const d=o.delivery||''; return d==='New'?'Waiting for store review':d==='On Hold'?'On hold'+(o.holdReason?': '+o.holdReason:''):d; }
 function navLink(lat,lng){ return lat?`<a class="btn sm sec" target="_blank" href="https:\/\/www.google.com/maps/dir/?api=1&destination=${lat},${lng}">🧭 Go</a>`:''; }
 screens.deliveries = async function(tab){
   S.dv = S.dv || {tab:'open', who:''}; if(tab) S.dv.tab=tab;
@@ -1472,6 +1479,8 @@ function renderExec(){
     ${kp('Collections verified', money(k.collections), k.sales?pctS(k.collections/k.sales)+' of sales':'', delta(k.collections,p.collections), dk('collections',R({verification:'Verified'}),'Verified payments'))}
     ${kp('Pending verification', money(k.pendingVer), 'waiting for Accounts', '', dk('collections',R({verification:'Pending'}),'Payments to verify'))}
     ${kp('Returns approved', money(k.returns), '', '', dk('returns',R(),'Returns'))}
+    ${k.onHold!==undefined?kp('Booked · on hold', `<span style="color:${k.onHold?'var(--bad)':'inherit'}">${money(k.onHold)}</span>`, k.onHoldCount+' orders · held at the store, not overdue', '', dk('orders',R({fulfil:'onHold'}),'Booked · on hold')):''}
+    ${k.awaitingReview!==undefined?kp('Booked · waiting for store', money(k.awaitingReview), k.awaitingReviewCount+' orders not yet reviewed', '', dk('orders',R({fulfil:'new'}),'Booked · waiting for store review')):''}
   </div></div>
   <div class="card"><h3>Receivables now</h3><div class="grid3">
     ${kp('Outstanding', money(b.outstanding), b.tailors+' shops', '', dk('shops',R({risk:'outstanding'}),'Shops with dues'))}
@@ -1479,6 +1488,7 @@ function renderExec(){
     ${kp('High-risk shops', b.highRisk, money(b.advance)+' advance held', '', dk('shops',R({risk:'High Risk'}),'High-risk shops'))}
   </div>${svgDonut(r.aging.map((a,i)=>({label:a.label,value:a.value,color:AGC[i],click:dk('shops',R({bucket:a.label}),'Dues · '+a.label)})),{fmt:money,center:shortN(b.outstanding),sub:'outstanding'})}</div>
   </div>
+  ${pipeCard(r, R)}
   <div class="card"><h3>Trend</h3>${svgLine(trendL,[{name:'Sales',color:PAL[0],values:r.trend.map(x=>x.sales)},{name:'Collections',color:PAL[2],values:r.trend.map(x=>x.collections)}],{fmt:money,area:true,click:r.monthly?null:(i,se)=>se.name==='Sales'?dk('orders',{from:r.trend[i].label,to:r.trend[i].label},'Orders · '+fmtD(r.trend[i].label)):dk('collections',{from:r.trend[i].label,to:r.trend[i].label,verification:'Verified'},'Payments · '+fmtD(r.trend[i].label))})}
     ${r.monthly?'':'<div class="hint">Tap a dot to see that day.</div>'}
     <div class="grid4" style="margin-top:8px">${kp('Orders',k.orders,'',delta(k.orders,p.orders),dk('orders',R(),'Orders'))}${kp('Visits',k.visits,'',delta(k.visits,p.visits),dk('visits',R(),'Visits'))}${kp('New shops',k.newTailors,k.approved+' approved',delta(k.newTailors,p.newTailors),dk('onboarded',R(),'New shops'))}${kp('Active shops',b.active,'of '+b.tailors,'',dk('shops',R({risk:'active'}),'Active shops'))}</div></div>
@@ -1486,8 +1496,8 @@ function renderExec(){
     <div style="margin-top:10px">${hBars([{label:'Checked in',value:at.checkedIn,color:PAL[0],sub:at.late?at.late+' late':'',click:ck(()=>show('team'))},{label:'On leave',value:at.onLeave,color:PAL[3],click:ck(()=>show('team'))},{label:'Absent',value:at.absent,color:PAL[4],click:ck(()=>show('team'))},{label:'Not checked in yet',value:at.notYet,color:PAL[8],click:ck(()=>show('team'))}],{})}</div>
     <div class="muted">${at.staff} field staff (sales + delivery)</div></div>
   <div class="card"><h3>Sales team</h3><div class="hint" style="margin:-6px 0 8px">Tap a name for the full profile, or a number for its list.</div>${hBars(team.map(m=>({label:m.name,value:m.sales,target:m.tSales||0,sub:m.salesAch!==null?pctS(m.salesAch):'',click:ck(()=>show('staff',m.empId,r.from,r.to))})),{fmt:shortN,targetNote:team.some(m=>m.tSales)})}
-    <div style="overflow-x:auto;margin-top:10px"><table class="t"><tr><th>Rep</th><th>Sales</th><th>Collected</th><th>Visits</th><th>New</th><th>Overdue</th><th>Attend.</th></tr>
-    ${team.map(m=>{ const me={rep:m.empId,repName:m.name}; return `<tr><td><span class="lnk" onclick="${ck(()=>show('staff',m.empId,r.from,r.to))}">${h(m.name)}</span></td><td class="tapr" onclick="${dk('orders',R(me),'Orders · '+m.name)}">${shortN(m.sales)}${m.salesAch!==null?` <span class="muted">${pctS(m.salesAch)}</span>`:''}</td><td class="tapr" onclick="${dk('collections',R(Object.assign({verification:'Verified'},me)),'Payments · '+m.name)}">${shortN(m.collections)}</td><td class="tapr" onclick="${dk('visits',R(me),'Visits · '+m.name)}">${m.visits}</td><td class="tapr" onclick="${dk('onboarded',R(me),'New shops · '+m.name)}">${m.onboarded}</td><td class="tapr" onclick="${dk('shops',R(Object.assign({risk:'overdue'},me)),'Overdue · '+m.name)}" style="color:${m.overdue>0?'var(--bad)':'inherit'}">${shortN(m.overdue)}</td><td class="tapr" onclick="${ck(()=>show('staff',m.empId,r.from,r.to))}">${pctS(m.attendance)}${m.late?` <span class="muted">${m.late}L</span>`:''}</td></tr>`; }).join('')}</table></div></div>
+    <div style="overflow-x:auto;margin-top:10px"><table class="t"><tr><th>Rep</th><th>Sales</th><th>Collected</th><th>Visits</th><th>New</th><th>Overdue</th>${r.funnel?'<th>On hold</th><th>Store cancelled</th><th>Rejected</th>':''}<th>Attend.</th></tr>
+    ${team.map(m=>{ const me={rep:m.empId,repName:m.name}; return `<tr><td><span class="lnk" onclick="${ck(()=>show('staff',m.empId,r.from,r.to))}">${h(m.name)}</span></td><td class="tapr" onclick="${dk('orders',R(me),'Orders · '+m.name)}">${shortN(m.sales)}${m.salesAch!==null?` <span class="muted">${pctS(m.salesAch)}</span>`:''}</td><td class="tapr" onclick="${dk('collections',R(Object.assign({verification:'Verified'},me)),'Payments · '+m.name)}">${shortN(m.collections)}</td><td class="tapr" onclick="${dk('visits',R(me),'Visits · '+m.name)}">${m.visits}</td><td class="tapr" onclick="${dk('onboarded',R(me),'New shops · '+m.name)}">${m.onboarded}</td><td class="tapr" onclick="${dk('shops',R(Object.assign({risk:'overdue'},me)),'Overdue · '+m.name)}" style="color:${m.overdue>0?'var(--bad)':'inherit'}">${shortN(m.overdue)}</td>${r.funnel?`<td class="tapr" onclick="${dk('orders',Object.assign({fulfil:'onHold',now:'1'},me),'On hold · '+m.name)}" style="color:${m.held?'var(--bad)':'inherit'}">${m.held||0}${m.heldValue?` <span class="muted">${shortN(m.heldValue)}</span>`:''}</td><td class="tapr" onclick="${dk('orders',R(Object.assign({fulfil:'cancelled',cancelKind:'store'},me)),'Cancelled by store · '+m.name)}">${m.storeCancelled||0}${m.storeCancelledValue?` <span class="muted">${shortN(m.storeCancelledValue)}</span>`:''}</td><td class="tapr" onclick="${dk('orders',R(Object.assign({fulfil:'cancelled',cancelKind:'manager'},me)),'Rejected by manager · '+m.name)}">${m.managerRejected||0}</td>`:''}<td class="tapr" onclick="${ck(()=>show('staff',m.empId,r.from,r.to))}">${pctS(m.attendance)}${m.late?` <span class="muted">${m.late}L</span>`:''}</td></tr>`; }).join('')}</table></div></div>
   <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Colours</h3><span class="lnk" onclick="${dk('colours',R(),'All colours')}">All ${col.count||''} colours ›</span></div>
     <div class="hint" style="margin:4px 0 10px">${col.totalQty||0} pieces sold · tap a colour to see who bought it</div>
     <div class="cgrid">${col.top.map(cg).join('')||'<div class="muted">No sales in this period</div>'}</div>
@@ -1544,7 +1554,7 @@ screens.drill = function(kind, q, title){
       <div id="dr_list"><div class="muted" style="text-align:center;padding:22px">Loading…</div></div></div>`);
   drLoad();
 };
-function drFilterText(q){ const p=[]; if(q.repName) p.push(q.repName); if(q.area) p.push(q.area); if(q.type) p.push(q.type); if(q.fabric) p.push(q.fabric); if(q.colour) p.push(q.colour); if(q.skuName) p.push(q.skuName); if(q.bucket) p.push(q.bucket); if(q.method) p.push(q.method); if(q.verification) p.push(q.verification); if(q.outcome) p.push(q.outcome); if(q.byName) p.push(q.byName); if(q.status&&q.status!=='outstanding') p.push({Submitted:'Waiting for approval',open:'Not yet delivered',pending:'Waiting for approval',Cancelled:'Cancelled'}[q.status]||q.status); if(q.risk) p.push({outstanding:'With dues',overdue:'Overdue','High Risk':'High risk',active:'Active',advance:'Advance held',sold:'Bought in period'}[q.risk]||q.risk); return p.join(' · ')||'Tap a row for details'; }
+function drFilterText(q){ const p=[]; if(q.repName) p.push(q.repName); if(q.area) p.push(q.area); if(q.type) p.push(q.type); if(q.fabric) p.push(q.fabric); if(q.colour) p.push(q.colour); if(q.skuName) p.push(q.skuName); if(q.bucket) p.push(q.bucket); if(q.method) p.push(q.method); if(q.verification) p.push(q.verification); if(q.outcome) p.push(q.outcome); if(q.byName) p.push(q.byName); if(q.status&&q.status!=='outstanding') p.push({Submitted:'Waiting for approval',open:'Not yet delivered',pending:'Waiting for approval',Cancelled:'Cancelled',new:'Waiting for store review',hold:'On hold',packing:'In packing',ready:'Ready to pick',dispatched:'Out for delivery',cancelled:'Cancelled',storeConfirmed:'Confirmed by store'}[q.status]||q.status); if(q.fulfil) p.push({booked:'All booked',awaiting:'Waiting for approval',new:'Waiting for store review',onHold:'On hold',confirmedByStore:'Confirmed by store',packing:'Packing queue',ready:'Ready to pick',dispatched:'Out for delivery',delivered:'Delivered',cancelled:'Cancelled'}[q.fulfil]||q.fulfil); if(q.now) p.push('right now'); if(q.cancelKind) p.push({discount:'Discount rejected',store:'Cancelled by store',manager:'Rejected by manager',other:'Other'}[q.cancelKind]||q.cancelKind); if(q.holdDecision) p.push(q.holdDecision==='waiting'?'Waiting for manager':q.holdDecision); if(q.timing) p.push({newToConfirm:'New → confirmed',confirmToDispatch:'Confirmed → dispatched',dispatchToDeliver:'Dispatched → delivered'}[q.timing]||q.timing); if(q.holdAge) p.push({lt1d:'held under 1 day','1to3d':'held 1–3 days','3to7d':'held 3–7 days',gt7d:'held 7+ days'}[q.holdAge]||q.holdAge); if(q.holdReason) p.push(q.holdReason); if(q.cancelReason) p.push(q.cancelReason); if(q.risk) p.push({outstanding:'With dues',overdue:'Overdue','High Risk':'High risk',active:'Active',advance:'Advance held',sold:'Bought in period'}[q.risk]||q.risk); return p.join(' · ')||'Tap a row for details'; }
 function drRange(){ const el=$('dr_rp'); if(el.style.display==='block'){ el.style.display='none'; return; }
   el.style.display='block'; el.innerHTML=`<div class="tabs" style="margin-top:10px">${EX_PRESETS.filter(p=>p[0]!=='custom').map(p=>`<button onclick="drPreset('${p[0]}')">${p[1]}</button>`).join('')}</div>
     <div class="grid2"><div><label>From</label><input type="date" id="dr_f" value="${S.dr.q.from}" max="${today()}"></div><div><label>To</label><input type="date" id="dr_t" value="${S.dr.q.to}" max="${today()}"></div></div><button class="btn sm" onclick="drPreset('custom')">Show</button>`; }
@@ -1569,19 +1579,20 @@ function drRender(){
   if(d.sort) rows.sort((a,b)=>{ const x=a[d.sort], y=b[d.sort]; return (x===y?0:(x===null||x===undefined?1:(y===null||y===undefined?-1:(x<y?-1:1))))*d.dir; });
   const box=(label,v)=>`<div><b>${v}</b><span>${label}</span></div>`;
   let tot='';
-  if(k==='orders'||k==='deliveries') tot=box('Orders',t.count)+box(Q.sku||Q.colour||Q.fabric?'Pieces of this':'Pieces',(t.qty!==undefined?t.qty:'—'))+box(Q.status==='outstanding'?'Due':'Value',money(Q.status==='outstanding'?t.outstanding:t.amount))+(k==='orders'&&t.discount?box('Discount',money(t.discount)):'');
+  if(k==='orders'||k==='deliveries') tot=box('Orders',t.count)+box(Q.sku||Q.colour||Q.fabric?'Pieces of this':'Pieces',(t.qty!==undefined?t.qty:'—'))+box(Q.status==='outstanding'?'Due':'Value',money(Q.status==='outstanding'?t.outstanding:t.amount))+(k==='orders'&&t.discount?box('Discount',money(t.discount)):'')+(k==='orders'&&t.avgH!==undefined&&t.avgH!==null?box('Average',t.avgH+' h'):'');
   else if(k==='collections'||k==='returns'||k==='expenses') tot=box('Entries',t.count)+box('Total',money(t.amount));
   else if(k==='shops'||k==='onboarded') tot=box('Shops',t.count)+(Q.bucket?box('In '+Q.bucket,money(t.bucket)):'')+box('Outstanding',money(t.outstanding))+box('Overdue',money(t.overdue))+box('Sales in period',money(t.sales));
   else if(k==='visits') tot=box('Visits',t.count)+box('Shops',t.shops)+box('Outside geofence',t.outside);
   else if(k==='products'||k==='colours'||k==='fabrics') tot=box(k==='fabrics'?'Fabrics':(k==='colours'?'Colours':'Products'),t.count)+box('Pieces',t.qty)+box('Sales',money(t.amount))+(t.notMoving?box('Not sold',t.notMoving):'');
   else if(k==='discounts'&&r.mode==='byRep') tot=box('Total discount',money(t.discount))+box('Avg per piece',money(t.avgPerPc))+box('Avg price / pc',money(t.avgPrice))+box('Approvals asked',t.asked+' · '+t.approved+' ✓ · '+t.rejected+' ✗'+(t.pending?' · '+t.pending+' waiting':''));
   else if(k==='areas') tot=box('Areas',t.count)+box('Sales',money(t.sales))+box('Outstanding',money(t.outstanding));
+  else if(k==='reviews') tot=box('Reviewed',t.count)+box('Confirmed',t.confirmed)+box('Held',t.holds+(t.released?' · '+t.released+' released':''))+box('Cancelled',t.cancels)+box('Avg time',t.avgMin+' min');
   $('dr_tot').innerHTML=`<div class="card"><div class="tot">${tot}</div>${r.cached?'':''}</div>`;
   const rp=(name,id)=>id?`<span class="lnk" onclick="event.stopPropagation();${pk(id)}">${h(name)}</span>`:h(name);
   const chipS=s=>s?statusChip(s):'';
   const one=x=>{
-    if(k==='orders'||(k==='discounts'&&r.mode!=='byRep')) return `<div class="drow" onclick="${ck(()=>show('doc',x.id,'invoice'))}"><div class="grow"><b>${h(x.shop)}</b> <span class="chip">${h(x.type)}</span>${x.status==='Submitted'?' <span class="chip c-warn">Waiting approval</span>':''}${x.approval==='Rejected'?' <span class="chip c-bad">Discount rejected</span>':''}
-      <div class="hint">${h(x.id)} · ${h(fmtD(x.date))} · ${rp(x.rep,x.repId)} · ${x.qty} pcs${x.perPc?` · disc ${money(x.perPc)}/pc`:''}${x.delivery?' · '+h(x.delivery):''}</div></div>
+    if(k==='orders'||(k==='discounts'&&r.mode!=='byRep')) return `<div class="drow" onclick="${ck(()=>show('doc',x.id,'invoice'))}"><div class="grow"><b>${h(x.shop)}</b> <span class="chip">${h(x.type)}</span>${x.status==='Submitted'?' <span class="chip c-warn">Waiting approval</span>':''}${x.approval==='Rejected'?' <span class="chip c-bad">Discount rejected</span>':''}${x.delivery==='On Hold'&&x.status==='Confirmed'?` <span class="chip c-bad">On hold${x.holdReason?': '+h(x.holdReason):''}</span>${x.holdDecision==='Allowed'?' <span class="chip c-ok">Manager allowed</span>':' <span class="chip c-warn">Waiting for manager</span>'}`:x.delivery==='New'&&x.status==='Confirmed'?' <span class="chip c-info">Store review</span>':''}${x.status==='Cancelled'&&x.cancelKind&&x.cancelKind!=='other'?` <span class="chip c-bad">${h({discount:'Discount rejected',store:'Cancelled by store',manager:'Rejected by manager'}[x.cancelKind]||x.cancelKind)}</span>`:''}${x.status==='Cancelled'&&x.cancelReason?` <span class="chip c-bad">${h(x.cancelReason)}</span>`:''}${x.hours!==undefined&&x.hours!==null?` <span class="chip">${x.hours} h</span>`:''}
+      <div class="hint">${h(x.id)} · ${h(fmtD(x.date))} · ${rp(x.rep,x.repId)} · ${x.qty} pcs${x.perPc?` · disc ${money(x.perPc)}/pc`:''}${x.delivery?' · '+h(dlvTxt(x)):''}${x.heldBy&&x.delivery==='On Hold'?' · held by '+h(x.heldBy)+(x.holdAgeH!==null&&x.holdAgeH!==undefined?' '+x.holdAgeH+' h ago':''):''}${x.cancelledBy?' · cancelled by '+h(x.cancelledBy):''}</div></div>
       <div class="r"><div class="amt">${money(Q.status==='outstanding'?x.outstanding:x.amount)}</div>${x.outstanding>0&&Q.status!=='outstanding'?`<div class="hint">due ${money(x.outstanding)}</div>`:''}${x.days>0?`<span class="chip c-bad">${x.days}d late</span>`:''}</div></div>`;
     if(k==='deliveries') return `<div class="drow" onclick="${ck(()=>show('doc',x.id,'invoice'))}"><div class="grow"><b>${h(x.shop)}</b> ${chipS(x.delivery==='Delivered'?'':x.delivery)}<div class="hint">${h(x.id)} · ${x.deliveryDate?h(fmtD(x.deliveryDate)):'ordered '+h(fmtD(x.date))} · ${rp(x.by||'Unassigned',x.byId)}${x.reason?' · '+h(x.reason):''}</div></div><div class="r"><div class="amt">${money(x.billed||x.amount)}</div><div class="hint">${x.billedQty||x.qty}/${x.ordered||x.qty} pcs</div></div></div>`;
     if(k==='collections') return `<div class="drow" onclick="${ck(()=>x.orderId?show('doc',x.orderId,'invoice'):show('shop',x.shopId))}"><div class="grow"><b>${h(x.shop)}</b> ${chipS(x.verification)}<div class="hint">${h(x.id)} · ${h(fmtD(x.date))} · ${h(x.method)} · by ${rp(x.by,x.byId)}${x.byRole==='Delivery'?' (rider)':''}${x.orderId?' · '+h(x.orderId):' · on account'}</div></div><div class="r amt">${money(x.amount)}</div></div>`;
@@ -1594,6 +1605,7 @@ function drRender(){
     if(k==='fabrics') return `<div class="drow" onclick="${dk('colours',Object.assign({},rng,{fabric:x.key}),x.key+' · colours')}"><div class="grow"><b>${h(x.key)}</b><div class="hint">${x.shopCount} shops · ${x.orders} lines · avg ${money(x.avgPrice)}/pc</div></div><div class="r"><div class="amt">${x.qty} pcs</div><div class="hint">${money(x.amount)}</div></div></div>`;
     if(k==='discounts') return `<div class="drow" onclick="${dk('discounts',Object.assign({},rng,{rep:x.repId,repName:x.rep}),'Discounts · '+x.rep)}"><div class="grow"><b>${rp(x.rep,x.repId)}</b><div class="hint">${x.discOrders} of ${x.orders} orders discounted · ${x.pcs} pcs · avg price ${money(x.avgPrice)}/pc${x.asked?` · approvals ${x.approved}✓ ${x.rejected}✗${x.pending?' '+x.pending+' waiting':''}`:''}</div></div><div class="r"><div class="amt">${money(x.discount)}</div><div class="hint">${money(x.avgPerPc)}/pc · ${pctS(x.share)}</div></div></div>`;
     if(k==='areas') return `<div class="drow" onclick="${dk('shops',Object.assign({},rng,{area:x.area}),'Shops · '+x.area)}"><div class="grow"><b>${h(x.area)}</b><div class="hint">${h(x.district)} · ${x.shops} shops · ${x.orders} orders · collected ${money(x.collections)}</div></div><div class="r"><div class="amt">${money(x.sales)}</div><div class="hint">due ${money(x.outstanding)}</div></div></div>`;
+    if(k==='reviews') return `<div class="drow" onclick="${ck(()=>show('doc',x.id,'invoice'))}"><div class="grow"><b>${h(x.shop)}</b> <span class="chip ${x.result==='Confirmed'?'c-ok':x.result==='On Hold'?'c-warn':'c-bad'}">${h(x.result)}${x.holdDecision==='Allowed'?' → allowed':x.holdDecision==='Rejected'?' → rejected':''}</span><div class="hint">${h(x.id)} · ${h(x.reviewedAt)} · by ${rp(x.by,x.byId)} · rep ${rp(x.rep,x.repId)} · ${x.minutes} min after order${x.holdReason?' · '+h(x.holdReason):''}${x.cancelReason?' · '+h(x.cancelReason):''}${x.approvedBy?' · allowed by '+h(x.approvedBy):''}</div></div><div class="r amt">${money(x.amount)}</div></div>`;
     if(k==='expenses') return `<div class="drow" onclick="${pk(x.empId)}"><div class="grow"><b>${h(x.name)}</b> ${chipS(x.status)}<div class="hint">${h(fmtD(x.date))} · ${h(x.category)}${x.note?' · '+h(x.note):''}</div></div><div class="r amt">${money(x.amount)}</div></div>`;
     return '';
   };
@@ -1650,6 +1662,7 @@ function spRender(){
     ${r.colours.length?`<div class="card"><h3>Top colours sold</h3><div class="cgrid">${r.colours.map(c=>`<div class="cg" onclick="${dk('orders',Object.assign({},rng,me,{sku:c.sku,skuName:c.name}),c.name+' · '+e.name)}">${c.img?`<img loading="lazy" src="${h(c.img)}">`:'<div class="noimg"></div>'}<b>${h(c.name)}</b><span>${c.qty} pcs</span></div>`).join('')}</div></div>`:''}
     <div class="card"><h3>Shops (${r.shopCount})</h3><div class="list">${r.shops.slice(0,15).map(s=>`<div class="drow" onclick="${ck(()=>show('shop',s.id))}"><div class="grow"><b>${h(s.shop)}</b> <span class="chip">${h(s.type)}</span><div class="hint">${h(s.area)} · ${s.lastVisit?'visited '+h(fmtD(s.lastVisit)):'not visited'}${s.days>0?' · '+s.days+'d late':''}</div></div><div class="r"><div class="amt">${money(s.outstanding)}</div>${s.overdue>0?`<span class="chip c-bad">${money(s.overdue)}</span>`:''}</div></div>`).join('')||'<div class="hint">No shops assigned.</div>'}</div>
       ${r.shopCount>15?`<button class="btn sec" onclick="${dk('shops',Object.assign({},rng,me,{risk:''}),'Shops · '+e.name)}">All ${r.shopCount} shops ›</button>`:''}</div>`:''}
+    ${staffGateCard(r, e, rng)}
     ${r.delivery?`<div class="card"><h3>Deliveries</h3><div class="grid3">
       ${kp('Delivered',r.delivery.done,money(r.delivery.billed)+' billed','',dk('deliveries',Object.assign({},rng,{by:e.id,byName:e.name}),'Deliveries · '+e.name))}
       ${kp('Open now',r.delivery.open,'','',dk('deliveries',Object.assign({},rng,{by:e.id,byName:e.name,status:'open'}),'Open deliveries · '+e.name))}
@@ -1976,7 +1989,7 @@ async function notifPoll(force){
 }
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) notifPoll(); });
 
-const NICON={order_new:'🧺',order_ready:'🛵',order_ready_open:'🛵',order_dispatched:'🚚',order_delivered:'✅',order_cancelled:'⛔',discount_decision:'🏷️',discount_approval:'🏷️',collection_rejected:'⚠️'};
+const NICON={order_hold:'⏸️',order_released:'▶️',order_new:'🧺',order_ready:'🛵',order_ready_open:'🛵',order_dispatched:'🚚',order_delivered:'✅',order_cancelled:'⛔',discount_decision:'🏷️',discount_approval:'🏷️',collection_rejected:'⚠️'};
 screens.notifs = async function(){
   page('Notifications', S.user?S.user.name:'', `<div id="nfBox" class="hint">Loading…</div>`);
   const r=await api('apiNotifications', {limit:40}); const box=$('nfBox'); if(!box) return;
@@ -1997,6 +2010,8 @@ async function notifReadAll(){ const r=await api('apiNotificationsRead','all'); 
 function openNotif(id, ref){
   const n=((S.nf&&S.nf.list)||[]).find(x=>x.id===id) || {id, refNo:ref||''};
   if(!n.read){ n.read=true; api('apiNotificationsRead', String(id)).then(r=>{ if(r.ok&&S.boot){ S.boot.unread=r.unread; updBell(); } }); }
+  const P=(S.boot&&S.boot.perms)||{};
+  if(n.refNo && GATE() && ((n.kind==='order_hold' && P.holdDecide) || (n.kind==='order_hold_allowed' && P.review && /confirm now/.test(n.title||'')) || (n.kind==='order_new' && P.review && /to review/.test(n.title||'')))) return show('rv', n.refNo);
   if(n.refNo){ if(S.docs) delete S.docs[n.refNo]; show('doc', n.refNo, 'invoice'); } else renderNotifs();
 }
 async function askNotifPerm(){ try{ const p=await Notification.requestPermission(); toast(p==='granted'?'✅ Phone alerts on':'OK – alerts stay inside the app'); }catch(e){} renderNotifs(); }
@@ -2007,6 +2022,7 @@ function tlFull(tl){ return `<div class="tl">${(tl||[]).map(x=>`<div class="${x.
 function fulDocCard(r){
   const o=r&&r.order; if(!o||!o.timeline||!S.boot) return '';
   const id=o.id, P=S.boot.perms||{}; let act='';
+  if(o.status==='Confirmed' && (o.delivery==='New'||o.delivery==='On Hold') && (P.review || (P.holdDecide && o.delivery==='On Hold'))) act=`<button class="btn sm ok" onclick="show('rv','${h(id)}')">🔎 Review this order</button>`;
   if(P.store && o.status==='Confirmed'){
     if(o.delivery==='Pending') act=`<button class="btn sm sec" onclick="storeSet('${h(id)}','Packing',1)">📦 Mark Packing</button><button class="btn sm ok" onclick="storeSet('${h(id)}','Ready to Pick',1)">✅ Ready to Pick</button>`;
     else if(o.delivery==='Packing') act=`<button class="btn sm ok" onclick="storeSet('${h(id)}','Ready to Pick',1)">✅ Ready to Pick</button>`;
@@ -2017,11 +2033,13 @@ function fulDocCard(r){
     else if(o.delivery==='Ready to Pick' && mine) act=`<button class="btn sm ok" onclick="riderPick('${h(id)}','pickup',1)">📦 Picked up</button>`;
     else if(o.delivery==='Dispatched' && mine) act=`<button class="btn sm ok" onclick="show('deliver','${h(id)}')">✅ Deliver</button>`;
   }
-  return `<div class="card" id="fulCard"><div class="row"><h3 class="grow" style="margin:0">Order status</h3>${delChip(o.stage||o.delivery)}</div>${o.storeNote?`<div class="hint">📝 Store note: ${h(o.storeNote)}</div>`:''}<div style="margin-top:12px">${tlFull(o.timeline)}</div>${act?`<div>${act}</div>`:''}</div>`;
+  return `<div class="card" id="fulCard"><div class="row"><h3 class="grow" style="margin:0">Order status</h3>${delChip(o.stage||o.delivery, o.holdReason)}</div>${o.storeNote?`<div class="hint">📝 Store note: ${h(o.storeNote)}</div>`:''}<div style="margin-top:12px">${tlFull(o.timeline)}</div>${act?`<div>${act}</div>`:''}</div>`;
 }
 function fulHomeCard(b){
   if(!FUL()) return ''; const c=b.counts||{}, P=b.perms||{};
+  if(P.store && b.user.role==='Store Keeper' && GATE()) return `<div class="card"><h3>Store today</h3><div class="grid4"><div class="kpi tap" onclick="show('review','new')"><b>${c.review||0}</b><span>New orders ›</span></div><div class="kpi tap" onclick="show('review','hold')"><b style="color:${c.hold?'var(--bad)':'inherit'}">${c.hold||0}</b><span>Hold${c.holdAllowed?' · '+c.holdAllowed+' allowed':''} ›</span></div><div class="kpi tap" onclick="show('packq','pack')"><b>${c.store||0}</b><span>Packing queue ›</span></div><div class="kpi tap" onclick="show('notifs')"><b>${b.unread||0}</b><span>Unread ›</span></div></div>${c.review?'<div class="hint">Review new orders with the shop ledger before packing.</div>':''}</div>`;
   if(P.store && b.user.role==='Store Keeper') return `<div class="card"><h3>Store today</h3><div class="grid2"><div class="kpi tap" onclick="show('packq','pack')"><b>${c.store||0}</b><span>To pack ›</span></div><div class="kpi tap" onclick="show('notifs')"><b>${b.unread||0}</b><span>Unread ›</span></div></div></div>`;
+  if(P.holdDecide && !P.review && GATE() && c.holdWaiting) return `<div class="badbox" id="holdBanner" style="margin-bottom:14px;cursor:pointer" onclick="show('review','hold')">⏸️ <b>${c.holdWaiting}</b> held order(s) of your team need your decision — Allow or Reject. Tap to see.</div>`;
   if(P.pick && c.ready) return `<div class="okbox" style="margin-bottom:14px;cursor:pointer" onclick="show('pickq')">🛵 <b>${c.ready}</b> order(s) ready to pick at the store — tap to see</div>`;
   return '';
 }
@@ -2050,7 +2068,8 @@ function renderPackq(){
   const L=r.list.filter(o=>S.pq.tab==='ready' ? o.stage==='Ready to Pick' : o.stage!=='Ready to Pick');
   const tabs=[['pack','To pack ('+(c.pending+c.packing)+')'],['ready','Waiting for rider ('+c.ready+')']];
   box.innerHTML=`<div class="card"><div class="grid3"><div class="kpi tap" onclick="pqTab('pack')"><b>${c.pending}</b><span>New</span></div><div class="kpi tap" onclick="pqTab('pack')"><b>${c.packing}</b><span>Packing</span></div><div class="kpi tap" onclick="pqTab('ready')"><b>${c.ready}</b><span>Ready</span></div></div>
-    <div class="hint">${c.pcs} pcs to pack.${r.awaitingApproval?' '+r.awaitingApproval+' order(s) still wait for discount approval – they appear here once confirmed.':''}</div></div>
+    <div class="hint">${c.pcs} pcs to pack.${r.awaitingApproval?' '+r.awaitingApproval+' order(s) still wait for discount approval – they appear here once confirmed.':''}</div>
+    ${r.storeReview&&(c.new||c.hold)?`<div class="warnbox" style="cursor:pointer" onclick="show('review','${c.new?'new':'hold'}')">🔎 ${c.new||0} new order(s) to review · ${c.hold||0} on hold — they come here after Confirm. Tap to review.</div>`:''}</div>
     <div class="tabs">${tabs.map(x=>`<button class="${S.pq.tab===x[0]?'on':''}" onclick="pqTab('${x[0]}')">${x[1]}</button>`).join('')}</div>
     ${L.length?L.map(pqCard).join(''):`<div class="okbox">${S.pq.tab==='ready'?'No packed orders waiting for a rider.':'Nothing to pack right now. 🎉'}</div>`}`;
 }
@@ -2107,6 +2126,186 @@ async function riderPick(id, act, fromDoc){
   if(fromDoc) return r.ok ? screens.doc(id, (S.doc&&S.doc.kind)||'invoice') : null;
   if(S.screen==='deliveries') return screens.deliveries();
   screens.pickq();
+}
+
+/* ---------------------------------------------------------------- store review (013): New → Confirm / Hold / Cancel; Hold → manager Allow / Reject */
+function GATE(){ const b=S.boot; if(!b||b.storeReview===undefined) return false; const c=b.counts||{}; return b.storeReview===true || (c.review||0)+(c.hold||0)>0; }
+const RQ_TABS=[['new','New orders'],['hold','Hold'],['packing','Packing queue'],['ready','Ready to pick'],['dispatched','Dispatched']];
+screens.review = async function(tab){
+  S.rq=S.rq||{tab:'new'}; if(tab) S.rq.tab=tab; navArgs(S.rq.tab);
+  if(!$('rqBox')) page('Store review', S.boot.todayLabel, `<div id="rqBox" class="hint">Loading…</div>`);
+  const r=await api('apiStoreQueue'); const box=$('rqBox'); if(!box) return;
+  if(!r.ok) return box.innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.rq.data=r;
+  if(S.boot&&S.boot.counts){ const c=r.counts||{}; Object.assign(S.boot.counts,{review:c.new||0, hold:c.hold||0, holdWaiting:c.holdWaiting||0, holdAllowed:c.holdAllowed||0}); }
+  renderReviewQ();
+};
+function renderReviewQ(){
+  const r=S.rq.data, box=$('rqBox'); if(!box||!r) return;
+  const c=r.counts||{}, t=r.tabs||{}, rv=r.review||{new:[],hold:[],dispatched:[]}, P=(S.boot&&S.boot.perms)||{};
+  const tab=['hold','dispatched'].includes(S.rq.tab)?S.rq.tab:'new', L=rv[tab]||[];
+  const tabs=RQ_TABS.filter(x=>P.store||['new','hold','dispatched'].includes(x[0]));
+  const hint=tab==='new'?`${money(c.newValue||0)} waiting · open each order, check the shop ledger, then Confirm, Hold or Cancel.`
+    :tab==='hold'?`${money(c.holdValue||0)} on hold · ${c.holdWaiting||0} waiting for the sales manager · ${c.holdAllowed||0} allowed.${r.canDecideHold?' Open an order to Allow or Reject it.':' Talk to the shop owner and the sales person; Confirm unlocks when the manager allows it, otherwise cancel.'}`
+    :'Orders the riders picked up today.';
+  box.innerHTML=`<div class="tabs" id="rqTabs">${tabs.map(x=>`<button class="${tab===x[0]?'on':''}" onclick="rqTab('${x[0]}')">${x[1]} (${t[x[0]]||0})</button>`).join('')}</div>
+    ${r.storeReview===false?'<div class="warnbox" style="margin-bottom:10px">Store review is switched off (setting STORE_REVIEW = No): new orders go straight to the packing queue.</div>':''}
+    <div class="hint" style="margin-bottom:8px">${hint}</div>
+    ${L.length?L.map(tab==='dispatched'?rqDispCard:rqCard).join(''):`<div class="okbox">${tab==='new'?'No new orders to review. 🎉':tab==='hold'?'Nothing on hold.':'Nothing dispatched yet today.'}</div>`}`;
+}
+function rqTab(t){ if(t==='packing') return show('packq','pack'); if(t==='ready') return show('packq','ready'); S.rq.tab=t; navArgs(t); renderReviewQ(); }
+function rqDecision(o){ return o.holdDecision==='Allowed'?`<span class="chip c-ok">✓ Allowed by ${h(o.allowedBy)}</span>`:`<span class="chip c-warn">⏳ Waiting for ${h(o.manager||'the sales manager')}</span>`; }
+function rqCard(o){
+  const hd=o.stage==='On Hold';
+  return `<div class="card" id="rq_${h(o.id)}" style="cursor:pointer" onclick="show('rv','${h(o.id)}')"><div class="row"><div class="grow"><b>${h(o.shop)}</b> ${o.flag?'<span class="chip c-bad">⚠ check ledger</span>':''}${hd?' '+rqDecision(o):''}
+    <div class="hint">${h(o.id)} · ${o.qty} pcs · ${h(o.terms)} · <span class="age ${o.ageMin>120&&!hd?'late':''}">${ageTxt(o.ageMin)} ago</span></div>
+    <div class="muted">${h(o.area)}${o.district?', '+h(o.district):''} · Rep ${h(o.rep)}</div>
+    ${o.overdue>0?`<div class="hint" style="color:var(--bad)">Overdue ${money(o.overdue)} · oldest ${o.maxDays} days · outstanding ${money(o.outstanding)}</div>`:''}
+    ${hd?`<div class="badbox" style="margin-top:6px">⏸️ <b>${h(o.holdReason)}</b>${o.holdNote?' – '+h(o.holdNote):''} · held by ${h(o.heldBy)} · ${ageTxt(o.holdAgeMin)} on hold${o.holdDecision==='Allowed'&&o.allowNote?'<br>👍 '+h(o.allowNote):''}</div>`:''}</div>
+    <div style="text-align:right"><div class="amt">${money(o.net)}</div><span class="chev">›</span></div></div></div>`;
+}
+function rqDispCard(o){
+  return `<div class="card" id="rd_${h(o.id)}" style="cursor:pointer" onclick="show('doc','${h(o.id)}','invoice')"><div class="row"><div class="grow"><b>${h(o.shop)}</b> ${delChip(o.stage)}
+    <div class="hint">${h(o.id)} · ${o.qty} pcs · picked up ${h(o.pickedAt)} by ${h(o.rider||'rider')}</div><div class="muted">${h(o.area)} · Rep ${h(o.rep)}</div></div>
+    <div style="text-align:right"><div class="amt">${money(o.net)}</div><span class="chev">›</span></div></div></div>`;
+}
+
+screens.rv = async function(id){
+  S.rv={id, form:''}; page('Review order', id, `<div id="rvBox" class="hint">Loading…</div>`);
+  const r=await api('apiStoreReview', {orderId:id}); const box=$('rvBox'); if(!box) return;
+  if(!r.ok) return box.innerHTML=`<div class="badbox">${h(r.message)}</div>`;
+  S.rv.data=r; renderRv();
+};
+const AGC2=['#2E7D5B','#C7A97D','#D08B4C','#A8322A','#6E2A22','#282626'];
+function rvHealth(r){
+  const H=r.health||{level:'green',text:''}, W=r.warnings||[];
+  const cls=H.level==='red'?'badbox':H.level==='amber'?'warnbox':'okbox', tag=H.level==='red'?'⛔ RED':H.level==='amber'?'⚠ AMBER':'✓ GREEN';
+  return `<div class="${cls}" id="rvHealth" data-level="${h(H.level)}" style="margin:0 0 10px;padding:12px;border-left:6px solid currentColor"><b>${tag}</b> · ${h(H.text)}
+    ${W.map(w=>`<div style="margin-top:6px">${w.level==='bad'?'⛔':'⚠'} ${h(w.text)}</div>`).join('')}</div>`;
+}
+function renderRv(msg){
+  const r=S.rv.data, box=$('rvBox'); if(!box||!r) return; S.clk=[];
+  const o=r.order, s=r.shop, l=r.ledger||{}, op=l.openOrders||{}, hd=o.delivery==='On Hold'&&o.status==='Confirmed';
+  box.innerHTML=`${msg||''}
+  <div class="card"><div class="row"><div class="grow"><h3 style="margin:0">${h(s.name)}</h3><div class="hint">${h(o.id)} · ${h(fmtD(o.date))} · ${ageTxt(o.ageMin)} ago</div></div>${o.status==='Cancelled'?'<span class="chip c-bad">Cancelled</span>':delChip(o.delivery,o.holdReason)}</div>
+    <div class="muted" style="margin-top:6px">${h(s.type)} · ${h(s.owner)} · <a href="tel:${h(s.mobile)}">${h(s.mobile)}</a><br>${h(s.address)}${s.address?' · ':''}${h(r.area)}, ${h(r.district)}</div>
+    <div class="muted">Territory / beat: <b>${h(r.territory||'—')}</b> · Area <b>${h(r.beat||r.area||'—')}</b> · Rep <b>${h(r.rep.name)}</b>${r.rep.mobile?` (<a href="tel:${h(r.rep.mobile)}">${h(r.rep.mobile)}</a>)`:''}${r.manager.name?` · Manager <b>${h(r.manager.name)}</b>${r.manager.mobile?` (<a href="tel:${h(r.manager.mobile)}">${h(r.manager.mobile)}</a>)`:''}`:''}${o.warehouse?' · 🏬 '+h(o.warehouse):''}</div>
+    <div>${navLink(s.lat,s.lng)}${s.mobile?`<a class="btn sm sec" href="tel:${h(s.mobile)}">📞 Call shop</a>`:''}${r.rep.mobile?`<a class="btn sm sec" href="tel:${h(r.rep.mobile)}">📞 Call rep</a>`:''}</div>
+    <div class="grid3" style="margin-top:10px"><div class="kpi"><b>${money(o.net)}</b><span>Order value</span></div><div class="kpi"><b>${o.qty}</b><span>pcs · ${o.items} colour(s)</span></div><div class="kpi"><b style="font-size:14px">${h(o.terms)}</b><span>${o.perPc?'disc '+money(o.perPc)+'/pc':'no discount'}</span></div></div>
+    ${o.remarks?`<div class="hint">📝 ${h(o.remarks)}</div>`:''}</div>
+  ${rvHealth(r)}
+  <div class="card" id="rvLedger"><h3>Shop ledger</h3><div class="grid4">
+    <div class="kpi"><b>${money(l.outstanding)}</b><span>Outstanding</span></div>
+    <div class="kpi"><b style="color:${l.overdue>0?'var(--bad)':'var(--ok)'}">${money(l.overdue)}</b><span>Overdue${l.maxDaysOverdue?' · '+l.maxDaysOverdue+' days':''}</span></div>
+    <div class="kpi"><b style="color:${l.creditUsedPct>100?'var(--bad)':'inherit'}">${l.creditLimit?l.creditUsedPct+'%':'—'}</b><span>${l.creditLimit?'of limit '+money(l.creditLimit):'No credit limit'}</span></div>
+    <div class="kpi"><b>${op.count||0}</b><span>Open orders · ${money(op.value||0)}</span></div></div>
+    <div class="hint">Risk ${statusChip(l.risk||'OK')} · ${l.totalOrders||0} orders · sales ${money(l.netSales)} · paid ${money(l.collected)}${l.advance?' · advance '+money(l.advance):''} · dues before this order ${money(l.outstandingExThis||0)}</div>
+    ${(l.aging||[]).some(a=>a.value>0)?`<div class="sect">Aging</div>${hBars(l.aging.map((a,i)=>({label:a.label,value:a.value,color:AGC2[i]})),{fmt:shortN})}`:''}
+    <div class="sect">Last payments</div>${(l.lastPayments||[]).length?l.lastPayments.map(p=>`<div class="row hint" style="padding:3px 0"><span class="grow">${h(fmtD(p.date))} · ${h(p.method)} · ${h(p.verification)}</span><b>${money(p.amount)}</b></div>`).join(''):'<div class="hint">No payments yet.</div>'}
+    <div class="sect">Last orders</div>${(l.lastOrders||[]).length?l.lastOrders.map(x=>`<div class="row hint" style="padding:3px 0;cursor:pointer" onclick="show('doc','${h(x.id)}','invoice')"><span class="grow">${h(x.id)} · ${h(fmtD(x.date))} · ${h(x.stageLabel||x.delivery)} · ${h(x.payment)}${x.days>0?` · <b style="color:var(--bad)">${x.days}d late</b>`:''}</span><b>${money(x.net)}</b></div>`).join(''):'<div class="hint">First order of this shop.</div>'}</div>
+  <div class="card" id="rvLines"><h3>Products (${o.items})${r.stockShort?` <span class="chip c-warn">${r.stockShort} short in stock</span>`:''}</h3>
+    <div class="pkl">${(r.lines||[]).map(x=>`<div class="pki" style="cursor:default">${x.img?`<img loading="lazy" src="${h(x.img)}" alt="${h(x.colour)}">`:`<div class="noimg">${h(String(x.colour||x.sku).slice(0,3))}</div>`}<span class="q">× ${x.qty}</span><b>${h(x.colour||x.name)}</b><span class="hint">${h(x.fabric||'')} · ${money(x.price)}${x.discount?' · −'+money(x.discount):''}</span>${x.stock?`<span class="pst ${x.short>0?'out':'ok'}">${x.short>0?'short '+x.short+' · ':''}${x.available} avail.</span>`:''}</div>`).join('')}</div></div>
+  ${hd?`<div class="badbox" id="rvHold" style="margin-bottom:10px">⏸️ On hold: <b>${h(o.holdReason)}</b>${o.holdNote?' – '+h(o.holdNote):''} · by ${h(o.heldBy)} · ${ageTxt(o.holdAgeMin)}
+    <div style="margin-top:6px" id="rvDecision">${o.holdDecision==='Allowed'?`👍 Allowed by <b>${h(o.allowedBy)}</b> · ${h(o.allowedAt)}${o.allowNote?' – '+h(o.allowNote):''}`:`⏳ Waiting for the sales manager${r.manager.name?' ('+h(r.manager.name)+')':''} to Allow or Reject`}</div></div>`:''}
+  <div class="card"><h3>Status</h3>${tlFull(o.timeline)}</div>
+  ${rvActions(r)}`;
+}
+function rvForm(f){ S.rv.form=f; renderRv(); const el=$('rvForm'); if(el) el.scrollIntoView({block:'center'}); }
+function rvActions(r){
+  const A=r.actions||[], o=r.order, f=S.rv.form, hd=o.delivery==='On Hold', P=(S.boot&&S.boot.perms)||{};
+  if(!A.length) return `<div class="hint" style="margin:6px 2px">${o.status==='Cancelled'?'This order is cancelled.':(o.delivery==='New'||hd)?'You can view this order; the store keeper decides it.':'Already decided – it is now '+h(o.stageLabel||o.delivery)+'.'}</div><button class="btn sec" onclick="show('doc','${h(o.id)}','invoice')">Open order ›</button>`;
+  const opt=a=>(a||[]).map(x=>`<option value="${h(x)}">${h(x)}</option>`).join('');
+  const why=k=>`<label>Reason <span class="req">*</span></label><select id="rv_reason"><option value="">Choose…</option>${opt(r.reasons[k])}</select>`;
+  const back=`<button class="btn sm sec" onclick="rvForm('')">‹ Back</button>`;
+  if(f==='hold') return `<div class="card" id="rvForm"><h3>Put on hold</h3>${why('hold')}
+    <label>Note</label><input id="rv_note" placeholder="e.g. 45 days overdue – talk to the owner first"><div class="hint">The rep and the sales manager are told. The manager decides: Allow or Reject.</div><button class="btn big" style="background:var(--warn)" onclick="rvDo('hold')">⏸️ Save hold</button>${back}</div>`;
+  if(f==='cancel') return `<div class="card" id="rvForm"><h3>Cancel this order</h3>${why('cancel')}
+    <label>Note</label><input id="rv_note" placeholder="What did the shop / manager say?"><div class="hint">Cancelling releases the reserved stock and tells the rep and the sales manager.</div><button class="btn big bad" onclick="rvDo('cancel')">⛔ Cancel order</button>${back}</div>`;
+  if(f==='reject') return `<div class="card" id="rvForm"><h3>Reject the held order</h3>${why('reject')}
+    <label>Note</label><input id="rv_note" placeholder="e.g. Clear the old dues first"><div class="hint">The order is cancelled and its stock released. The rep and the store keepers are told.</div><button class="btn big bad" onclick="rvDo('reject')">👎 Reject and cancel</button>${back}</div>`;
+  if(f==='allow') return `<div class="card" id="rvForm"><h3>Allow this order</h3><label>Note for the store keeper</label><input id="rv_note" placeholder="e.g. Owner pays ৳20,000 on Friday"><div class="hint">The store keeper is told to confirm it for packing.</div><button class="btn big ok" onclick="rvDo('allow')">👍 Allow</button>${back}</div>`;
+  if(f==='confirm') return `<div class="card" id="rvForm"><h3>Confirm the held order</h3>${o.holdDecision==='Allowed'?`<div class="hint">Allowed by ${h(o.allowedBy)}${o.allowNote?' – '+h(o.allowNote):''}.</div>`:`<div class="hint">You allow and confirm it in one step.</div>`}
+    <label>Note</label><input id="rv_note" placeholder="e.g. Owner confirmed on the phone"><button class="btn big ok" onclick="rvDo('confirm')">✅ Confirm and start delivery</button>${back}</div>`;
+  const mgr=P.holdDecide&&!P.review;
+  const conf=A.includes('confirm')?`<button class="btn big ok" id="rvConfirm" onclick="${hd?"rvForm('confirm')":"rvDo('confirm')"}">✅ ${hd&&o.holdDecision!=='Allowed'&&(mgr||A.includes('allow'))?'Allow & confirm':'Confirm'}</button>`
+    :(r.confirmBlocked?`<button class="btn big ok" id="rvConfirm" disabled>✅ Confirm</button><div class="hint" id="rvBlocked" style="margin:-4px 2px 8px">🔒 ${h(r.confirmBlocked)}</div>`:'');
+  return `<div class="card" id="rvAct"><h3>Decision</h3><div class="hint">${hd?(o.holdDecision==='Allowed'?'The sales manager allowed it – Confirm sends it to the packing queue.':'A held order is confirmed only with the sales manager’s permission. If the manager does not allow it, it is cancelled.'):'Confirm sends it to the packing queue. Hold it if the ledger needs a decision first.'}</div>
+    ${A.includes('allow')?`<button class="btn big ok" id="rvAllow" onclick="rvForm('allow')">👍 Allow</button>`:''}
+    ${conf}
+    ${A.includes('hold')?`<button class="btn big" id="rvHoldBtn" style="background:var(--warn)" onclick="rvForm('hold')">⏸️ Hold</button>`:''}
+    ${A.includes('reject')?`<button class="btn big bad" id="rvReject" onclick="rvForm('reject')">👎 Reject</button>`:''}
+    ${A.includes('cancel')?`<button class="btn big bad" id="rvCancel" onclick="rvForm('cancel')">⛔ Cancel</button>`:''}</div>`;
+}
+async function rvDo(act){
+  const r=S.rv.data, o=r.order, v=k=>{ const e=$(k); return e?e.value.trim():''; }, P=(S.boot&&S.boot.perms)||{};
+  const p={orderId:o.id, action:act, reason:v('rv_reason'), note:v('rv_note'), submissionId:uid()};
+  if(['hold','cancel','reject'].includes(act) && !p.reason) return toast('Choose a reason');
+  if(p.reason==='Other' && p.note.length<3) return toast('Write a short note for "Other"');
+  busy(true, 'Saving…'); const res=await api('apiStoreDecision', p); busy(false);
+  toast((res.ok?({hold:'⏸️ ',cancel:'⛔ ',reject:'👎 ',allow:'👍 '}[act]||'✅ '):'⛔ ')+res.message, 5000);
+  if(!res.ok) return;
+  if(S.docs) delete S.docs[o.id];
+  const nx=await api('apiStoreReview', {orderId:o.id}); if(nx.ok) S.rv.data=nx; S.rv.form='';
+  const back=P.review&&o.delivery==='New'?'new':'hold';
+  renderRv(`<div class="okbox" id="rvDone" style="margin-bottom:10px">${h(res.message)}<div style="margin-top:8px"><button class="btn sm" onclick="show('review','${back}')">Next order ›</button></div></div>`);
+  window.scrollTo(0,0);
+}
+
+/* CEO dashboard: fulfilment funnel of the period + held orders now (every number opens its list) */
+const FN_COL={awaiting:'#C7A97D',new:'#3E6E8E',onHold:'#A8322A',packing:'#D08B4C',ready:'#1A473C',dispatched:'#3E7A66',delivered:'#2E7D5B',cancelled:'#6E2A22'};
+function pipeCard(r, R){
+  const fn=r.funnel; if(!fn) return '';
+  const hd=r.held||{aging:[],reasons:[],waiting:{},allowed:{}}, rv=r.storeReview||{}, tm=fn.times||{}, cn=fn.cancelled||{kinds:[]}, st={};
+  (fn.stages||[]).forEach(x=>st[x.key]=x);
+  const NOW={fulfil:'onHold',now:'1'};
+  const stg=k=>{ const x=st[k]||{count:0,value:0,label:k}; return kp(x.label, `<span style="color:${x.count&&(k==='onHold'||k==='cancelled')?'var(--bad)':'inherit'}">${x.count}</span>`, money(x.value), '', dk('orders',R({fulfil:k}),x.label)); };
+  const reasons=[]; (cn.kinds||[]).forEach(k=>(k.reasons||[]).forEach(x=>reasons.push({label:k.label+': '+x.reason,value:x.count,sub:shortN(x.value),color:FN_COL.cancelled,click:dk('orders',R({fulfil:'cancelled',cancelKind:k.kind,cancelReason:x.reason}),k.label+' · '+x.reason)})));
+  return `<div class="card" id="pipeCard"><h3>Order fulfilment funnel</h3><div class="hint" style="margin:-6px 0 8px">Orders booked ${h(fmtD(fn.from))}${fn.from!==fn.to?' – '+h(fmtD(fn.to)):''} and where they are now${fn.storeReview?'':' · store review is OFF (STORE_REVIEW = No)'} · tap any number for its list</div>
+    <div class="grid4">
+      ${kp('Booked', fn.booked.count, money(fn.booked.value), '', dk('orders',R({fulfil:'booked'}),'Booked orders'))}
+      ${kp('Confirmed by store', fn.confirmedByStore.count, money(fn.confirmedByStore.value), '', dk('orders',R({fulfil:'confirmedByStore'}),'Confirmed by store'))}
+      ${stg('new')}${stg('onHold')}
+    </div>
+    <div id="funnelBars" style="margin-top:8px">${hBars((fn.stages||[]).map(x=>({label:x.label,value:x.count,sub:shortN(x.value),color:FN_COL[x.key],click:dk('orders',R({fulfil:x.key}),x.label)})),{})}</div>
+    <div class="grid4">${stg('packing')}${stg('ready')}${stg('dispatched')}${stg('delivered')}</div>
+    <div class="sect">On hold right now</div><div class="grid4" id="heldNow">
+      ${kp('On hold now', `<span style="color:${hd.count?'var(--bad)':'inherit'}">${hd.count}</span>`, money(hd.value), '', dk('orders',NOW,'On hold now'))}
+      ${kp('Waiting for manager', hd.waiting.count||0, money(hd.waiting.value||0), '', dk('orders',Object.assign({holdDecision:'waiting'},NOW),'On hold · waiting for manager'))}
+      ${kp('Manager allowed', hd.allowed.count||0, money(hd.allowed.value||0)+' · to confirm', '', dk('orders',Object.assign({holdDecision:'allowed'},NOW),'On hold · allowed'))}
+      ${kp('Average age', (hd.avgAgeH||0)+' h', 'oldest '+(hd.oldestH||0)+' h', '', dk('orders',NOW,'On hold now'))}
+    </div>
+    ${hd.count?`<div style="margin-top:8px">${hBars((hd.aging||[]).map(a=>({label:'Held '+a.label.toLowerCase(),value:a.count,sub:shortN(a.value),color:FN_COL.onHold,click:dk('orders',Object.assign({holdAge:a.key},NOW),'On hold · '+a.label)})),{})}</div>`:''}
+    ${(hd.reasons||[]).length?`<div class="sect">Why orders are on hold</div>${hBars(hd.reasons.map(x=>({label:x.reason,value:x.count,sub:shortN(x.value),color:FN_COL.onHold,click:dk('orders',Object.assign({holdReason:x.reason},NOW),'On hold · '+x.reason)})),{})}`:''}
+    <div class="sect">Cancelled in the period</div><div class="grid4" id="cancelKinds">
+      ${(cn.kinds||[]).map(k=>kp(k.label, `<span style="color:${k.count?'var(--bad)':'inherit'}">${k.count}</span>`, money(k.value), '', dk('orders',R({fulfil:'cancelled',cancelKind:k.kind}),k.label))).join('')}
+    </div>
+    ${reasons.length?`<div style="margin-top:8px">${hBars(reasons,{})}</div>`:''}
+    <div class="sect">Average time</div><div class="grid3" id="fnTimes">
+      ${kp('New → confirmed', (tm.newToConfirmH||0)+' h', tm.newToConfirmN+' orders', '', dk('orders',R({fulfil:'booked',timing:'newToConfirm'}),'New → confirmed by store'))}
+      ${kp('Confirmed → dispatched', (tm.confirmToDispatchH||0)+' h', tm.confirmToDispatchN+' orders', '', dk('orders',R({fulfil:'booked',timing:'confirmToDispatch'}),'Confirmed → dispatched'))}
+      ${kp('Dispatched → delivered', (tm.dispatchToDeliverH||0)+' h', tm.dispatchToDeliverN+' orders', '', dk('orders',R({fulfil:'booked',timing:'dispatchToDeliver'}),'Dispatched → delivered'))}
+    </div>
+    <div class="sect">Store review in the period</div><div class="grid4">
+      ${kp('Reviewed', rv.reviewed||0, (rv.confirmed||0)+' confirmed at once', '', dk('reviews',R(),'Store reviews'))}
+      ${kp('Avg time to review', (rv.avgMin||0)+' min', 'from order to decision', '', dk('reviews',R(),'Store reviews'))}
+      ${kp('Put on hold', rv.holds||0, (rv.allowed||0)+' allowed · '+(rv.rejected||0)+' rejected', '', dk('reviews',R({status:'On Hold'}),'Held at store review'))}
+      ${kp('Cancelled at review', rv.cancels||0, '', '', dk('reviews',R({status:'Cancelled'}),'Cancelled at store review'))}
+    </div>
+    ${(rv.byKeeper||[]).length?`<div style="overflow-x:auto;margin-top:8px"><table class="t"><tr><th>Store keeper</th><th>Reviewed</th><th>Confirmed</th><th>Held</th><th>Cancelled</th><th>Avg min</th></tr>${rv.byKeeper.map(k=>`<tr class="tapr" onclick="${dk('reviews',R({by:k.empId,byName:k.name}),'Reviews · '+k.name)}"><td>${h(k.name)}</td><td>${k.reviewed}</td><td>${k.confirmed}</td><td>${k.holds}</td><td>${k.cancels}</td><td>${k.avgMin}</td></tr>`).join('')}</table></div>`:''}
+  </div>`;
+}
+/* staff profile: held / cancelled orders of a rep, reviews of a store keeper */
+function staffGateCard(r, e, rng){
+  const g=r.storeReview; if(!g) return ''; const me={rep:e.id,repName:e.name}; let out='';
+  if(r.isRep) out+=`<div class="card" id="spGate"><h3>Store review</h3><div class="grid4">
+    ${kp('On hold now', `<span style="color:${g.hold.count?'var(--bad)':'inherit'}">${g.hold.count}</span>`, money(g.hold.value), '', dk('orders',Object.assign({fulfil:'onHold',now:'1'},me),'On hold · '+e.name))}
+    ${kp('Cancelled by store', g.storeCancelled.count, money(g.storeCancelled.value), '', dk('orders',Object.assign({},rng,me,{fulfil:'cancelled',cancelKind:'store'}),'Cancelled by store · '+e.name))}
+    ${kp('Rejected by manager', g.managerRejected.count, money(g.managerRejected.value), '', dk('orders',Object.assign({},rng,me,{fulfil:'cancelled',cancelKind:'manager'}),'Rejected by manager · '+e.name))}
+    ${kp('Waiting for review', g.new.count, money(g.new.value), '', dk('orders',Object.assign({fulfil:'new',now:'1'},me),'New · '+e.name))}</div></div>`;
+  if(g.reviews) out+=`<div class="card"><h3>Orders reviewed</h3><div class="grid4">
+    ${kp('Reviewed', g.reviews.reviewed, g.reviews.confirmed+' confirmed', '', dk('reviews',Object.assign({},rng,{by:e.id,byName:e.name}),'Reviews · '+e.name))}
+    ${kp('Held', g.reviews.holds)}${kp('Cancelled', g.reviews.cancels)}${kp('Avg time', g.reviews.avgMin+' min', 'order → decision')}</div></div>`;
+  return out;
 }
 
 // ---------------------------------------------------------------- start
