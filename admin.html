@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1A473C">
+<meta name="robots" content="noindex">
+<title>Hijabi DMS · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Libre+Baskerville:wght@400;700&family=Noto+Sans+Bengali:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--p:#1A473C;--p2:#235a4c;--pd:#123329;--ink:#282626;--soft:#F8F3EC;--soft2:#EFE8DC;--mut:#6E6A63;--line:#E6DFD3;--card:#fff;
+    --ok:#2E7D5B;--okb:#E4F1EA;--warn:#8A6100;--warnb:#FBF1DA;--bad:#A8322A;--badb:#F8E6E3;--info:#24507A;--infob:#E7EEF6;--r:12px;
+    --serif:'Libre Baskerville',Georgia,'Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans Bengali',Arial,sans-serif}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--soft);color:var(--ink);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font:inherit;color:inherit}
+  a{color:var(--p)}
+  .hidden{display:none!important}
+  /* ---------- login ---------- */
+  #login{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,var(--pd),var(--p) 60%,#2f6b5b)}
+  .lbox{background:#fff;border-radius:18px;padding:34px 34px 28px;width:min(400px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .lbox h1{font-family:var(--serif);color:var(--p);margin:0 0 4px;font-size:24px}
+  .lbox p.sub{color:var(--mut);margin:0 0 22px}
+  .lbox label{display:block;font-weight:600;margin:12px 0 6px;font-size:13px}
+  .lbox input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:15px}
+  .lbox input:focus,.fld input:focus,.fld select:focus,.fld textarea:focus,.tb input:focus,.tb select:focus{outline:2px solid rgba(26,71,60,.25);border-color:var(--p)}
+  .lbox .err{color:var(--bad);min-height:20px;margin-top:10px;font-size:13px}
+  .lbox .foot{margin-top:18px;color:var(--mut);font-size:12px;line-height:1.5}
+  /* ---------- shell ---------- */
+  #app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+  #side{background:var(--pd);color:#e9f1ee;position:sticky;top:0;height:100vh;overflow:auto;padding:16px 10px 30px}
+  #side .brand{font-family:var(--serif);font-weight:700;font-size:18px;padding:6px 10px 2px;color:#fff}
+  #side .brand small{display:block;font-family:var(--sans);font-weight:500;font-size:11.5px;opacity:.7;letter-spacing:.3px;margin-top:2px}
+  #side .grp{font-size:10.5px;text-transform:uppercase;letter-spacing:1.2px;opacity:.55;margin:18px 10px 6px}
+  #side a.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;color:#e9f1ee;text-decoration:none;font-weight:500;margin:1px 0}
+  #side a.nav:hover{background:rgba(255,255,255,.08)}
+  #side a.nav.on{background:rgba(255,255,255,.15);color:#fff;font-weight:700}
+  #side a.nav i{font-style:normal;width:18px;text-align:center;opacity:.85}
+  #main{min-width:0;display:flex;flex-direction:column}
+  #top{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 22px;min-height:58px}
+  #top .ttl{font-family:var(--serif);font-weight:700;font-size:18px;color:var(--p);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #top .co{color:var(--mut);font-size:12.5px;text-align:right;line-height:1.3}
+  #top .co b{color:var(--ink);font-size:13.5px}
+  #top .who{display:flex;align-items:center;gap:10px;border-left:1px solid var(--line);padding-left:14px}
+  #top .av{width:34px;height:34px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+  #top .who div{line-height:1.25;font-size:12.5px}#top .who div b{font-size:13.5px}
+  #menuBtn{display:none}
+  #view{padding:20px 22px 60px;min-width:0}
+  /* ---------- controls ---------- */
+  .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 13px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap}
+  .btn:hover{border-color:#cfc5b4;background:#fdfbf7}
+  .btn.pri{background:var(--p);border-color:var(--p);color:#fff}.btn.pri:hover{background:var(--p2)}
+  .btn.danger{color:var(--bad);border-color:#e7c3be}.btn.ok{color:var(--ok);border-color:#bfdccc}
+  .btn.sm{padding:5px 9px;font-size:12px;border-radius:7px}
+  .btn:disabled{opacity:.55;cursor:default}
+  .btn.block{width:100%;justify-content:center;padding:11px}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 14px;flex-wrap:wrap}
+  .tabs button{border:0;background:none;padding:10px 14px;cursor:pointer;font-weight:600;color:var(--mut);border-bottom:2.5px solid transparent;margin-bottom:-1px}
+  .tabs button.on{color:var(--p);border-bottom-color:var(--p)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:0 1px 2px rgba(40,38,38,.04)}
+  .card h3{margin:0 0 12px;font-family:var(--serif);font-size:15px;color:var(--pd)}
+  .muted{color:var(--mut)}
+  .chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap;background:var(--infob);color:var(--info)}
+  .chip.ok{background:var(--okb);color:var(--ok)}.chip.warn{background:var(--warnb);color:var(--warn)}.chip.bad{background:var(--badb);color:var(--bad)}.chip.mut{background:#efede9;color:var(--mut)}
+  /* ---------- table ---------- */
+  .tb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .tb .grow{flex:1}
+  .tb input[type=search]{min-width:240px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .tb input,.tb select{padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .tb label{font-size:12px;color:var(--mut);display:flex;align-items:center;gap:6px}
+  .tw{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:auto;max-height:calc(100vh - 250px);min-height:120px}
+  table.dt{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
+  table.dt th,table.dt td{padding:8px 10px;border-bottom:1px solid #f0ebe2;text-align:left;white-space:nowrap;max-width:340px;overflow:hidden;text-overflow:ellipsis}
+  table.dt thead th{position:sticky;top:0;background:#faf7f1;z-index:2;font-weight:700;font-size:12px;color:#4a4641;cursor:pointer;user-select:none;border-bottom:1px solid var(--line)}
+  table.dt thead tr.flt th{top:35px;background:#fdfbf7;cursor:default;padding:5px 6px}
+  table.dt thead tr.flt input,table.dt thead tr.flt select{width:100%;min-width:70px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;background:#fff;font-weight:400}
+  table.dt th .ar{opacity:.4;margin-left:3px}table.dt th.sorted .ar{opacity:1;color:var(--p)}
+  table.dt td.n,table.dt th.n{text-align:right;font-variant-numeric:tabular-nums}
+  table.dt tbody tr{cursor:default}table.dt tbody tr.click{cursor:pointer}
+  table.dt tbody tr:hover td{background:#fbf8f2}
+  table.dt tfoot td{position:sticky;bottom:0;background:#f4efe6;font-weight:700;border-top:1px solid var(--line)}
+  table.dt img.thumb{width:30px;height:30px;object-fit:cover;border-radius:6px;vertical-align:middle;background:var(--soft2)}
+  .pager{display:flex;align-items:center;gap:8px;margin-top:10px;color:var(--mut);font-size:12.5px;flex-wrap:wrap}
+  .pager .grow{flex:1}
+  .empty{padding:36px;text-align:center;color:var(--mut)}
+  .note{background:var(--warnb);color:var(--warn);border-radius:9px;padding:8px 12px;margin-bottom:10px;font-size:12.5px}
+  .loading{opacity:.55;pointer-events:none}
+  .colpop{position:absolute;z-index:60;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:10px;max-height:360px;overflow:auto;min-width:220px}
+  .colpop label{display:flex;gap:8px;padding:4px 2px;font-size:13px;cursor:pointer}
+  /* ---------- dashboard ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:12px;margin-bottom:16px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;text-align:left;transition:transform .08s,box-shadow .08s}
+  .kpi:hover{box-shadow:0 6px 18px rgba(26,71,60,.1);transform:translateY(-1px)}
+  .kpi .l{font-size:12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+  .kpi .v{font-size:24px;font-weight:800;color:var(--pd);margin:6px 0 2px;font-variant-numeric:tabular-nums}
+  .kpi .s{font-size:12px;color:var(--mut)}
+  .dgrid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+  .pend{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px dashed var(--line);cursor:pointer}
+  .pend:last-child{border-bottom:0}.pend:hover{background:#fbf8f2}
+  .pend .c{min-width:36px;text-align:center;border-radius:20px;padding:3px 8px;font-weight:800;background:var(--warnb);color:var(--warn)}
+  .pend .c.z{background:#efede9;color:#9a958d}
+  .stages{display:flex;gap:8px;flex-wrap:wrap}
+  .stage{flex:1;min-width:110px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fdfbf7}
+  .stage b{display:block;font-size:20px;color:var(--pd)}.stage span{font-size:12px;color:var(--mut)}
+  .hrrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+  .hrrow div{background:var(--soft);border-radius:10px;padding:10px 4px}.hrrow b{display:block;font-size:20px;color:var(--pd)}.hrrow span{font-size:11.5px;color:var(--mut)}
+  /* ---------- drawer / modal / toast ---------- */
+  #shade{position:fixed;inset:0;background:rgba(18,25,22,.35);z-index:80}
+  #drawer{position:fixed;top:0;right:0;height:100vh;width:min(560px,100vw);background:#fff;z-index:90;box-shadow:-10px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .18s ease}
+  #drawer.open{transform:none}
+  #drawer.wide{width:min(940px,100vw)}
+  #drawer .dh{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
+  #drawer .dh h3{margin:0;font-family:var(--serif);font-size:17px;color:var(--p);flex:1}
+  #drawer .db{flex:1;overflow:auto;padding:16px 20px}
+  #drawer .df{display:flex;gap:8px;padding:12px 20px;border-top:1px solid var(--line);flex-wrap:wrap;background:#fdfbf7}
+  #drawer .df .grow{flex:1}
+  .x{border:0;background:none;font-size:22px;cursor:pointer;color:var(--mut);line-height:1}
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+  .fld{display:flex;flex-direction:column;gap:5px;min-width:0}.fld.full{grid-column:1/-1}
+  .fld label{font-size:12px;font-weight:700;color:#4a4641}.fld label em{color:var(--bad);font-style:normal}
+  .fld input,.fld select,.fld textarea{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;width:100%}
+  .fld input[readonly]{background:var(--soft);color:var(--mut)}
+  .fld .help{font-size:11.5px;color:var(--mut)}
+  .fld.chk{flex-direction:row;align-items:center;gap:8px;padding-top:22px}.fld.chk input{width:auto}
+  .ph{display:flex;gap:10px;align-items:center}.ph img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:var(--soft2)}
+  .sect{font-family:var(--serif);font-weight:700;color:var(--pd);margin:18px 0 8px;grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px}
+  #modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:rgba(18,25,22,.45);padding:20px}
+  #modal .mb{background:#fff;border-radius:16px;padding:22px 24px;width:min(520px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow:auto}
+  #modal h3{margin:0 0 10px;font-family:var(--serif);color:var(--p)}
+  #modal .mf{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+  .pin{font-size:34px;font-weight:800;letter-spacing:8px;text-align:center;background:var(--soft);border-radius:12px;padding:14px;color:var(--pd);font-variant-numeric:tabular-nums;margin:10px 0}
+  #toasts{position:fixed;right:18px;bottom:18px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:420px}
+  .toast{background:var(--ink);color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:13.5px;line-height:1.4}
+  .toast.ok{background:var(--ok)}.toast.bad{background:var(--bad)}
+  /* ---------- route board ---------- */
+  .board{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:10px;overflow:auto;padding-bottom:6px}
+  .rcol{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;min-height:120px}
+  .rcol h4{margin:0 0 2px;font-size:13px;color:var(--pd)}.rcol .rs{font-size:11.5px;color:var(--mut);margin-bottom:8px}
+  .rcol.un{background:#fffaf0;border-style:dashed}
+  .area{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:6px 7px;border-radius:8px;background:var(--soft);margin-bottom:5px;font-size:12.5px}
+  .area span{flex:1 1 100%;min-width:0;font-weight:600;line-height:1.25}.area b{font-size:11px;color:var(--mut);margin-right:auto}
+  .area select{font-size:11px;padding:1px 2px;border:1px solid var(--line);border-radius:6px;max-width:84px;background:#fff}
+  .area button{border:0;background:none;cursor:pointer;color:var(--mut);padding:0 2px}
+  .rcol .add{display:flex;gap:4px;margin-top:6px}.rcol .add input{flex:1;min-width:0;padding:5px 7px;border:1px solid var(--line);border-radius:7px;font-size:12px}
+  /* ---------- reports / settings ---------- */
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .rcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+  .rcard h4{margin:0;font-size:14.5px;color:var(--pd)}.rcard p{margin:0;font-size:12.5px;color:var(--mut)}
+  .rcard .ps{display:flex;gap:6px;flex-wrap:wrap}.rcard .ps input,.rcard .ps select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:12.5px}
+  .rgh{font-family:var(--serif);color:var(--pd);margin:20px 0 10px;font-size:16px}
+  .srow{display:grid;grid-template-columns:260px 1fr 260px 90px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .srow code{font-size:12px;background:var(--soft);padding:2px 6px;border-radius:5px}
+  .srow input,.srow select{padding:7px 9px;border:1px solid var(--line);border-radius:8px;width:100%}
+  .srow .d{font-size:12px;color:var(--mut)}
+  .imptbl{max-height:360px;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:10px}
+  .lines td{padding:3px 4px}.lines input,.lines select{width:100%;padding:6px;border:1px solid var(--line);border-radius:7px}
+  @media (max-width:1100px){.dgrid{grid-template-columns:1fr}.srow{grid-template-columns:1fr 1fr}.board{grid-template-columns:repeat(4,minmax(170px,1fr))}}
+  @media (max-width:900px){
+    #app{grid-template-columns:1fr}
+    #side{position:fixed;left:0;top:0;z-index:100;width:250px;transform:translateX(-105%);transition:transform .18s}
+    #side.open{transform:none}
+    #menuBtn{display:inline-flex}
+    #top .co{display:none}
+    .form{grid-template-columns:1fr}
+    .tb input[type=search]{min-width:160px}
+  }
+</style>
+</head>
+<body>
+<div id="login">
+  <form class="lbox" id="loginForm" autocomplete="off">
+    <h1 id="lCo">Hijabi.bd</h1>
+    <p class="sub">Distribution admin · desktop panel</p>
+    <div id="lStep1">
+      <label for="lEmp">Employee ID</label><input id="lEmp" placeholder="EMP-001" autocapitalize="characters" required>
+      <label for="lPin">PIN</label><input id="lPin" type="password" inputmode="numeric" placeholder="••••" required>
+      <div class="err" id="lErr"></div>
+      <button class="btn pri block" id="lBtn" type="submit">Log in</button>
+    </div>
+    <div id="lStep2" class="hidden">
+      <p><b>Choose a new PIN.</b> Your PIN was set by the admin and must be changed before you continue.</p>
+      <label for="cOld">Current (temporary) PIN</label><input id="cOld" type="password" inputmode="numeric">
+      <label for="cNew">New PIN (4–8 digits)</label><input id="cNew" type="password" inputmode="numeric">
+      <label for="cNew2">Repeat new PIN</label><input id="cNew2" type="password" inputmode="numeric">
+      <div class="err" id="cErr"></div>
+      <button class="btn pri block" id="cBtn" type="button">Change PIN and continue</button>
+    </div>
+    <div class="foot">Super Admin, CEO, HR, Accounts and ASM. Field staff use the phone app.<br>Use a private computer and log out when you finish.</div>
+  </form>
+</div>
+
+<div id="app" class="hidden">
+  <aside id="side"></aside>
+  <div id="main">
+    <header id="top">
+      <button class="btn sm" id="menuBtn" type="button">☰</button>
+      <div class="ttl" id="pTitle">Dashboard</div>
+      <div class="co"><b id="tCo">Hijabi.bd</b><br><span id="tDate"></span></div>
+      <div class="who"><div class="av" id="tAv">A</div><div><b id="tName"></b><br><span class="muted" id="tRole"></span></div>
+        <button class="btn sm" id="pinBtn" type="button" title="Change PIN">PIN</button>
+        <button class="btn sm" id="outBtn" type="button">Log out</button></div>
+    </header>
+    <section id="view"></section>
+  </div>
+</div>
+<div id="shade" class="hidden"></div>
+<div id="drawer"><div class="dh"><h3 id="dTitle"></h3><button class="x" id="dClose" type="button">×</button></div><div class="db" id="dBody"></div><div class="df" id="dFoot"></div></div>
+<div id="modal" class="hidden"><div class="mb"><h3 id="mTitle"></h3><div id="mBody"></div><div class="mf" id="mFoot"></div></div></div>
+<div id="toasts"></div>
+
+<script>
+/* Hijabi DMS – desktop admin panel (field.hijabi.bd/admin.html).
+   Talks to the same single entry point as the phone app: POST {SUPA_URL}/rest/v1/rpc/api_call {p_fn, p_args:[token, …]}.
+   BUILD NOTE: keep SUPA_KEY empty in the repository. build/admin_build.py writes build/deploy13/admin_live.html with the
+   publishable key filled in; that file is what goes to field.hijabi.bd/admin.html. No external JavaScript: the Excel
+   (.xlsx) writer and reader below are self-contained. Never write a double slash in this script (URLs use \/). */
+const SUPA_URL = 'https:\/\/aiqtzolaxtpgjernvuuh.supabase.co';
+const SUPA_KEY = 'sb_publishable_wIUtS2qQODPFQXI4Un-hLA_V9519ZcD';
+const TOKEN_KEY = 'hdms_admin_token';
+
+const $ = (s, el) => (el || document).querySelector(s);
+const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uuid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+const money = v => (v == null || v === '') ? '' : '৳ ' + Number(v).toLocaleString('en-IN');
+const num = v => (v == null || v === '') ? '' : Number(v).toLocaleString('en-IN');
+const S = { tok: sessionStorage.getItem(TOKEN_KEY) || '', boot: null, page: '', tab: '', preset: null, cache: {} };
+
+/* ======================================================================= transport */
+function headers_(){ const h = { apikey: SUPA_KEY, 'Content-Type': 'application/json' }; if (SUPA_KEY.slice(0, 3) === 'eyJ') h.Authorization = 'Bearer ' + SUPA_KEY; return h; }
+async function rpc(fn, args){
+  if (!SUPA_KEY) return { ok: false, message: 'This page is not built yet: the Supabase key is missing (run build/admin_build.py).' };
+  const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 120000);
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/rpc/api_call', { method: 'POST', credentials: 'omit', headers: headers_(), body: JSON.stringify({ p_fn: fn, p_args: args }), signal: ac.signal });
+    const j = await res.json().catch(() => null);
+    clearTimeout(tm);
+    if (!res.ok) return { ok: false, message: (j && j.message) || ('Server error ' + res.status) };
+    return j || { ok: false, message: 'Empty answer from the server' };
+  } catch (e) { clearTimeout(tm); return { ok: false, net: true, message: 'Network problem – check the internet and try again (' + (e && e.message || e) + ')' }; }
+}
+async function api(fn, ...args){
+  const r = await rpc(fn, [S.tok, ...args]);
+  if (r && r.code === 'AUTH'){ toast(r.message, 'bad'); logout(true); }
+  else if (r && r.code === 'PIN'){ showChangePin(); }
+  return r;
+}
+async function must(fn, ...args){ const r = await api(fn, ...args); if (!r || r.ok === false) { if (r && r.code !== 'AUTH') toast((r && r.message) || 'Failed', 'bad'); throw new Error((r && r.message) || 'Failed'); } return r; }
+
+/* ======================================================================= toast / modal / drawer */
+function toast(msg, kind, ms){ const box = $('#toasts'); while (box.children.length >= 4) box.firstChild.remove(); const t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.textContent = msg; box.appendChild(t); setTimeout(() => t.remove(), ms || (kind === 'bad' ? 7000 : 4200)); }
+function modal(title, html, buttons){
+  return new Promise(res => {
+    $('#mTitle').textContent = title; $('#mBody').innerHTML = html; const f = $('#mFoot'); f.innerHTML = '';
+    (buttons || [['OK', 'pri', true]]).forEach(([l, c, v]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + (c || ''); b.textContent = l;
+      b.onclick = () => { const body = $('#mBody'); $('#modal').classList.add('hidden'); res({ v, body }); }; f.appendChild(b); });
+    $('#modal').classList.remove('hidden'); const i = $('#mBody input,#mBody textarea'); if (i) i.focus();
+  });
+}
+async function ask(title, label, req){
+  const r = await modal(title, '<div class="fld"><label>' + esc(label) + '</label><textarea id="askT" rows="3"></textarea></div>', [['Cancel', '', false], ['OK', 'pri', true]]);
+  if (!r.v) return null; const t = $('#askT', r.body).value.trim(); if (req && !t){ toast('Please write a reason.', 'bad'); return null; } return t;
+}
+async function confirmBox(title, text, okLabel, danger){ const r = await modal(title, '<p>' + esc(text) + '</p>', [['Cancel', '', false], [okLabel || 'OK', danger ? 'danger' : 'pri', true]]); return r.v; }
+function openDrawer(title, html, wide){ $('#dTitle').textContent = title; $('#dBody').innerHTML = html || ''; $('#dFoot').innerHTML = ''; $('#drawer').classList.toggle('wide', !!wide); $('#drawer').classList.add('open'); $('#shade').classList.remove('hidden'); return $('#dBody'); }
+function closeDrawer(){ $('#drawer').classList.remove('open'); $('#shade').classList.add('hidden'); }
+function footBtn(label, cls, fn){ const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + (cls || ''); b.textContent = label; b.onclick = async () => { b.disabled = true; try { await fn(b); } catch (e) { } finally { b.disabled = false; } }; $('#dFoot').appendChild(b); return b; }
+function footGrow(){ const d = document.createElement('div'); d.className = 'grow'; $('#dFoot').appendChild(d); }
+
+/* ======================================================================= forms */
+/* field: {k, l, t: text|number|select|date|time|month|textarea|check|photo|list, opts:[[v,l]]|[v], req, ro, help, full, ph, list:[…]} */
+function optHtml(opts, v){ return (opts || []).map(o => { const [ov, ol] = Array.isArray(o) ? o : [o, o]; return '<option value="' + esc(ov) + '"' + (String(ov) === String(v == null ? '' : v) ? ' selected' : '') + '>' + esc(ol) + '</option>'; }).join(''); }
+function formHtml(fields, vals, ro){
+  vals = vals || {};
+  return '<div class="form">' + fields.map(f => {
+    if (f.t === 'sect') return '<div class="sect">' + esc(f.l) + '</div>';
+    const v = vals[f.k] == null ? (f.def == null ? '' : f.def) : vals[f.k], dis = (ro || f.ro) ? ' readonly disabled' : '', id = 'f_' + f.k;
+    const lab = '<label for="' + id + '">' + esc(f.l) + (f.req ? ' <em>*</em>' : '') + '</label>';
+    let inp;
+    if (f.t === 'select') inp = '<select id="' + id + '" data-k="' + f.k + '"' + dis + '>' + optHtml(f.opts, v) + '</select>';
+    else if (f.t === 'textarea') inp = '<textarea id="' + id + '" data-k="' + f.k + '" rows="3"' + dis + '>' + esc(v) + '</textarea>';
+    else if (f.t === 'check') return '<div class="fld chk' + (f.full ? ' full' : '') + '"><input type="checkbox" id="' + id + '" data-k="' + f.k + '"' + (v === true || v === 'true' || v === 'Active' ? ' checked' : '') + (ro || f.ro ? ' disabled' : '') + '><label for="' + id + '">' + esc(f.l) + '</label></div>';
+    else if (f.t === 'photo') inp = '<div class="ph"><img id="' + id + '_img" src="' + esc(v) + '" alt="" onerror="this.style.visibility=\'hidden\'" onload="this.style.visibility=\'visible\'">' +
+      '<div style="flex:1;display:flex;flex-direction:column;gap:6px"><input id="' + id + '" data-k="' + f.k + '" value="' + esc(v) + '" placeholder="Photo link (https:\/\/…) or upload"' + dis + '>' +
+      (ro || f.ro ? '' : '<input type="file" accept="image/*" data-up="' + f.k + '">') + '</div></div>';
+    else {
+      const t = { number: 'text', date: 'date', time: 'time', month: 'month' }[f.t] || 'text';
+      inp = '<input id="' + id + '" data-k="' + f.k + '" type="' + t + '" value="' + esc(v) + '"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : '') + (f.list ? ' list="' + id + '_dl"' : '') + (f.t === 'number' ? ' inputmode="numeric"' : '') + dis + '>' +
+        (f.list ? '<datalist id="' + id + '_dl">' + f.list.map(x => '<option value="' + esc(x) + '">').join('') + '</datalist>' : '');
+    }
+    return '<div class="fld' + (f.full ? ' full' : '') + '">' + lab + inp + (f.help ? '<div class="help">' + esc(f.help) + '</div>' : '') + '</div>';
+  }).join('') + '</div>';
+}
+function readForm(root){ const o = {}; $$('[data-k]', root).forEach(el => { o[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value.trim(); }); return o; }
+function wirePhotos(root){
+  $$('input[data-up]', root).forEach(inp => inp.onchange = async () => {
+    const f = inp.files && inp.files[0]; if (!f) return; const k = inp.dataset.up;
+    try { toast('Uploading photo…'); const url = await uploadPhoto(f, 'product'); $('#f_' + k, root).value = url; $('#f_' + k + '_img', root).src = url; toast('Photo uploaded.', 'ok'); }
+    catch (e) { toast('Photo not uploaded: ' + (e.message || e), 'bad'); }
+  });
+}
+/* photos: resize to JPEG, one-time upload ticket (apiPhotoTicket, 014), upload to Storage bucket "photos", keep the public URL */
+async function uploadPhoto(file, purpose){
+  const blob = await new Promise((res, rej) => { const img = new Image(); img.onload = () => { const m = 1000, sc = Math.min(1, m / Math.max(img.width, img.height)); const c = document.createElement('canvas');
+    c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc); const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    c.toBlob(b => b ? res(b) : rej(new Error('Could not read the image')), 'image/jpeg', 0.85); URL.revokeObjectURL(img.src); }; img.onerror = () => rej(new Error('Not an image')); img.src = URL.createObjectURL(file); });
+  const t = await api('apiPhotoTicket', { purpose: purpose || 'product', count: 1 });
+  if (!t || !t.ok || !t.tickets || !t.tickets[0]) throw new Error((t && t.message) || 'No upload ticket');
+  const tk = t.tickets[0];
+  const res = await fetch(SUPA_URL + '/storage/v1/object/photos/' + tk.path, { method: 'POST', credentials: 'omit', headers: Object.assign(headers_(), { 'Content-Type': 'image/jpeg', 'x-upsert': 'false' }), body: blob });
+  if (!res.ok && res.status !== 409) throw new Error('Storage answered ' + res.status);
+  return tk.url;
+}
+
+/* ======================================================================= XLSX writer (zip, stored) */
+const XNS = 'http:\/\/schemas.openxmlformats.org/';
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++){ let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; } return t; })();
+function crc32(b){ let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_T[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipStore(files){
+  const enc = new TextEncoder(), parts = [], cd = []; let off = 0; const d = new Date();
+  const dt = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate(), tm = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  for (const f of files){
+    const nm = enc.encode(f.name), data = typeof f.data === 'string' ? enc.encode(f.data) : f.data, crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true); lh.setUint16(10, tm, true); lh.setUint16(12, dt, true);
+    lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, nm.length, true); lh.setUint16(28, 0, true);
+    parts.push(new Uint8Array(lh.buffer), nm, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true); ch.setUint16(12, tm, true); ch.setUint16(14, dt, true);
+    ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, nm.length, true); ch.setUint32(42, off, true);
+    cd.push(new Uint8Array(ch.buffer), nm);
+    off += 30 + nm.length + data.length;
+  }
+  const cdSize = cd.reduce((a, x) => a + x.length, 0), end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, cdSize, true); end.setUint32(16, off, true);
+  return new Blob([...parts, ...cd, new Uint8Array(end.buffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+const xEsc = s => String(s == null ? '' : s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function colName(i){ let s = ''; i++; while (i > 0){ const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; }
+function xSerial(v){ const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/.exec(String(v || '').trim()); if (!m) return null;
+  return (Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)) - Date.UTC(1899, 11, 30)) / 86400000; }
+/* sheet: {name, columns:[{l, t, w?}], rows:[[…]], total?:[…], title?:[lines]} */
+function sheetXml(sh){
+  const out = [], cols = sh.columns, nC = Math.max(1, cols.length); let r = 0;
+  const cell = (ri, ci, v, t, st) => {
+    const ref = colName(ci) + ri;
+    if (v == null || v === '') return '';
+    if ((t === 'n' || t === 'm' || t === 'p') && v !== '' && isFinite(Number(v))) return '<c r="' + ref + '" s="' + (st != null ? st : (t === 'p' ? 8 : 2)) + '"><v>' + Number(v) + '</v></c>';
+    if (t === 'd' || t === 'dt'){ const sv = xSerial(v); if (sv != null) return '<c r="' + ref + '" s="' + (String(v).length > 10 ? 4 : 3) + '"><v>' + sv + '</v></c>'; }
+    if (t === 'b') v = (v === true || v === 'true') ? 'Yes' : 'No';
+    return '<c r="' + ref + '" t="inlineStr"' + (st != null ? ' s="' + st + '"' : '') + '><is><t xml:space="preserve">' + xEsc(v) + '</t></is></c>';
+  };
+  (sh.title || []).forEach((line, i) => { r++; out.push('<row r="' + r + '">' + cell(r, 0, line, 't', i === 0 ? 9 : 7) + '</row>'); });
+  if (sh.title && sh.title.length){ r++; }
+  const hr = ++r;
+  out.push('<row r="' + hr + '">' + cols.map((c, i) => cell(hr, i, c.l, 't', 1)).join('') + '</row>');
+  for (const row of sh.rows){ r++; out.push('<row r="' + r + '">' + row.map((v, i) => cell(r, i, v, cols[i] && cols[i].t)).join('') + '</row>'); }
+  if (sh.total){ r++; out.push('<row r="' + r + '">' + sh.total.map((v, i) => i === 0 && (v === 'Total' || typeof v === 'string') ? cell(r, i, v, 't', 7) : cell(r, i, v, (cols[i] || {}).t, 6)).join('') + '</row>'); }
+  const widths = cols.map((c, i) => { let w = String(c.l || '').length; for (let k = 0; k < Math.min(sh.rows.length, 300); k++){ const v = sh.rows[k][i]; if (v != null) w = Math.max(w, String(v).length); } return Math.min(60, Math.max(8, w + 2)); });
+  const last = colName(nC - 1);
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="' + XNS + 'spreadsheetml/2006/main" xmlns:r="' + XNS + 'officeDocument/2006/relationships">' +
+    '<sheetViews><sheetView workbookViewId="0"' + (sh.noGrid ? ' showGridLines="0"' : '') + '>' + (sh.rows.length ? '<pane ySplit="' + hr + '" topLeftCell="A' + (hr + 1) + '" activePane="bottomLeft" state="frozen"/>' : '') + '</sheetView></sheetViews>' +
+    '<sheetFormatPr defaultRowHeight="15"/><cols>' + widths.map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join('') + '</cols>' +
+    '<sheetData>' + out.join('') + '</sheetData>' + (sh.rows.length && !sh.noFilter ? '<autoFilter ref="A' + hr + ':' + last + (hr + sh.rows.length) + '"/>' : '') + '</worksheet>';
+}
+function buildXlsx(sheets){
+  const names = []; sheets.forEach((s, i) => { let n = String(s.name || ('Sheet' + (i + 1))).replace(/[\\\/?*\[\]:]/g, ' ').slice(0, 31).trim() || ('Sheet' + (i + 1)); while (names.includes(n)) n = n.slice(0, 28) + ' ' + (i + 1); names.push(n); });
+  const files = [];
+  files.push({ name: '[Content_Types].xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="' + XNS + 'package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+    sheets.map((s, i) => '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('') + '</Types>' });
+  files.push({ name: '_rels/.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="' + XNS + 'package/2006/relationships"><Relationship Id="rId1" Type="' + XNS + 'officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' });
+  const defs = sheets.map((s, i) => (s.rows.length && !s.noFilter) ? '<definedName name="_xlnm._FilterDatabase" localSheetId="' + i + '" hidden="1">\'' + xEsc(names[i]).replace(/'/g, "''") + '\'!$A$' + (s.title && s.title.length ? s.title.length + 2 : 1) + ':$' + colName(Math.max(1, s.columns.length) - 1) + '$' + ((s.title && s.title.length ? s.title.length + 2 : 1) + s.rows.length) + '</definedName>' : '').join('');
+  files.push({ name: 'xl/workbook.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="' + XNS + 'spreadsheetml/2006/main" xmlns:r="' + XNS + 'officeDocument/2006/relationships"><bookViews><workbookView/></bookViews><sheets>' +
+    names.map((n, i) => '<sheet name="' + xEsc(n) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join('') + '</sheets>' + (defs ? '<definedNames>' + defs + '</definedNames>' : '') + '</workbook>' });
+  files.push({ name: 'xl/_rels/workbook.xml.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="' + XNS + 'package/2006/relationships">' +
+    sheets.map((s, i) => '<Relationship Id="rId' + (i + 1) + '" Type="' + XNS + 'officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join('') +
+    '<Relationship Id="rId' + (sheets.length + 1) + '" Type="' + XNS + 'officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' });
+  files.push({ name: 'xl/styles.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="' + XNS + 'spreadsheetml/2006/main">' +
+    '<numFmts count="3"><numFmt numFmtId="164" formatCode="#,##0"/><numFmt numFmtId="165" formatCode="yyyy-mm-dd"/><numFmt numFmtId="166" formatCode="yyyy-mm-dd hh:mm"/></numFmts>' +
+    '<fonts count="4"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="14"/><color rgb="FF1A473C"/><name val="Calibri"/><family val="2"/></font></fonts>' +
+    '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1A473C"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+    '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="10"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>' +
+    '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '<xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '<xf numFmtId="164" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>' +
+    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs>' +
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>' });
+  sheets.forEach((s, i) => files.push({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: sheetXml(s) }));
+  return zipStore(files);
+}
+function download(blob, name){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000); }
+const fileSlug = s => String(s || 'report').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
+
+/* ======================================================================= XLSX / CSV reader (imports) */
+async function unzip(buf){
+  const u = new Uint8Array(buf), dv = new DataView(buf); let e = -1;
+  for (let i = u.length - 22; i >= Math.max(0, u.length - 70000); i--) if (dv.getUint32(i, true) === 0x06054b50){ e = i; break; }
+  if (e < 0) throw new Error('This is not an Excel (.xlsx) file.');
+  const n = dv.getUint16(e + 10, true), dec = new TextDecoder(), files = {}; let p = dv.getUint32(e + 16, true);
+  for (let k = 0; k < n; k++){
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
+    files[dec.decode(u.subarray(p + 46, p + 46 + nlen))] = { method, csize, lo }; p += 46 + nlen + xlen + clen;
+  }
+  return { files, async text(name){
+    const f = files[name]; if (!f) return null; const ln = dv.getUint16(f.lo + 26, true), lx = dv.getUint16(f.lo + 28, true), st = f.lo + 30 + ln + lx, data = u.subarray(st, st + f.csize);
+    if (f.method === 0) return dec.decode(data);
+    if (f.method !== 8) throw new Error('Unsupported Excel compression.');
+    if (typeof DecompressionStream === 'undefined') throw new Error('This browser cannot open compressed Excel files. Save the sheet as CSV and import the CSV.');
+    return dec.decode(new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()));
+  } };
+}
+function colIdx(ref){ const m = /^([A-Z]+)/.exec(ref || ''); if (!m) return 0; let n = 0; for (const ch of m[1]) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; }
+async function readXlsx(buf){
+  const z = await unzip(buf), P = new DOMParser();
+  const wb = P.parseFromString(await z.text('xl/workbook.xml') || '<x/>', 'application/xml'), sh = wb.getElementsByTagName('sheet')[0];
+  const rid = sh ? sh.getAttribute('r:id') : 'rId1'; let target = 'worksheets/sheet1.xml';
+  const relT = await z.text('xl/_rels/workbook.xml.rels');
+  if (relT) for (const r of P.parseFromString(relT, 'application/xml').getElementsByTagName('Relationship')) if (r.getAttribute('Id') === rid) target = r.getAttribute('Target');
+  const path = target.charAt(0) === '/' ? target.slice(1) : 'xl/' + target.replace(/^\.[\/]/, '');
+  const ss = [], ssT = await z.text('xl/sharedStrings.xml');
+  if (ssT) for (const si of P.parseFromString(ssT, 'application/xml').getElementsByTagName('si')) ss.push(Array.from(si.getElementsByTagName('t')).map(t => t.textContent).join(''));
+  const d = P.parseFromString(await z.text(path) || '<x/>', 'application/xml'), rows = [];
+  for (const row of d.getElementsByTagName('row')){
+    const arr = [];
+    for (const c of row.getElementsByTagName('c')){
+      const t = c.getAttribute('t'); let v = '';
+      if (t === 'inlineStr') v = Array.from(c.getElementsByTagName('t')).map(x => x.textContent).join('');
+      else { const ve = c.getElementsByTagName('v')[0]; v = ve ? ve.textContent : ''; if (t === 's') v = ss[+v] || ''; else if (t === 'b') v = v === '1' ? 'TRUE' : 'FALSE'; }
+      arr[colIdx(c.getAttribute('r'))] = v;
+    }
+    rows[(+row.getAttribute('r') || rows.length + 1) - 1] = Array.from(arr, x => x == null ? '' : x);
+  }
+  return Array.from(rows, x => x || []);
+}
+function readCsv(text){
+  text = text.replace(/^﻿/, ''); const first = text.split('\n')[0] || '';
+  const dl = [',', ';', '\t'].map(d => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if (q){ if (ch === '"'){ if (text[i + 1] === '"'){ f += '"'; i++; } else q = false; } else f += ch; }
+    else if (ch === '"') q = true; else if (ch === dl){ row.push(f); f = ''; }
+    else if (ch === '\n' || ch === '\r'){ if (ch === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += ch;
+  }
+  if (f !== '' || row.length) { row.push(f); rows.push(row); }
+  return rows;
+}
+async function readTable(file){ const buf = await file.arrayBuffer(); return /\.(csv|txt)$/i.test(file.name) ? readCsv(new TextDecoder().decode(buf)) : readXlsx(buf); }
+
+/* ======================================================================= formatting */
+const TONE = { ok: ['Active', 'Approved', 'Verified', 'Confirmed', 'Delivered', 'Received', 'Closed', 'Present', 'OK', 'Matched', 'GRN', 'Saved', 'Paid', 'Cost', 'Auto-posted', 'Factory', 'Current'],
+  warn: ['Pending', 'Submitted', 'Requested', 'Prospect', 'Interested', 'New', 'Packing', 'Ready to Pick', 'Dispatched', 'Counting', 'Pending approval', 'Open', 'Partly received', 'Late', 'Needs approval', 'Partially Delivered', 'Partly Paid', 'Live', 'Partially received', 'Recount', 'Correction', 'Medium Risk', 'Unrouted', 'Off-day Work'],
+  bad: ['Rejected', 'Cancelled', 'Inactive', 'Discontinued', 'On Hold', 'High Risk', 'Absent', 'Returned', 'Received with discrepancy', 'Missing Check-out', 'Overdue', 'Unpaid', 'Damaged', 'Theft/Loss', 'Loss', 'Damage'] };
+function tone(v){ v = String(v || ''); for (const k in TONE) if (TONE[k].includes(v)) return k; return v ? '' : 'mut'; }
+function cellHtml(v, t){
+  if (v == null || v === '') return '';
+  switch (t){
+    case 'm': return esc(money(v));
+    case 'n': return esc(num(v));
+    case 'p': return esc(Number(v).toLocaleString('en-IN', { maximumFractionDigits: 1 })) + '%';
+    case 's': return '<span class="chip ' + tone(v) + '">' + esc(v) + '</span>';
+    case 'b': return (v === true || v === 'true') ? '<span class="chip ok">Yes</span>' : '<span class="muted">—</span>';
+    case 'img': return '<img class="thumb" loading="lazy" src="' + esc(v) + '" alt="">';
+    default: return esc(v);
+  }
+}
+const isNumT = t => t === 'm' || t === 'n' || t === 'p';
+
+/* ======================================================================= data table */
+/* o: {entity, dated, defFrom, extras:[{k,l,t:'select'|'text'|'month',opts,def}], buttons:[{l,cls,fn}], onRow(row), rowActions(row)->[[label, cls, fn]], preset, x} */
+function makeTable(host, o){
+  const pre = (o.preset && o.preset.entity === o.entity) ? o.preset : null;
+  const st = { q: '', f: Object.assign({}, pre && pre.f || {}), sort: '', dir: 'asc', page: 1, size: +(localStorage.getItem('hdms_size') || 50),
+    from: (pre && pre.from) || (o.dated ? (o.defFrom || S.boot.monthStart) : ''), to: (pre && pre.to) || (o.dated ? S.boot.today : ''), x: Object.assign({}, o.x || {}), cols: null, colKey: '', last: null };
+  (o.extras || []).forEach(e => { if (st.x[e.k] == null) st.x[e.k] = e.def == null ? '' : e.def; });
+  const hidKey = 'hdms_cols_' + o.entity, hidSaved = JSON.parse(localStorage.getItem(hidKey) || 'null');
+  host.innerHTML = '<div class="tb"><input type="search" placeholder="Search all columns…" data-r="q">' +
+    (o.dated ? '<label>From <input type="date" data-r="from"></label><label>To <input type="date" data-r="to"></label>' +
+      '<select data-r="preset"><option value="">Period…</option><option value="today">Today</option><option value="7">Last 7 days</option><option value="month">This month</option><option value="last">Last month</option><option value="90">Last 90 days</option><option value="year">This year</option><option value="all">Everything</option></select>' : '') +
+    (o.extras || []).map(e => '<label>' + esc(e.l) + ' ' + (e.t === 'select' ? '<select data-x="' + e.k + '">' + optHtml(e.opts, st.x[e.k]) + '</select>' :
+      '<input data-x="' + e.k + '" type="' + (e.t === 'month' ? 'month' : 'text') + '" value="' + esc(st.x[e.k]) + '"' + (e.ph ? ' placeholder="' + esc(e.ph) + '"' : '') + ' style="width:' + (e.t === 'month' ? 150 : 130) + 'px">') + '</label>').join('') +
+    '<span class="grow"></span><span data-r="btns"></span><button class="btn" type="button" data-r="cols">Columns</button><button class="btn" type="button" data-r="clear">Clear filters</button><button class="btn pri" type="button" data-r="xlsx">⬇ Excel</button></div>' +
+    '<div data-r="note"></div><div class="tw"><table class="dt"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>' +
+    '<div class="pager"><span data-r="info"></span><span class="grow"></span><label>Rows <select data-r="size">' + optHtml([25, 50, 100, 200], st.size) + '</select></label>' +
+    '<button class="btn sm" type="button" data-r="first">«</button><button class="btn sm" type="button" data-r="prev">‹</button><span data-r="pg"></span><button class="btn sm" type="button" data-r="next">›</button><button class="btn sm" type="button" data-r="last">»</button></div>';
+  const R = k => $('[data-r="' + k + '"]', host);
+  if (o.dated){ R('from').value = st.from; R('to').value = st.to; }
+  const btns = R('btns'); (o.buttons || []).forEach(b => { const e = document.createElement('button'); e.type = 'button'; e.className = 'btn ' + (b.cls || ''); e.textContent = b.l; e.onclick = () => b.fn(api_); btns.appendChild(e); btns.appendChild(document.createTextNode(' ')); });
+  let tmr = null; const later = () => { clearTimeout(tmr); tmr = setTimeout(() => { st.page = 1; load(); }, 380); };
+  R('q').oninput = e => { st.q = e.target.value; later(); };
+  if (o.dated){
+    R('from').onchange = e => { st.from = e.target.value; st.page = 1; load(); }; R('to').onchange = e => { st.to = e.target.value; st.page = 1; load(); };
+    R('preset').onchange = e => { const [f, t] = period(e.target.value); e.target.value = ''; if (!f) return; st.from = f; st.to = t; R('from').value = f; R('to').value = t; st.page = 1; load(); };
+  }
+  $$('[data-x]', host).forEach(el => el.onchange = () => { st.x[el.dataset.x] = el.value; st.page = 1; st.cols = null; load(); });
+  R('size').onchange = e => { st.size = +e.target.value; localStorage.setItem('hdms_size', st.size); st.page = 1; load(); };
+  R('first').onclick = () => { st.page = 1; load(); }; R('prev').onclick = () => { if (st.page > 1){ st.page--; load(); } };
+  R('next').onclick = () => { if (st.last && st.page < st.last.pages){ st.page++; load(); } }; R('last').onclick = () => { if (st.last){ st.page = st.last.pages; load(); } };
+  R('clear').onclick = () => { st.f = {}; st.q = ''; R('q').value = ''; st.page = 1; st.cols = null; load(); };
+  R('xlsx').onclick = () => exportXlsx(o.entity, params(true), null, R('xlsx'));
+  R('cols').onclick = ev => {
+    const old = $('.colpop'); if (old){ old.remove(); return; } if (!st.cols) return;
+    const pop = document.createElement('div'); pop.className = 'colpop'; const rc = ev.target.getBoundingClientRect();
+    pop.style.top = (rc.bottom + window.scrollY + 4) + 'px'; pop.style.left = Math.max(10, rc.right - 240) + 'px';
+    pop.innerHTML = st.cols.map(c => '<label><input type="checkbox" data-c="' + c.k + '"' + (hidden().includes(c.k) ? '' : ' checked') + '> ' + esc(c.l) + '</label>').join('');
+    pop.onchange = () => { const h = $$('input[data-c]', pop).filter(i => !i.checked).map(i => i.dataset.c); localStorage.setItem(hidKey, JSON.stringify(h)); st.colKey = ''; render(st.last); };
+    document.body.appendChild(pop); setTimeout(() => document.addEventListener('click', function cl(e){ if (!pop.contains(e.target)){ pop.remove(); document.removeEventListener('click', cl); } }), 0);
+  };
+  function hidden(){ const h = JSON.parse(localStorage.getItem(hidKey) || 'null'); return h || (st.cols || []).filter(c => c.h).map(c => c.k); }
+  function params(all){ const p = Object.assign({ entity: o.entity, report: o.entity, q: st.q, f: st.f, sort: st.sort, dir: st.dir }, st.x); if (o.dated){ p.from = st.from; p.to = st.to; } if (!all){ p.page = st.page; p.size = st.size; } return p; }
+  async function load(){
+    host.classList.add('loading');
+    const r = await api('apiAdminList', params(false));
+    host.classList.remove('loading');
+    if (!r || !r.ok){ $('tbody', host).innerHTML = '<tr><td class="empty" colspan="40">' + esc((r && r.message) || 'Could not load') + '</td></tr>'; return; }
+    if (o.dated && r.from && !st.from){ st.from = r.from; st.to = r.to; R('from').value = r.from; R('to').value = r.to; }
+    st.cols = r.columns; render(r);
+  }
+  function render(r){
+    if (!r) return; st.last = r;
+    const hid = hidden(), cols = st.cols.filter(c => !hid.includes(c.k)), key = cols.map(c => c.k).join('|');
+    R('note').innerHTML = r.note ? '<div class="note">' + esc(r.note) + '</div>' : '';
+    if (key !== st.colKey){
+      st.colKey = key;
+      $('thead', host).innerHTML = '<tr>' + cols.map(c => '<th data-s="' + c.k + '" class="' + (isNumT(c.t) ? 'n' : '') + '">' + esc(c.l) + '<span class="ar">↕</span></th>').join('') + (o.rowActions ? '<th></th>' : '') + '</tr>' +
+        '<tr class="flt">' + cols.map(c => '<th>' + (c.t === 's' || c.t === 'b' ? '<select data-f="' + c.k + '"></select>' : c.t === 'img' ? '' :
+          '<input data-f="' + c.k + '" placeholder="' + (isNumT(c.t) ? '>0' : c.t === 'd' || c.t === 'dt' ? '>=2026-01-01' : 'filter') + '" value="' + esc(st.f[c.k] || '') + '">') + '</th>').join('') + (o.rowActions ? '<th></th>' : '') + '</tr>';
+      $$('thead th[data-s]', host).forEach(th => th.onclick = () => { const k = th.dataset.s; if (st.sort === k) st.dir = st.dir === 'asc' ? 'desc' : 'asc'; else { st.sort = k; st.dir = isNumT((cols.find(c => c.k === k) || {}).t) ? 'desc' : 'asc'; } st.page = 1; load(); });
+      $$('thead [data-f]', host).forEach(el => { const ev = el.tagName === 'SELECT' ? 'onchange' : 'oninput'; el[ev] = () => { st.f[el.dataset.f] = el.value; el.tagName === 'SELECT' ? (st.page = 1, load()) : later(); }; });
+    }
+    $$('thead th[data-s]', host).forEach(th => { const on = th.dataset.s === st.sort; th.classList.toggle('sorted', on); $('.ar', th).textContent = on ? (st.dir === 'asc' ? '▲' : '▼') : '↕'; });
+    $$('thead select[data-f]', host).forEach(sel => {
+      if (document.activeElement === sel) return; const k = sel.dataset.f, c = cols.find(x => x.k === k), cur = st.f[k] || '';
+      const vals = c.t === 'b' ? [['=true', 'Yes'], ['=false', 'No']] : Array.from(new Set(r.rows.map(x => x[k]).filter(v => v != null && v !== '').map(String).concat(cur ? cur.slice(1).split('|') : []))).sort().map(v => ['=' + v, v]);
+      sel.innerHTML = '<option value="">All</option>' + optHtml(vals.concat(cur && !vals.some(v => v[0] === cur) ? [[cur, cur.slice(1)]] : []), cur);
+    });
+    const tb = $('tbody', host);
+    if (!r.rows.length) tb.innerHTML = '<tr><td class="empty" colspan="' + (cols.length + 1) + '">Nothing found' + (o.dated ? ' for ' + esc(st.from) + ' → ' + esc(st.to) : '') + '.</td></tr>';
+    else {
+      tb.innerHTML = r.rows.map((x, i) => '<tr data-i="' + i + '"' + (o.onRow ? ' class="click"' : '') + '>' + cols.map(c => '<td class="' + (isNumT(c.t) ? 'n' : '') + '" title="' + esc(c.t === 'img' ? '' : x[c.k]) + '">' + cellHtml(x[c.k], c.t) + '</td>').join('') +
+        (o.rowActions ? '<td data-act="' + i + '"></td>' : '') + '</tr>').join('');
+      if (o.onRow) $$('tr[data-i]', tb).forEach(tr => tr.onclick = ev => { if (ev.target.closest('button')) return; o.onRow(r.rows[+tr.dataset.i], api_); });
+      if (o.rowActions) $$('td[data-act]', tb).forEach(td => { const row = r.rows[+td.dataset.act]; (o.rowActions(row) || []).forEach(([l, cls, fn]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm ' + (cls || ''); b.textContent = l; b.onclick = async ev => { ev.stopPropagation(); b.disabled = true; try { await fn(row, api_); } catch (e) { } b.disabled = false; }; td.appendChild(b); td.appendChild(document.createTextNode(' ')); }); });
+    }
+    const sums = r.sums || {}, anySum = cols.some(c => c.t === 'm' && sums[c.k] != null);
+    $('tfoot', host).innerHTML = anySum && r.rows.length ? '<tr>' + cols.map((c, i) => '<td class="' + (isNumT(c.t) ? 'n' : '') + '">' + (i === 0 ? 'Total (' + num(r.total) + ' rows)' : (c.t === 'm' || c.t === 'n') && sums[c.k] != null ? cellHtml(sums[c.k], c.t) : '') + '</td>').join('') + (o.rowActions ? '<td></td>' : '') + '</tr>' : '';
+    R('info').textContent = num(r.total) + ' rows' + (o.dated ? ' · ' + st.from + ' → ' + st.to : '');
+    R('pg').textContent = 'Page ' + r.page + ' of ' + r.pages;
+  }
+  const api_ = { reload: load, st, params };
+  load();
+  return api_;
+}
+function period(k){
+  const t = S.boot.today, d = new Date(t + 'T00:00:00Z'), iso = x => x.toISOString().slice(0, 10), add = n => { const x = new Date(d); x.setUTCDate(x.getUTCDate() + n); return iso(x); };
+  if (k === 'today') return [t, t]; if (k === '7') return [add(-6), t]; if (k === '90') return [add(-89), t]; if (k === 'month') return [t.slice(0, 8) + '01', t];
+  if (k === 'last'){ const a = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 1, 1)), b = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 0)); return [iso(a), iso(b)]; }
+  if (k === 'year') return [t.slice(0, 4) + '-01-01', t]; if (k === 'all') return ['2020-01-01', t]; return [null, null];
+}
+
+/* ======================================================================= Excel export */
+async function exportXlsx(entity, p, title, btn){
+  if (btn) btn.disabled = true;
+  try {
+    let page = 1, rows = [], r;
+    do {
+      r = await api('apiAdminExport', Object.assign({}, p, { report: entity, page }));
+      if (!r || !r.ok){ toast((r && r.message) || 'Export failed', 'bad'); return; }
+      rows = rows.concat(r.rows); if (r.pages > 1) toast('Exporting ' + num(rows.length) + ' of ' + num(r.total) + ' rows…', '', 1500);
+      page++;
+    } while (page <= r.pages);
+    const cols = r.columns, sums = r.sums || {};
+    const total = cols.some(c => c.t === 'm' && sums[c.k] != null) && rows.length ? cols.map((c, i) => i === 0 ? 'Total' : (c.t === 'm' || c.t === 'n') && sums[c.k] != null ? sums[c.k] : '') : null;
+    const flt = Object.entries(p.f || {}).filter(([, v]) => v).map(([k, v]) => ((cols.find(c => c.k === k) || {}).l || k) + ' ' + v).join(', ');
+    const about = [['Report', title || r.title], ['Company', S.boot.company.name], ['Period', r.from && entityDated(entity) ? r.from + ' to ' + r.to : 'As of ' + S.boot.today],
+      ['Filters', [flt, p.q ? 'search "' + p.q + '"' : '', p.by ? 'grouped by ' + p.by : '', p.month ? 'month ' + p.month : '', p.shop ? 'shop ' + p.shop : '', p.view ? 'view ' + p.view : ''].filter(Boolean).join(' · ') || 'none'],
+      ['Rows', rows.length], ['Generated by', r.generatedBy], ['Generated at', r.generatedAt + ' (Asia/Dhaka)'], ['Note', r.note || '']];
+    const blob = buildXlsx([
+      { name: (title || r.title || entity).slice(0, 31), columns: cols.map(c => ({ l: c.l, t: c.t === 'img' ? 't' : c.t })), rows: rows.map(x => cols.map(c => x[c.k])), total },
+      { name: 'About', columns: [{ l: 'Item', t: 't' }, { l: 'Value', t: 't' }], rows: about, noFilter: true }]);
+    download(blob, 'hijabi-' + fileSlug(title || r.title || entity) + '-' + (entityDated(entity) ? (r.from || '') + '_' + (r.to || '') : S.boot.today) + '.xlsx');
+    toast('Excel downloaded: ' + num(rows.length) + ' rows.', 'ok');
+  } finally { if (btn) btn.disabled = false; }
+}
+const DATED = ['stock_ledger', 'grns', 'transfers', 'counts', 'returns', 'prqs', 'orders', 'collections', 'adjustments', 'ledger', 'sales', 'attendance', 'leaves', 'audit', 'route_compliance'];
+const entityDated = e => DATED.includes(e);
+
+/* ======================================================================= import */
+const IMPORTS = {
+  products: { api: 'apiAdminProductImport', title: 'Products', key: 'sku', name: 'name',
+    fields: [['sku', 'SKU'], ['name', 'Name'], ['category', 'Category'], ['fabric', 'Fabric'], ['colour', 'Colour', 'color'], ['variant', 'Variant'], ['wholesale', 'Wholesale ৳', 'wholesaleprice', 'price'],
+      ['mrp', 'MRP ৳'], ['moq', 'MOQ'], ['status', 'Status', 'active'], ['img', 'Photo', 'photourl', 'image', 'imageurl'], ['webUrl', 'Web link', 'weburl'], ['sort', 'Sort']],
+    example: ['HJ-GG-01', '', 'Hijab', 'Georgette', 'Emerald', '', 420, 550, 1, 'Active', '', '', ''] },
+  employees: { api: 'apiAdminEmployeeImport', title: 'Employees', key: 'id', name: 'name', dates: ['joinDate'],
+    fields: [['id', 'Emp ID', 'empid', 'employeeid', 'code'], ['name', 'Name'], ['role', 'Role', 'systemrole', 'rolelabel'], ['territory', 'Territory'], ['manager', 'Manager', 'managerid'],
+      ['mobile', 'Mobile'], ['email', 'Email'], ['district', 'District'], ['joinDate', 'Joined', 'joiningdate', 'joindate'], ['reportingTime', 'Reporting time'], ['status', 'Status'],
+      ['basic', 'Basic ৳', 'basicsalary'], ['house', 'House ৳', 'houseallowance'], ['transport', 'Transport ৳', 'transportallowance'], ['mobileAllow', 'Mobile allow. ৳', 'mobileallowance']],
+    example: ['', 'Rahim Uddin', 'TSM', 'MPR', 'EMP-002', '01711000000', '', 'Dhaka', '', '09:30', 'Active', 18000, 7000, 3000, 1000] },
+  shops: { api: 'apiAdminShopImport', title: 'Shops', key: 'id', name: 'shop',
+    fields: [['id', 'Shop ID', 'shopid', 'code'], ['shop', 'Shop', 'shopname', 'name'], ['owner', 'Owner', 'ownername'], ['mobile', 'Mobile'], ['altMobile', 'Alt. mobile', 'alternativemobile'],
+      ['address', 'Address'], ['district', 'District'], ['territory', 'Territory'], ['area', 'Area'], ['rep', 'TSM', 'rep', 'repid'], ['status', 'Status'], ['creditLimit', 'Credit limit ৳', 'creditlimit'],
+      ['type', 'Type'], ['lat', 'Lat', 'latitude'], ['lng', 'Lng', 'longitude'], ['remarks', 'Remarks']],
+    example: ['', 'Noor Ladies Tailor', 'Ayesha Begum', '01711000001', '', 'Road 2, Mohammadpur', 'Dhaka', 'MPR', 'Krishi Market', '', 'Approved', 150000, 'Tailor', '', '', ''] }
+};
+const normH = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+function templateXlsx(kind){ const sp = IMPORTS[kind]; download(buildXlsx([{ name: sp.title, columns: sp.fields.map(f => ({ l: f[1], t: 't' })), rows: [sp.example] }]), 'hijabi-' + kind + '-import-template.xlsx'); }
+function rowsToObjects(kind, table){
+  const sp = IMPORTS[kind], map = {};
+  sp.fields.forEach(f => f.forEach((a, i) => { map[normH(i === 1 ? a : a)] = f[0]; }));
+  let hi = table.findIndex(r => r.filter(c => map[normH(c)]).length >= 2); if (hi < 0) throw new Error('No header row found. The first row must have column names like ' + sp.fields.slice(0, 4).map(f => f[1]).join(', ') + '.');
+  const keys = table[hi].map(c => map[normH(c)] || null), out = [];
+  for (let i = hi + 1; i < table.length; i++){
+    const r = table[i] || []; if (!r.some(c => String(c || '').trim() !== '')) continue;
+    const o = {}; keys.forEach((k, j) => { if (!k) return; let v = r[j] == null ? '' : String(r[j]).trim();
+      if ((sp.dates || []).includes(k) && /^\d{5}(\.\d+)?$/.test(v)){ const d = new Date(Date.UTC(1899, 11, 30) + Math.round(+v) * 86400000); v = d.toISOString().slice(0, 10); }
+      if (o[k] == null || o[k] === '') o[k] = v; });
+    out.push(o);
+  }
+  return out;
+}
+function openImport(kind, done){
+  const sp = IMPORTS[kind]; let rows = null, sub = uuid();
+  const b = openDrawer('Import ' + sp.title.toLowerCase() + ' from Excel / CSV', '<p class="muted">Choose an .xlsx or .csv file. The first row must hold the column names (download the template, or export the list and edit it). ' +
+    'Existing records are matched by <b>' + esc(sp.fields[0][1]) + '</b>: blank cells keep the current value. Rows without ' + esc(sp.fields[0][1]) + (kind === 'products' ? ' are refused.' : ' are added as new.') + '</p>' +
+    '<div class="tb"><input type="file" accept=".xlsx,.csv,.txt" data-r="file"><button class="btn" type="button" data-r="tpl">⬇ Template</button></div>' +
+    '<label class="muted" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-r="skip"> Skip rows with errors (otherwise nothing is saved while any row has an error)</label><div data-r="res"></div>', true);
+  $('[data-r=tpl]', b).onclick = () => templateXlsx(kind);
+  const show = r => {
+    const c = r.counts || {};
+    $('[data-r=res]', b).innerHTML = '<p><b>' + esc(r.message) + '</b></p><p class="muted">To add: ' + (c.create || 0) + ' · to update: ' + (c.update || 0) + ' · unchanged: ' + (c.unchanged || 0) + ' · errors: ' + (c.error || 0) + '</p>' +
+      (r.tempPins && r.tempPins.length ? '<div class="note"><b>Temporary PINs – shown only now.</b> Give each person his PIN; it must be changed at first login. <button class="btn sm" type="button" data-r="pins">⬇ Download PINs</button></div>' +
+        '<table class="dt"><thead><tr><th>Emp ID</th><th>Name</th><th>Temporary PIN</th></tr></thead><tbody>' + r.tempPins.map(x => '<tr><td>' + esc(x.id) + '</td><td>' + esc(x.name) + '</td><td><b>' + esc(x.tempPin) + '</b></td></tr>').join('') + '</tbody></table>' : '') +
+      '<div class="imptbl"><table class="dt"><thead><tr><th>Row</th><th>' + esc(sp.fields[0][1]) + '</th><th>Name</th><th>Action</th><th>Problems</th></tr></thead><tbody>' +
+      (r.rows || []).map(x => '<tr><td class="n">' + (x.row + 1) + '</td><td>' + esc(x.sku || x.id) + '</td><td>' + esc(x.name) + '</td><td><span class="chip ' + (x.action === 'error' ? 'bad' : x.action === 'create' || x.action === 'created' ? 'ok' : x.action === 'unchanged' ? 'mut' : 'warn') + '">' + esc(x.action) + '</span></td><td style="white-space:normal;color:var(--bad)">' + esc((x.errors || []).join(' ')) + '</td></tr>').join('') + '</tbody></table></div>';
+    const pb = $('[data-r=pins]', b); if (pb) pb.onclick = () => download(buildXlsx([{ name: 'Temporary PINs', columns: [{ l: 'Emp ID', t: 't' }, { l: 'Name', t: 't' }, { l: 'Temporary PIN', t: 't' }], rows: r.tempPins.map(x => [x.id, x.name, x.tempPin]) }]), 'hijabi-temporary-pins.xlsx');
+  };
+  $('[data-r=file]', b).onchange = async e => {
+    const f = e.target.files[0]; if (!f) return; sub = uuid();
+    try { rows = rowsToObjects(kind, await readTable(f)); } catch (err){ toast(err.message || String(err), 'bad'); rows = null; return; }
+    if (!rows.length){ toast('The file has no data rows.', 'bad'); return; }
+    const r = await api(sp.api, { rows, apply: false }); if (!r || !r.ok){ toast((r && r.message) || 'Preview failed', 'bad'); return; } show(r);
+    applyBtn.disabled = false;
+  };
+  const applyBtn = footBtn('Apply import', 'pri', async () => {
+    if (!rows) return toast('Choose a file first.', 'bad');
+    const r = await api(sp.api, { rows, apply: true, skipInvalid: $('[data-r=skip]', b).checked, submissionId: sub });
+    if (!r || !r.ok){ toast((r && r.message) || 'Import failed', 'bad'); return; }
+    show(r); toast(r.message, r.applied ? 'ok' : 'bad', 9000); sub = uuid(); if (r.applied && done) done();
+  });
+  applyBtn.disabled = true; footGrow(); footBtn('Close', '', closeDrawer);
+}
+
+/* ======================================================================= pages */
+const PAGES = [
+  { id: 'dashboard', l: 'Dashboard', i: '◧', g: 'Overview' },
+  { id: 'products', l: 'Products', i: '▦', g: 'Masters', perm: 'catalog' },
+  { id: 'employees', l: 'Employees', i: '☺', g: 'Masters', perm: 'people' },
+  { id: 'suppliers', l: 'Suppliers', i: '⚑', g: 'Masters', perm: 'partners' },
+  { id: 'shops', l: 'Shops', i: '⌂', g: 'Masters', perm: 'shops' },
+  { id: 'territories', l: 'Territories & routes', i: '⌖', g: 'Masters', perm: 'territory' },
+  { id: 'warehouses', l: 'Warehouses', i: '▣', g: 'Masters', perm: 'inventory' },
+  { id: 'inventory', l: 'Inventory', i: '▤', g: 'Operations', perm: 'inventory' },
+  { id: 'sales', l: 'Sales & finance', i: '৳', g: 'Operations', perm: 'sales' },
+  { id: 'hr', l: 'HR', i: '♟', g: 'Operations', perm: 'hr' },
+  { id: 'reports', l: 'Excel reports', i: '⬇', g: 'Reports' },
+  { id: 'settings', l: 'Settings', i: '⚙', g: 'Admin', perm: 'settings' },
+  { id: 'audit', l: 'Audit log', i: '☰', g: 'Admin', perm: 'audit' }
+];
+const ENT_PAGE = { products: ['products'], employees: ['employees'], suppliers: ['suppliers'], shops: ['shops'], warehouses: ['warehouses'], territories: ['territories', 'territories'],
+  routes: ['territories', 'routes'], route_compliance: ['territories', 'route_compliance'], stock: ['inventory', 'stock'], stock_ledger: ['inventory', 'stock_ledger'], grns: ['inventory', 'grns'],
+  transfers: ['inventory', 'transfers'], counts: ['inventory', 'counts'], returns: ['inventory', 'returns'], prqs: ['inventory', 'prqs'], orders: ['sales', 'orders'], collections: ['sales', 'collections'],
+  adjustments: ['sales', 'adjustments'], outstanding: ['sales', 'outstanding'], aging: ['sales', 'aging'], ledger: ['sales', 'ledger'], sales: ['sales', 'sales'], attendance: ['hr', 'attendance'],
+  leaves: ['hr', 'leaves'], payroll: ['hr', 'payroll'], audit: ['audit'], settings: ['settings'] };
+const can = k => !k || !!(S.boot && S.boot.perms && S.boot.perms[k]);
+function go(page, tab){ location.hash = '#' + page + (tab ? ':' + tab : ''); }
+function goLink(link){ if (!link) return; const t = ENT_PAGE[link.entity]; if (!t) return; S.preset = link; const h = '#' + t[0] + (t[1] ? ':' + t[1] : ''); if (location.hash === h) route(); else location.hash = h; }
+function route(){
+  if (!S.boot) return;
+  const [pg, tab] = (location.hash.slice(1) || 'dashboard').split(':');
+  const p = PAGES.find(x => x.id === pg && can(x.perm)) || PAGES[0];
+  S.page = p.id; S.tab = tab || '';
+  $$('#side a.nav').forEach(a => a.classList.toggle('on', a.dataset.p === p.id));
+  $('#pTitle').textContent = p.l; closeDrawer(); $('#side').classList.remove('open');
+  const v = $('#view'); v.innerHTML = '';
+  try { VIEWS[p.id](v, S.tab); } catch (e) { v.innerHTML = '<div class="card">Something went wrong: ' + esc(e.message) + '</div>'; console.error(e); }
+  S.preset = null;
+}
+function tabs(v, list, cur, page){
+  list = list.filter(t => can(t.perm)); const sel = list.find(t => t.id === cur) || list[0];
+  const bar = document.createElement('div'); bar.className = 'tabs';
+  bar.innerHTML = list.map(t => '<button type="button" data-t="' + t.id + '" class="' + (t.id === sel.id ? 'on' : '') + '">' + esc(t.l) + '</button>').join('');
+  bar.onclick = e => { const b = e.target.closest('button[data-t]'); if (b) go(page, b.dataset.t); };
+  v.appendChild(bar); const body = document.createElement('div'); v.appendChild(body); return [sel, body];
+}
+const VIEWS = {};
+
+/* ---------------------------------------------------------------- dashboard */
+VIEWS.dashboard = async v => {
+  v.innerHTML = '<div class="kpis" data-r="k"><div class="kpi">Loading…</div></div><div class="dgrid"><div class="card"><h3>Waiting for a decision</h3><div data-r="p"></div></div><div><div class="card" data-r="sc"><h3>Open orders by stage</h3><div class="stages" data-r="s"></div></div><div class="card hidden" data-r="hc" style="margin-top:14px"><h3>Attendance today</h3><div data-r="h"></div></div></div></div>';
+  const r = await api('apiAdminDashboard'); if (!r || !r.ok){ $('[data-r=k]', v).innerHTML = '<div class="card">' + esc((r && r.message) || 'Could not load') + '</div>'; return; }
+  const K = $('[data-r=k]', v); K.innerHTML = '';
+  r.kpis.forEach(k => { const b = document.createElement('button'); b.type = 'button'; b.className = 'kpi'; b.dataset.k = k.k; b.innerHTML = '<div class="l">' + esc(k.label) + '</div><div class="v">' + esc(k.fmt === 'm' ? money(k.value) : num(k.value)) + '</div><div class="s">' + esc(k.sub || '') + '</div>'; b.onclick = () => goLink(k.link); K.appendChild(b); });
+  if (!r.kpis.length) K.innerHTML = '<div class="card muted">Welcome, ' + esc(S.boot.user.name) + '. Use the menu on the left.</div>';
+  const P = $('[data-r=p]', v); P.innerHTML = r.pending.length ? '' : '<p class="muted">Nothing for your role.</p>';
+  r.pending.forEach(x => { const d = document.createElement('div'); d.className = 'pend'; d.dataset.k = x.k; d.innerHTML = '<span class="c' + (x.n ? '' : ' z') + '">' + num(x.n) + '</span><span style="flex:1">' + esc(x.label) + '</span><span class="muted">Open ›</span>'; d.onclick = () => goLink(x.link); P.appendChild(d); });
+  const Sg = $('[data-r=s]', v); if (!can('sales')) $('[data-r=sc]', v).classList.add('hidden');
+  Sg.innerHTML = r.stages.length ? '' : '<p class="muted">No open orders.</p>';
+  r.stages.forEach(x => { const d = document.createElement('div'); d.className = 'stage'; d.innerHTML = '<b>' + num(x.n) + '</b><span>' + esc(x.stage) + ' · ' + esc(money(x.value)) + '</span>'; d.onclick = () => goLink(x.link); Sg.appendChild(d); });
+  if (r.hr){ $('[data-r=hc]', v).classList.remove('hidden'); const H = $('[data-r=h]', v);
+    H.innerHTML = '<div class="hrrow"><div><b>' + num(r.hr.present) + '</b><span>Checked in</span></div><div><b>' + num(r.hr.late) + '</b><span>Late</span></div><div><b>' + num(r.hr.onLeave) + '</b><span>On leave</span></div><div><b>' + num(r.hr.notIn) + '</b><span>Not in yet</span></div></div><p class="muted" style="margin:10px 0 0">' + num(r.hr.active) + ' active staff · <a href="#" data-r="att">open attendance ›</a></p>';
+    $('[data-r=att]', H).onclick = e => { e.preventDefault(); goLink(r.hr.link); }; }
+};
+
+/* ---------------------------------------------------------------- products */
+const CATS = () => (S.boot.lists.categories || ['Hijab']);
+function productFields(isNew){
+  return [{ k: 'sku', l: 'SKU', req: true, ro: !isNew, ph: 'HJ-GG-01', help: isNew ? 'Letters, digits, dash. One SKU per fabric × colour.' : 'The SKU never changes.' },
+    { k: 'name', l: 'Name', ph: 'Blank = fabric + category + colour' }, { k: 'fabric', l: 'Fabric', req: true, list: S.boot.lists.fabrics }, { k: 'colour', l: 'Colour', req: true, list: S.boot.lists.colours },
+    { k: 'variant', l: 'Variant', ph: 'optional (size / print)' }, { k: 'category', l: 'Category', list: CATS(), def: 'Hijab' },
+    { k: 'wholesale', l: 'Wholesale price ৳', t: 'number', req: true }, { k: 'mrp', l: 'MRP ৳', t: 'number' }, { k: 'moq', l: 'Minimum order (pcs)', t: 'number', def: 1 },
+    { k: 'sort', l: 'Sort order', t: 'number' }, { k: 'status', l: 'Status', t: 'select', opts: ['Active', 'Discontinued'], def: 'Active' }, { k: 'webUrl', l: 'Web shop link' },
+    { k: 'img', l: 'Photo', t: 'photo', full: true }];
+}
+function productDrawer(row, tbl){
+  const isNew = !row, ed = can('catalog.edit');
+  const b = openDrawer(isNew ? 'New product' : row.sku + ' · ' + row.name, formHtml(productFields(isNew), row || {}, !ed)); wirePhotos(b);
+  if (!isNew) b.insertAdjacentHTML('beforeend', '<p class="muted" style="margin-top:16px">On hand (all your warehouses): <b>' + num(row.onHand) + ' pcs</b> · last change ' + esc(row.updated) + '</p>');
+  if (ed){ const sub = uuid(); footBtn(isNew ? 'Add product' : 'Save', 'pri', async () => { const r = await api('apiAdminProductSave', Object.assign(readForm(b), { isNew, submissionId: sub }));
+    if (!r || !r.ok) return toast((r && r.message) || 'Not saved', 'bad'); toast(r.message, 'ok'); closeDrawer(); tbl.reload(); }); }
+  footGrow(); footBtn('Close', '', closeDrawer);
+}
+VIEWS.products = v => {
+  const t = makeTable(v, { entity: 'products', preset: S.preset, onRow: r => productDrawer(r, t),
+    buttons: can('catalog.edit') ? [{ l: '+ Add product', cls: 'pri', fn: () => productDrawer(null, t) }, { l: 'Import', fn: () => openImport('products', () => t.reload()) }] : [] });
+};
+
+/* ---------------------------------------------------------------- employees */
+function roleOpts(){ return S.boot.lists.roles.map(r => [r.value, r.label === r.value ? r.label : r.label + ' (' + r.value + ')']); }
+function employeeFields(isNew, sal){
+  const f = [{ k: 'id', l: 'Employee ID', ro: !isNew, ph: 'blank = next free EMP-###' }, { k: 'name', l: 'Full name', req: true },
+    { k: 'role', l: 'Role', t: 'select', req: true, opts: roleOpts(), def: 'Sales Representative' },
+    { k: 'territory', l: 'Territory (TSM / delivery / store keeper)', t: 'select', opts: [['', '— none —']].concat(S.boot.lists.territories.map(t => [t.code, t.code + ' · ' + t.name])) },
+    { k: 'manager', l: 'Manager', t: 'select', opts: [['', '— none —']].concat(S.boot.lists.managers.map(m => [m.id, m.id + ' · ' + m.name + ' (' + m.role + ')'])) },
+    { k: 'mobile', l: 'Mobile', ph: '01XXXXXXXXX' }, { k: 'email', l: 'Email' }, { k: 'district', l: 'District', def: 'Dhaka' },
+    { k: 'joinDate', l: 'Joining date', t: 'date' }, { k: 'reportingTime', l: 'Reporting time', t: 'time' }, { k: 'status', l: 'Status', t: 'select', opts: ['Active', 'Inactive'], def: 'Active' }];
+  if (sal) f.push({ t: 'sect', l: 'Salary (৳ per month)' }, { k: 'basic', l: 'Basic', t: 'number', def: 0 }, { k: 'house', l: 'House allowance', t: 'number', def: 0 }, { k: 'transport', l: 'Transport allowance', t: 'number', def: 0 }, { k: 'mobileAllow', l: 'Mobile allowance', t: 'number', def: 0 });
+  return f;
+}
+async function showPin(r){ await modal('Temporary PIN', '<p>' + esc(r.message) + '</p><div class="pin" data-pin>' + esc(r.tempPin) + '</div><p class="muted">Write it down or copy it now. It is not shown again and the employee must change it at first login.</p>', [['Copy', '', 'copy'], ['Done', 'pri', true]])
+  .then(x => { if (x.v === 'copy'){ try { navigator.clipboard.writeText(r.tempPin); toast('PIN copied.', 'ok'); } catch (e) { } } }); }
+function employeeDrawer(row, tbl){
+  const isNew = !row, ed = can('people.edit'), sal = can('salary');
+  const vals = row ? Object.assign({}, row) : {};
+  const b = openDrawer(isNew ? 'New employee' : row.id + ' · ' + row.name, formHtml(employeeFields(isNew, sal), vals, !ed));
+  if (!isNew && row.mustChangePin) b.insertAdjacentHTML('afterbegin', '<div class="note">This person has a temporary PIN and must change it at the next login.</div>');
+  if (ed){
+    const sub = uuid();
+    footBtn(isNew ? 'Add employee' : 'Save', 'pri', async () => {
+      const p = readForm(b); if (!sal){ delete p.basic; delete p.house; delete p.transport; delete p.mobileAllow; }
+      const r = await api('apiAdminEmployeeSave', Object.assign(p, { isNew, submissionId: sub }));
+      if (!r || !r.ok) return toast((r && r.message) || 'Not saved', 'bad');
+      closeDrawer(); tbl.reload(); if (r.tempPin) await showPin(r); else toast(r.message, 'ok');
+    });
+    if (!isNew){
+      footBtn('Reset PIN', '', async () => { if (!await confirmBox('Reset PIN of ' + row.name + '?', 'A new temporary PIN is made, all sessions of ' + row.id + ' end and the PIN must be changed at the next login.', 'Reset PIN')) return;
+        const r = await api('apiAdminResetPin', { id: row.id, submissionId: uuid() }); if (!r || !r.ok) return toast((r && r.message) || 'Failed', 'bad'); closeDrawer(); await showPin(r); tbl.reload(); });
+      footBtn(row.status === 'Active' ? 'Deactivate' : 'Reactivate', row.status === 'Active' ? 'danger' : 'ok', async () => {
+        const to = row.status === 'Active' ? 'Inactive' : 'Active'; const why = to === 'Inactive' ? await ask('Deactivate ' + row.name, 'Reason (kept in the audit log). The person is logged out and cannot log in; history is kept.', false) : '';
+        if (why === null) return; const r = await api('apiAdminEmployeeStatus', { id: row.id, status: to, reason: why, submissionId: uuid() });
+        if (!r || !r.ok) return toast((r && r.message) || 'Failed', 'bad'); toast(r.message, 'ok', 8000); closeDrawer(); tbl.reload(); });
+    }
+  }
+  footGrow(); footBtn('Close', '', closeDrawer);
+}
+VIEWS.employees = v => {
+  const t = makeTable(v, { entity: 'employees', preset: S.preset, onRow: r => employeeDrawer(r, t),
+    buttons: can('people.edit') ? [{ l: '+ Add employee', cls: 'pri', fn: () => employeeDrawer(null, t) }, { l: 'Import', fn: () => openImport('employees', () => t.reload()) }] : [] });
+};
+
+/* ---------------------------------------------------------------- suppliers */
+function supplierDrawer(row, tbl){
+  const isNew = !row, ed = can('partners.edit');
+  const b = openDrawer(isNew ? 'New supplier / factory' : row.code + ' · ' + row.name, formHtml([{ k: 'code', l: 'Code', ro: true, ph: 'given automatically (SUP-###)' }, { k: 'name', l: 'Name', req: true },
+    { k: 'kind', l: 'Type', t: 'select', opts: ['Factory', 'Supplier'], def: 'Supplier' }, { k: 'phone', l: 'Phone' }, { k: 'address', l: 'Address', full: true }, { k: 'active', l: 'Active (can be picked on a GRN)', t: 'check', def: true }], row || { active: true }, !ed));
+  if (!isNew) b.insertAdjacentHTML('beforeend', '<p class="muted" style="margin-top:14px">' + num(row.grns) + ' receipts · ' + num(row.qty) + ' pcs · last ' + esc(row.lastGrn || '—') + '</p>');
+  if (ed){ const sub = uuid(); footBtn(isNew ? 'Add supplier' : 'Save', 'pri', async () => { const r = await api('apiAdminSupplierSave', Object.assign(readForm(b), { submissionId: sub }));
+    if (!r || !r.ok) return toast((r && r.message) || 'Not saved', 'bad'); toast(r.message, 'ok'); closeDrawer(); tbl.reload(); }); }
+  footGrow(); footBtn('Close', '', closeDrawer);
+}
+VIEWS.suppliers = v => { const t = makeTable(v, { entity: 'suppliers', preset: S.preset, onRow: r => supplierDrawer(r, t), buttons: can('partners.edit') ? [{ l: '+ Add supplier', cls: 'pri', fn: () => supplierDrawer(null, t) }] : [] }); };
+
+/* ---------------------------------------------------------------- shops */
+async function areasOf(terr){
+  if (!terr) return []; const k = 'areas_' + terr; if (S.cache[k]) return S.cache[k];
+  const r = await api('apiAdminList', { entity: 'routes', f: { territory: '=' + terr }, size: 200 });
+  return (S.cache[k] = r && r.ok ? r.rows.map(x => x.area) : []);
+}
+async function shopDrawer(row, tbl, tab){
+  const isNew = !row, ed = can('shops.edit');
+  const b = openDrawer(isNew ? 'New shop' : row.id + ' · ' + row.shop, '', true);
+  const body = document.createElement('div'); let cur = tab || 'details';
+  const bar = document.createElement('div'); bar.className = 'tabs';
+  bar.innerHTML = '<button type="button" data-t="details">Details</button>' + (isNew ? '' : '<button type="button" data-t="ledger">Ledger</button><button type="button" data-t="orders">Orders</button>');
+  b.appendChild(bar); b.appendChild(body);
+  const draw = async () => {
+    $$('button', bar).forEach(x => x.classList.toggle('on', x.dataset.t === cur)); $('#dFoot').innerHTML = '';
+    if (cur === 'ledger'){ makeTable(body, { entity: 'ledger', dated: true, defFrom: '2020-01-01', x: { shop: row.id } }); footGrow(); footBtn('Close', '', closeDrawer); return; }
+    if (cur === 'orders'){ makeTable(body, { entity: 'orders', dated: true, defFrom: '2020-01-01', preset: { entity: 'orders', f: { shop: '=' + row.id }, from: '2020-01-01', to: S.boot.today } }); footGrow(); footBtn('Close', '', closeDrawer); return; }
+    const vals = Object.assign({ district: 'Dhaka', status: 'Approved', type: 'Tailor' }, row || {});
+    const areas = await areasOf(vals.territory);
+    const reps = S.boot.lists.reps.filter(x => !vals.territory || !x.territory || x.territory === vals.territory);
+    body.innerHTML = formHtml([{ k: 'id', l: 'Shop ID', ro: true, ph: 'given automatically (TLR-#####)' }, { k: 'shop', l: 'Shop name', req: true }, { k: 'owner', l: 'Owner' },
+      { k: 'mobile', l: 'Mobile', req: true, ph: '01XXXXXXXXX' }, { k: 'altMobile', l: 'Alternative mobile' }, { k: 'type', l: 'Type', t: 'select', opts: ['Tailor', 'Cloth shop', 'Boutique', 'Other'] },
+      { k: 'territory', l: 'Territory', t: 'select', req: S.boot.territoryOn, opts: [['', '— choose —']].concat(S.boot.lists.territories.map(t => [t.code, t.code + ' · ' + t.name])) },
+      { k: 'area', l: 'Area (route)', req: true, list: areas, help: 'Pick an area of the territory. A new name is added as an unrouted area for the ASM.' },
+      { k: 'rep', l: 'TSM', t: 'select', opts: [['', '— territory TSM —']].concat(reps.map(x => [x.id, x.id + ' · ' + x.name])) },
+      { k: 'status', l: 'Status', t: 'select', opts: S.boot.lists.shopStatuses }, { k: 'creditLimit', l: 'Credit limit ৳', t: 'number' }, { k: 'district', l: 'District' },
+      { k: 'address', l: 'Address', full: true }, { k: 'lat', l: 'Latitude', ph: '23.75…' }, { k: 'lng', l: 'Longitude', ph: '90.35…' }, { k: 'remarks', l: 'Remarks (needed to reject)', full: true }], vals, !ed);
+    if (!isNew) body.insertAdjacentHTML('beforeend', '<p class="muted" style="margin-top:14px">Outstanding <b>' + esc(money(row.outstanding)) + '</b> · overdue ' + esc(money(row.overdue)) + ' · risk ' + esc(row.risk) + ' · last visit ' + esc(row.lastVisit || '—') + ' · route ' + esc(row.routeDay || '—') + '</p>');
+    const ts = $('#f_territory', body); if (ts && ed) ts.onchange = async () => { vals.territory = ts.value; Object.assign(vals, readForm(body)); vals.rep = ''; draw(); };
+    if (ed){ const sub = uuid(); footBtn(isNew ? 'Add shop' : 'Save', 'pri', async () => { const r = await api('apiAdminShopSave', Object.assign(readForm(body), { isNew, submissionId: sub }));
+      if (!r || !r.ok) return toast((r && r.message) || 'Not saved', 'bad'); toast(r.message, 'ok', 7000); S.cache = {}; closeDrawer(); tbl.reload(); }); }
+    footGrow(); footBtn('Close', '', closeDrawer);
+  };
+  bar.onclick = e => { const x = e.target.closest('button[data-t]'); if (x){ cur = x.dataset.t; draw(); } };
+  draw();
+}
+VIEWS.shops = v => {
+  const t = makeTable(v, { entity: 'shops', preset: S.preset, onRow: r => shopDrawer(r, t),
+    buttons: can('shops.edit') ? [{ l: '+ Add shop', cls: 'pri', fn: () => shopDrawer(null, t) }, { l: 'Import', fn: () => openImport('shops', () => t.reload()) }] : [] });
+};
+
+/* ---------------------------------------------------------------- territories, routes */
+function territoryDrawer(row, tbl){
+  const isNew = !row, ed = can('territory.edit');
+  const whs = S.boot.lists.warehouses.filter(w => !w.central), asms = S.boot.lists.managers.filter(m => m.role === 'ASM');
+  const b = openDrawer(isNew ? 'New territory' : row.code + ' · ' + row.name, formHtml([{ k: 'code', l: 'Code', req: true, ro: !isNew, ph: 'MPR' }, { k: 'name', l: 'Name', req: true },
+    { k: 'warehouse', l: 'Warehouse (one per territory)', t: 'select', req: true, opts: [['', '— choose —']].concat(whs.map(w => [w.code, w.code + ' · ' + w.name])) },
+    { k: 'asm', l: 'ASM', t: 'select', opts: [['', '— none —']].concat(asms.map(m => [m.id, m.id + ' · ' + m.name])) }, { k: 'active', l: 'Active', t: 'check', def: true }], row || { active: true }, !ed));
+  if (!isNew) b.insertAdjacentHTML('beforeend', '<p class="muted" style="margin-top:14px">' + num(row.shops) + ' shops · ' + num(row.routes) + ' routes · ' + num(row.areas) + ' areas (' + num(row.unroutedAreas) + ' unrouted) · ' + num(row.staff) + ' staff. Staff are placed in a territory from Employees.</p>');
+  if (ed) footBtn(isNew ? 'Add territory' : 'Save', 'pri', async () => { const r = await api('apiTerritorySave', Object.assign(readForm(b), { action: 'save' }));
+    if (!r || !r.ok) return toast((r && r.message) || 'Not saved', 'bad'); toast(r.message, 'ok'); S.boot = (await api('apiAdminBoot')) || S.boot; closeDrawer(); tbl.reload(); });
+  footGrow(); footBtn('Close', '', closeDrawer);
+}
+async function routeBoard(host){
+  let terr = (S.boot.lists.territories[0] || {}).code || '';
+  const draw = async plan => {
+    if (!plan){ const r = await api('apiRoutes', { territory: terr }); if (!r || !r.ok){ host.innerHTML = '<div class="card">' + esc((r && r.message) || 'Route plan not available') + '</div>'; return; } plan = r; }
+    terr = plan.territory.code; const ce = plan.canEdit;
+    const routeOpts = plan.routes.map(x => [x.routeNo, 'R' + x.routeNo + ' ' + x.day.slice(0, 3)]).concat([['', 'Unrouted']]);
+    const areaRow = (a, rn) => '<div class="area" data-a="' + esc(a.name) + '"><span title="' + esc(a.name) + '">' + esc(a.name) + '</span><b>' + num(a.shops) + ' shop' + (a.shops === 1 ? '' : 's') + '</b>' +
+      (ce ? '<select data-mv title="Move to another route">' + optHtml(routeOpts, rn == null ? '' : rn) + '</select><button type="button" data-rn title="Rename">✎</button><button type="button" data-del title="Remove (only without shops)">×</button>' : '') + '</div>';
+    host.innerHTML = '<div class="tb"><label>Territory <select data-r="t">' + optHtml(plan.territories.map(t => [t.code, t.code + ' · ' + t.name]), terr) + '</select></label><span class="muted">ASM ' + esc(plan.territory.asmName || '—') +
+      ' · warehouse ' + esc(plan.territory.warehouse) + ' · Friday: ' + esc(plan.friday) + '</span><span class="grow"></span>' + (ce ? '' : '<span class="chip mut">read only</span>') + '</div>' +
+      '<div class="board">' + plan.routes.map(x => '<div class="rcol" data-r="' + x.routeNo + '"><h4>' + esc(x.day) + ' · R' + x.routeNo + '</h4><div class="rs">' + esc(x.name || '') + ' · ' + num(x.shops) + ' shops</div>' +
+        x.areas.map(a => areaRow(a, x.routeNo)).join('') + (ce ? '<div class="add"><input placeholder="New area" data-new><button class="btn sm" type="button" data-add>+</button></div>' : '') + '</div>').join('') +
+      '<div class="rcol un" data-r=""><h4>Unrouted</h4><div class="rs">' + num(plan.unroutedShops.length) + ' shops without a route day</div>' + plan.unroutedAreas.map(a => areaRow(a, null)).join('') +
+      (ce ? '<div class="add"><input placeholder="New area" data-new><button class="btn sm" type="button" data-add>+</button></div>' : '') + '</div></div>' +
+      (plan.unroutedShops.length ? '<div class="card" style="margin-top:12px"><h3>Shops without a route day</h3>' + plan.unroutedShops.map(s => '<span class="chip warn" style="margin:2px">' + esc(s.id + ' ' + s.shop + ' · ' + s.area) + '</span>').join('') + '</div>' : '');
+    $('[data-r=t]', host).onchange = e => { terr = e.target.value; draw(); };
+    const save = async p => { const r = await api('apiRouteSave', Object.assign({ territory: terr, submissionId: uuid() }, p)); if (!r || !r.ok) return toast((r && r.message) || 'Not saved', 'bad'); toast(r.message, 'ok'); S.cache = {}; draw(r.plan); };
+    $$('select[data-mv]', host).forEach(s => s.onchange = () => save({ action: 'moveArea', area: s.closest('.area').dataset.a, routeNo: s.value }));
+    $$('button[data-rn]', host).forEach(bn => bn.onclick = async () => { const a = bn.closest('.area').dataset.a, n = await ask('Rename area', 'New name for ' + a, true); if (n) save({ action: 'renameArea', area: a, name: n }); });
+    $$('button[data-del]', host).forEach(bn => bn.onclick = async () => { const a = bn.closest('.area').dataset.a; if (await confirmBox('Remove ' + a + '?', 'Only an area without shops can be removed. Use Merge in the phone app to move shops first.', 'Remove', true)) save({ action: 'deleteArea', area: a }); });
+    $$('button[data-add]', host).forEach(bn => bn.onclick = () => { const col = bn.closest('.rcol'), n = $('input[data-new]', col).value.trim(); if (n) save({ action: 'addArea', name: n, routeNo: col.dataset.r }); });
+  };
+  draw();
+}
+VIEWS.territories = (v, tab) => {
+  if (!S.boot.territoryOn){ v.innerHTML = '<div class="card">Territories (019) are not set up yet on this server.</div>'; return; }
+  const [sel, body] = tabs(v, [{ id: 'territories', l: 'Territories' }, { id: 'board', l: 'Route plan (Sat–Thu)' }, { id: 'routes', l: 'Areas list' }, { id: 'route_compliance', l: 'Route compliance' }], tab, 'territories');
+  if (sel.id === 'board') return routeBoard(body);
+  if (sel.id === 'route_compliance') return makeTable(body, { entity: 'route_compliance', dated: true, preset: S.preset, extras: [{ k: 'view', l: 'View', t: 'select', opts: [['route', 'By route'], ['day', 'By day'], ['tsm', 'By TSM'], ['area', 'By area']], def: 'route' }] });
+  if (sel.id === 'routes') return makeTable(body, { entity: 'routes', preset: S.preset });
+  const t = makeTable(body, { entity: 'territories', preset: S.preset, onRow: r => territoryDrawer(r, t), buttons: can('territory.edit') ? [{ l: '+ Add territory', cls: 'pri', fn: () => territoryDrawer(null, t) }] : [] });
+};
+
+/* ---------------------------------------------------------------- warehouses */
+function warehouseDrawer(row, tbl){
+  const isNew = !row, ed = can('inventory.edit');
+  const b = openDrawer(isNew ? 'New warehouse' : row.code + ' · ' + row.name, formHtml([{ k: 'code', l: 'Code', ro: true, ph: 'given automatically (WH-##)' }, { k: 'name', l: 'Name', req: true },
+    { k: 'type', l: 'Type', t: 'select', opts: ['Warehouse', 'Depot', 'Van'] }, { k: 'status', l: 'Status', t: 'select', opts: ['Active', 'Inactive'] },
+    { k: 'keeper', l: 'Store keeper', t: 'select', opts: [['', '— none —']].concat(S.boot.lists.keepers.map(k => [k.id, k.id + ' · ' + k.name])) }, { k: 'areas', l: 'Areas served (legacy, comma separated)' },
+    { k: 'address', l: 'Address', full: true }], row || { type: 'Warehouse', status: 'Active' }, !ed));
+  if (!isNew) b.insertAdjacentHTML('beforeend', '<p class="muted" style="margin-top:14px">' + (row.central ? '<span class="chip ok">Central inventory</span> receives from the factory and supplies the territory warehouses. ' : '') + num(row.onHand) + ' pcs on hand · ' + esc(money(row.value)) + ' at wholesale' + (row.territory ? ' · territory ' + esc(row.territory) : '') + '</p>');
+  if (ed) { const sub = uuid(); footBtn(isNew ? 'Add warehouse' : 'Save', 'pri', async () => { const r = await api('apiWarehouses', Object.assign(readForm(b), { action: 'save', isDefault: !!(row && row.isDefault), submissionId: sub }));
+    if (!r || !r.ok) return toast((r && r.message) || 'Not saved', 'bad'); toast(r.message || 'Saved.', 'ok'); closeDrawer(); tbl.reload(); }); }
+  footGrow(); footBtn('Close', '', closeDrawer);
+}
+VIEWS.warehouses = v => { const t = makeTable(v, { entity: 'warehouses', preset: S.preset, onRow: r => warehouseDrawer(r, t), buttons: can('inventory.edit') ? [{ l: '+ Add warehouse', cls: 'pri', fn: () => warehouseDrawer(null, t) }] : [] }); };
+
+/* ---------------------------------------------------------------- inventory */
+async function productList(){ if (S.cache.products) return S.cache.products; const r = await api('apiAdminList', { entity: 'products', size: 200, f: { status: '=Active' } }); return (S.cache.products = r && r.ok ? r.rows : []); }
+async function grnDrawer(tbl){
+  const prods = await productList(), sup = S.boot.lists.suppliers || [];
+  const b = openDrawer('New factory receipt (GRN) · central inventory', formHtml([{ k: 'supplier', l: 'Supplier / factory', t: 'select', opts: sup.length ? sup.map(s => [s.name, s.name + ' (' + s.kind + ')']) : [['', 'Factory (setting FACTORY_NAME)']] },
+    { k: 'refNo', l: 'Factory challan no.' }, { k: 'date', l: 'Date', t: 'date', def: S.boot.today }, { k: 'vehicle', l: 'Vehicle' }, { k: 'note', l: 'Note', full: true }], {}) +
+    '<h4 style="margin:18px 0 6px">Lines</h4><table class="lines" style="width:100%"><thead><tr><th>SKU</th><th style="width:90px">Qty</th><th style="width:130px">Batch / dye lot</th><th style="width:100px">Unit cost ৳</th><th></th></tr></thead><tbody data-r="ln"></tbody></table><button class="btn sm" type="button" data-r="add">+ line</button>', true);
+  const add = () => { const tr = document.createElement('tr'); tr.innerHTML = '<td><select data-l="sku"><option value="">— product —</option>' + prods.map(p => '<option value="' + esc(p.sku) + '">' + esc(p.sku + ' · ' + p.name) + '</option>').join('') + '</select></td><td><input data-l="qty" inputmode="numeric"></td><td><input data-l="batch" placeholder="= GRN no."></td><td><input data-l="unitCost" inputmode="numeric"></td><td><button class="x" type="button">×</button></td>'; $('button', tr).onclick = () => tr.remove(); $('[data-r=ln]', b).appendChild(tr); };
+  add(); add(); $('[data-r=add]', b).onclick = add; const sub = uuid();
+  footBtn('Receive into central', 'pri', async () => {
+    const p = readForm($('.form', b)), lines = $$('[data-r=ln] tr', b).map(tr => { const o = {}; $$('[data-l]', tr).forEach(i => o[i.dataset.l] = i.value.trim()); return o; }).filter(l => l.sku || l.qty);
+    const r = await api('apiGrnCreate', Object.assign(p, { lines, submissionId: sub })); if (!r || !r.ok) return toast((r && r.message) || 'Not saved', 'bad');
+    toast(r.message, 'ok', 8000); closeDrawer(); tbl.reload();
+  });
+  footGrow(); footBtn('Close', '', closeDrawer);
+}
+VIEWS.inventory = (v, tab) => {
+  const [sel, body] = tabs(v, [{ id: 'stock', l: 'Stock' }, { id: 'stock_ledger', l: 'Stock ledger' }, { id: 'grns', l: 'GRNs' }, { id: 'transfers', l: 'Transfers' }, { id: 'counts', l: 'Counts' }, { id: 'returns', l: 'Returns' }, { id: 'prqs', l: 'Production requests' }], tab, 'inventory');
+  const t = makeTable(body, { entity: sel.id, dated: sel.id !== 'stock', preset: S.preset,
+    buttons: sel.id === 'grns' && can('inventory.edit') ? [{ l: '+ New GRN', cls: 'pri', fn: () => grnDrawer(t) }] : [] });
+  if (sel.id !== 'stock') body.insertAdjacentHTML('afterbegin', '<p class="muted" style="margin:0 0 8px">Stock movements are made in the phone app (store keepers); this view is for checking and Excel. Open items stay listed whatever the dates.</p>');
+};
+
+/* ---------------------------------------------------------------- sales & finance */
+async function orderDrawer(row){
+  const b = openDrawer(row.orderNo + ' · ' + row.shopName, '<p class="muted">Loading…</p>', true);
+  const r = await api('apiOrderDoc', row.orderNo); footGrow(); footBtn('Close', '', closeDrawer);
+  if (!r || !r.ok){ b.innerHTML = '<div class="card">' + esc((r && r.message) || 'Could not load') + '</div>'; return; }
+  const o = r.order || {};
+  b.innerHTML = '<div class="form">' + [['Date', o.date], ['Status', o.status], ['Stage', o.stage], ['Terms', o.terms], ['TSM', o.rep], ['Due', o.due], ['Gross', money(o.gross)], ['Net', money(o.net)], ['Billed', money(o.billed)], ['Remarks', o.remarks]]
+    .map(([l, x]) => '<div class="fld"><label>' + esc(l) + '</label><div>' + esc(x == null || x === '' ? '—' : x) + '</div></div>').join('') + '</div>' +
+    '<table class="dt" style="margin-top:16px"><thead><tr><th>#</th><th>SKU</th><th>Product</th><th class="n">Qty</th><th class="n">Price</th><th class="n">Discount</th><th class="n">Net</th><th class="n">Delivered</th></tr></thead><tbody>' +
+    (r.lines || []).map(l => '<tr><td>' + l.sl + '</td><td>' + esc(l.sku) + '</td><td>' + esc(l.name) + '</td><td class="n">' + num(l.qty) + '</td><td class="n">' + esc(money(l.price)) + '</td><td class="n">' + esc(money(l.discount)) + '</td><td class="n">' + esc(money(l.net)) + '</td><td class="n">' + esc(l.delivered == null ? '—' : num(l.delivered)) + '</td></tr>').join('') + '</tbody></table>';
+}
+VIEWS.sales = (v, tab) => {
+  const [sel, body] = tabs(v, [{ id: 'orders', l: 'Orders' }, { id: 'collections', l: 'Collections' }, { id: 'adjustments', l: 'Adjustments' }, { id: 'outstanding', l: 'Outstanding' }, { id: 'aging', l: 'Aging' }, { id: 'ledger', l: 'Shop ledger' }, { id: 'sales', l: 'Sales summary' }], tab, 'sales');
+  const o = { entity: sel.id, dated: !['outstanding', 'aging'].includes(sel.id), preset: S.preset };
+  if (sel.id === 'orders') o.onRow = r => orderDrawer(r);
+  if (sel.id === 'ledger'){ o.extras = [{ k: 'shop', l: 'Shop ID', ph: 'TLR-00001 (blank = all)' }]; o.defFrom = '2020-01-01'; }
+  if (sel.id === 'sales') o.extras = [{ k: 'by', l: 'Group by', t: 'select', opts: [['day', 'Day'], ['month', 'Month'], ['rep', 'TSM'], ['territory', 'Territory'], ['route', 'Route'], ['area', 'Area'], ['shop', 'Shop'], ['sku', 'SKU'], ['fabric', 'Fabric'], ['colour', 'Colour']], def: 'day' }];
+  if (sel.id === 'collections' && can('finance.edit')) o.rowActions = r => r.verification !== 'Pending' ? [] : [
+    ['Verify', 'ok', async (x, t) => { const res = await api('apiVerifyCollection', x.colNo, 'Verified', ''); if (!res || !res.ok) return toast((res && res.message) || 'Failed', 'bad'); toast(res.message || x.colNo + ' verified.', 'ok'); t.reload(); }],
+    ['Reject', 'danger', async (x, t) => { const why = await ask('Reject ' + x.colNo, 'Reason (the collector sees it)', true); if (!why) return; const res = await api('apiVerifyCollection', x.colNo, 'Rejected', why); if (!res || !res.ok) return toast((res && res.message) || 'Failed', 'bad'); toast(res.message || x.colNo + ' rejected.', 'ok'); t.reload(); }]];
+  if (sel.id === 'adjustments' && can('finance.edit')) o.rowActions = r => r.approval !== 'Pending' ? [] : [
+    ['Approve', 'ok', async (x, t) => { const res = await api('apiAdminAdjustmentDecide', { adjNo: x.adjNo, decision: 'Approved', submissionId: uuid() }); if (!res || !res.ok) return toast((res && res.message) || 'Failed', 'bad'); toast(res.message, 'ok'); t.reload(); }],
+    ['Reject', 'danger', async (x, t) => { const why = await ask('Reject ' + x.adjNo, 'Reason', true); if (!why) return; const res = await api('apiAdminAdjustmentDecide', { adjNo: x.adjNo, decision: 'Rejected', remarks: why, submissionId: uuid() }); if (!res || !res.ok) return toast((res && res.message) || 'Failed', 'bad'); toast(res.message, 'ok'); t.reload(); }]];
+  makeTable(body, o);
+};
+
+/* ---------------------------------------------------------------- HR */
+VIEWS.hr = (v, tab) => {
+  const [sel, body] = tabs(v, [{ id: 'attendance', l: 'Attendance' }, { id: 'leaves', l: 'Leave requests' }, { id: 'payroll', l: 'Payroll', perm: 'payroll' }], tab, 'hr');
+  const o = { entity: sel.id, dated: sel.id !== 'payroll', preset: S.preset };
+  if (sel.id === 'payroll'){
+    o.extras = [{ k: 'month', l: 'Month', t: 'month', def: S.boot.today.slice(0, 7) }];
+    if (can('hr.edit')) o.buttons = [{ l: 'Save payroll for this month', cls: 'pri', fn: async t => { const m = t.st.x.month || S.boot.today.slice(0, 7);
+      if (!await confirmBox('Save payroll ' + m + '?', 'The month\'s payroll lines are calculated from attendance, leave, targets and salary and saved (a saved month is replaced).', 'Save payroll')) return;
+      const r = await api('apiSavePayroll', m); if (!r || !r.ok) return toast((r && r.message) || 'Failed', 'bad'); toast(r.message, 'ok', 8000); t.reload(); } }];
+  }
+  if (sel.id === 'leaves' && can('hr.edit')) o.rowActions = r => r.status !== 'Pending' ? [] : [
+    ['Approve', 'ok', async (x, t) => { const res = await api('apiDecideLeave', x.leaveNo, 'Approved', ''); if (!res || !res.ok) return toast((res && res.message) || 'Failed', 'bad'); toast(res.message, 'ok'); t.reload(); }],
+    ['Reject', 'danger', async (x, t) => { const why = await ask('Reject ' + x.leaveNo, 'Reason', true); if (!why) return; const res = await api('apiDecideLeave', x.leaveNo, 'Rejected', why); if (!res || !res.ok) return toast((res && res.message) || 'Failed', 'bad'); toast(res.message, 'ok'); t.reload(); }]];
+  makeTable(body, o);
+};
+
+/* ---------------------------------------------------------------- reports */
+const BY = [['day', 'Day'], ['month', 'Month'], ['rep', 'TSM'], ['territory', 'Territory'], ['route', 'Route'], ['area', 'Area'], ['shop', 'Shop'], ['sku', 'SKU'], ['fabric', 'Fabric'], ['colour', 'Colour']];
+const REPORTS = [
+  { g: 'Sales', id: 'sales', t: 'Sales summary', d: 'Confirmed sales grouped by day, month, TSM, territory, route, area, shop, SKU, fabric or colour.', perm: 'sales', x: [{ k: 'by', t: 'select', opts: BY, def: 'day' }] },
+  { g: 'Sales', id: 'orders', t: 'Order register', d: 'Every order with stage, discount approval, sales value and outstanding.', perm: 'sales' },
+  { g: 'Finance', id: 'collections', t: 'Collections', d: 'Payments with method, verification and collector.', perm: 'sales' },
+  { g: 'Finance', id: 'outstanding', t: 'Outstanding invoices', d: 'Open invoices as of today with days overdue and aging bucket.', perm: 'sales' },
+  { g: 'Finance', id: 'aging', t: 'Receivable aging by shop', d: 'Not due / 1–30 / 31–60 / 61–90 / 90+ days per shop.', perm: 'sales' },
+  { g: 'Finance', id: 'ledger', t: 'Shop ledger', d: 'Invoices, payments, adjustments and running balance.', perm: 'sales', x: [{ k: 'shop', t: 'text', ph: 'Shop ID (blank = all)' }], from: '2020-01-01' },
+  { g: 'Finance', id: 'adjustments', t: 'Returns and adjustments', d: 'Money adjustments with approval.', perm: 'sales' },
+  { g: 'Inventory', id: 'stock', t: 'Stock by warehouse', d: 'On hand by warehouse × SKU × batch with value.', perm: 'inventory' },
+  { g: 'Inventory', id: 'stock_ledger', t: 'Stock ledger', d: 'Every stock movement in the period.', perm: 'inventory' },
+  { g: 'Inventory', id: 'grns', t: 'GRN register', d: 'Factory / supplier receipts by line and batch, with corrections.', perm: 'inventory' },
+  { g: 'Inventory', id: 'transfers', t: 'Transfer register', d: 'Challans: sent, received, short / excess, resolution.', perm: 'inventory' },
+  { g: 'Inventory', id: 'returns', t: 'Shop returns', d: 'Returns with condition, reason and credit.', perm: 'inventory' },
+  { g: 'Inventory', id: 'counts', t: 'Stock counts', d: 'Count lines with variance and value.', perm: 'inventory' },
+  { g: 'Inventory', id: 'prqs', t: 'Production requests', d: 'Requests to the factory and what is still open.', perm: 'inventory' },
+  { g: 'HR', id: 'attendance', t: 'Attendance', d: 'Check-in / out, late minutes and hours per day.', perm: 'hr' },
+  { g: 'HR', id: 'leaves', t: 'Leave requests', d: 'All leave in the period (+ every pending request).', perm: 'hr' },
+  { g: 'HR', id: 'payroll', t: 'Payroll', d: 'Saved payroll of the month (or the live calculation).', perm: 'payroll', x: [{ k: 'month', t: 'month' }] },
+  { g: 'Territories', id: 'route_compliance', t: 'Route compliance', d: 'Planned vs visited shops per route day (019).', perm: 'territory', x: [{ k: 'view', t: 'select', opts: [['route', 'By route'], ['day', 'By day'], ['tsm', 'By TSM'], ['area', 'By area']], def: 'route' }] },
+  { g: 'Territories', id: 'routes', t: 'Routes and areas', d: 'The route plan as a list.', perm: 'territory' },
+  { g: 'Masters', id: 'products', t: 'Products', d: 'Catalogue with prices and stock.', perm: 'catalog' },
+  { g: 'Masters', id: 'employees', t: 'Employees', d: 'Staff list (salaries for HR / Super Admin / CEO).', perm: 'people' },
+  { g: 'Masters', id: 'shops', t: 'Shops', d: 'Shops with territory, route day, credit and dues.', perm: 'shops' },
+  { g: 'Masters', id: 'suppliers', t: 'Suppliers', d: 'Suppliers and factories.', perm: 'partners' },
+  { g: 'Masters', id: 'warehouses', t: 'Warehouses', d: 'Warehouses with keeper and stock value.', perm: 'inventory' },
+  { g: 'Admin', id: 'audit', t: 'Audit log', d: 'Who changed what, when.', perm: 'audit' }
+];
+VIEWS.reports = v => {
+  const list = REPORTS.filter(r => can(r.perm)), groups = Array.from(new Set(list.map(r => r.g)));
+  v.innerHTML = '<p class="muted">Each report downloads as an Excel file (.xlsx): one sheet with the data (filters, frozen header, totals) and an "About" sheet with the period and who made it. Big periods are fetched in parts.</p>' +
+    groups.map(g => '<div class="rgh">' + esc(g) + '</div><div class="rgrid">' + list.filter(r => r.g === g).map(r => '<div class="rcard" data-id="' + r.id + '"><h4>' + esc(r.t) + '</h4><p>' + esc(r.d) + '</p><div class="ps">' +
+      (entityDated(r.id) ? '<input type="date" data-p="from" value="' + esc(r.from || S.boot.monthStart) + '"><input type="date" data-p="to" value="' + esc(S.boot.today) + '">' : '') +
+      (r.x || []).map(x => x.t === 'select' ? '<select data-p="' + x.k + '">' + optHtml(x.opts, x.def) + '</select>' : '<input data-p="' + x.k + '" type="' + (x.t === 'month' ? 'month' : 'text') + '"' + (x.t === 'month' ? ' value="' + S.boot.today.slice(0, 7) + '"' : '') + (x.ph ? ' placeholder="' + esc(x.ph) + '"' : '') + '>').join('') +
+      '</div><div><button class="btn pri" type="button" data-dl>⬇ Download Excel</button></div></div>').join('') + '</div>').join('');
+  $$('.rcard', v).forEach(c => $('[data-dl]', c).onclick = e => { const r = REPORTS.find(x => x.id === c.dataset.id), p = {}; $$('[data-p]', c).forEach(i => { if (i.value) p[i.dataset.p] = i.value; });
+    exportXlsx(r.id, p, r.t + (p.by ? ' by ' + p.by : p.view ? ' by ' + p.view : ''), e.target); });
+};
+
+/* ---------------------------------------------------------------- settings + audit */
+VIEWS.settings = async v => {
+  v.innerHTML = '<p class="muted">Company settings used by the phone app and the server. ' + (can('settings.edit') ? 'Change a value and press Save on that row; every change is kept in the audit log.' : 'Read only for your role.') + '</p><div data-r="g">Loading…</div>';
+  const r = await api('apiAdminList', { entity: 'settings', size: 200 }); if (!r || !r.ok){ $('[data-r=g]', v).textContent = (r && r.message) || 'Could not load'; return; }
+  const groups = Array.from(new Set(r.rows.map(x => x.group))), ed = can('settings.edit');
+  const editor = s => { const dis = (!ed || s.kind === 'readonly') ? ' disabled' : '';
+    if (s.kind === 'yesno') return '<select data-v' + dis + '>' + optHtml(['Yes', 'No'], s.value) + '</select>';
+    if (s.kind === 'map') return '<select data-v' + dis + '>' + optHtml(['OSM', 'GOOGLE'], s.value) + '</select>';
+    if (s.kind === 'colour') return '<input type="color" data-v value="' + esc(s.value) + '"' + dis + '>';
+    if (s.kind === 'time') return '<input type="time" data-v value="' + esc(s.value) + '"' + dis + '>';
+    return '<input data-v value="' + esc(s.value) + '"' + (s.kind === 'number' ? ' inputmode="decimal"' : '') + dis + '>'; };
+  $('[data-r=g]', v).innerHTML = groups.map(g => '<div class="card" style="margin-bottom:14px"><h3>' + esc(g) + '</h3>' + r.rows.filter(x => x.group === g).map(s =>
+    '<div class="srow" data-key="' + esc(s.key) + '"><div><code>' + esc(s.key) + '</code></div><div class="d">' + esc(s.description) + '</div><div>' + editor(s) + '</div><div>' +
+    (ed && s.kind !== 'readonly' ? '<button class="btn sm pri" type="button" data-save>Save</button>' : s.kind === 'readonly' ? '<span class="chip mut">system</span>' : '') + '</div></div>').join('') + '</div>').join('');
+  $$('[data-save]', v).forEach(b => b.onclick = async () => { const row = b.closest('.srow'), key = row.dataset.key, val = $('[data-v]', row).value;
+    b.disabled = true; const res = await api('apiAdminSettingSave', { key, value: val, submissionId: uuid() }); b.disabled = false;
+    if (!res || !res.ok) return toast((res && res.message) || 'Not saved', 'bad'); toast(res.message, 'ok'); });
+};
+VIEWS.audit = v => { makeTable(v, { entity: 'audit', dated: true, defFrom: period('7')[0], preset: S.preset }); };
+
+/* ======================================================================= login / boot / shell */
+function showLogin(msg){ $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); $('#lStep1').classList.remove('hidden'); $('#lStep2').classList.add('hidden'); $('#lErr').textContent = msg || ''; $('#lEmp').focus(); }
+function showChangePin(){ $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); $('#lStep1').classList.add('hidden'); $('#lStep2').classList.remove('hidden'); $('#cErr').textContent = ''; $('#cOld').focus(); }
+async function logout(silent){ if (S.tok && !silent) await rpc('apiLogout', [S.tok]); S.tok = ''; S.boot = null; sessionStorage.removeItem(TOKEN_KEY); closeDrawer(); showLogin(silent ? 'Please log in again.' : ''); }
+async function boot(){
+  const r = await rpc('apiAdminBoot', [S.tok]);
+  if (!r || !r.ok){ S.tok = ''; sessionStorage.removeItem(TOKEN_KEY); showLogin((r && r.message) || 'Could not open the admin panel.'); return; }
+  S.boot = r;
+  if (r.mustChangePin) return showChangePin();
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+  $('#tCo').textContent = r.company.name; $('#lCo').textContent = r.company.name; $('#tName').textContent = r.user.name; $('#tRole').textContent = r.user.empId + ' · ' + r.roleLabel;
+  $('#tAv').textContent = ((r.user.name || '?').split(/\s+/).filter(x => /^[A-Za-z\u0980-\u09FF]/.test(x)).map(x => x[0]).slice(0, 2).join('') || '?').toUpperCase();
+  $('#tDate').textContent = new Date(r.today + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+  let g = '', html = '<div class="brand">' + esc(r.company.name) + '<small>Distribution admin</small></div>';
+  PAGES.filter(p => can(p.perm)).forEach(p => { if (p.g !== g){ g = p.g; html += '<div class="grp">' + esc(g) + '</div>'; } html += '<a class="nav" href="#' + p.id + '" data-p="' + p.id + '"><i>' + p.i + '</i>' + esc(p.l) + '</a>'; });
+  $('#side').innerHTML = html;
+  route();
+}
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault(); const b = $('#lBtn'); b.disabled = true; $('#lErr').textContent = '';
+  const r = await rpc('apiLogin', [$('#lEmp').value.trim().toUpperCase(), $('#lPin').value, 'admin-desktop ' + navigator.userAgent.slice(0, 80)]);
+  b.disabled = false;
+  if (!r || !r.ok){ $('#lErr').textContent = (r && r.message) || 'Login failed'; return; }
+  S.tok = r.token; sessionStorage.setItem(TOKEN_KEY, r.token); $('#lPin').value = '';
+  if (r.mustChangePin){ S.boot = null; return showChangePin(); }
+  boot();
+};
+$('#cBtn').onclick = async () => {
+  const o = $('#cOld').value, n = $('#cNew').value, n2 = $('#cNew2').value;
+  if (!/^\d{4,8}$/.test(n)) return $('#cErr').textContent = 'The new PIN must be 4 to 8 digits.';
+  if (n !== n2) return $('#cErr').textContent = 'The two new PINs are not the same.';
+  const r = await rpc('apiChangePin', [S.tok, o, n]);
+  if (!r || !r.ok){ $('#cErr').textContent = (r && r.message) || 'PIN not changed'; if (r && r.code === 'AUTH') logout(true); return; }
+  ['#cOld', '#cNew', '#cNew2'].forEach(s => $(s).value = ''); toast('PIN changed.', 'ok'); boot();
+};
+$('#outBtn').onclick = () => logout(false);
+$('#pinBtn').onclick = () => showChangePin();
+$('#menuBtn').onclick = () => $('#side').classList.toggle('open');
+$('#dClose').onclick = closeDrawer; $('#shade').onclick = closeDrawer;
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ if (!$('#modal').classList.contains('hidden')) return; closeDrawer(); } });
+window.addEventListener('hashchange', route);
+if (S.tok) boot(); else showLogin(SUPA_KEY ? '' : 'This page is not built yet (Supabase key missing).');
+</script>
+</body>
+</html>
